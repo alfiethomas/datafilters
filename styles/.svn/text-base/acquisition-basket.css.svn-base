@@ -1,0 +1,158 @@
+#panel { padding-top: 64px; }
+/*
+=====
+TABLE
+=====
+*/
+#orderItemsTable {
+	margin-bottom: 20px;
+	width: 100%;
+	_width: auto;
+	_font-family: Verdana, Geneva, sans-serif;
+	_font-size: 1em;
+}
+#orderItemsTable th {
+	color: #000;
+	padding: 0 10px 12px 10px;
+	text-align: right;
+}
+#orderItemsTable th.itemHeading {
+	text-align: left;
+}
+#orderItemsTable h4 { margin-bottom: 5px; }
+#orderItemsTable td {
+	padding: 10px 0 10px 10px;
+	vertical-align: top;
+}
+#orderItemsTable .itemColumn {
+	background: #f0f0f0 url(../images/basketTable-separator.gif) repeat-y right 10px;
+	padding: 10px 10px 3px 10px;
+	border-radius: 4px 0 0 4px;
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+	-khtml-border-radius: 4px 0 0 4px;
+}
+#orderItemsTable .monthlyPayColumn {
+	width: 17%;
+	background: #f0f0f0 url(../images/basketTable-separator.gif) repeat-y right 10px;
+}
+#orderItemsTable .onetimePayColumn {
+	width: 17%;
+	background-color: #f0f0f0;
+	border-radius: 0 4px 4px 0;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+	-khtml-border-radius: 0 4px 4px 0;
+}
+#orderItemsTable .deposit td { background-color: #e5f2f2; }
+#orderItemsTable .spacer { height: 11px; }
+#orderItemsTable .spacer td { padding: 0; }
+#orderItemsTable .spacerLarge div.leftSide {
+	background: transparent url(../images/basketTotals-separator-left.gif) no-repeat bottom left;
+	width: 20px;
+	height: 18px;
+	margin: 20px 0 30px 0;
+}
+#orderItemsTable .spacerLarge td.rightSide {
+	background: transparent url(../images/basketTotals-separator-right.gif) no-repeat right 20px;
+	padding: 0;
+}
+#orderItemsTable .cost {
+	display: block;
+	text-align: right;
+	color: #017f7d;
+	font-weight: bold;
+	margin: 0 10px 0 0;
+}
+#orderItemsTable .totals td { padding: 0; }
+#orderItemsTable .totals .title {
+	color: #000;
+	font-weight: bold;
+	text-align: right;
+	margin-right: 4px;
+}
+#orderItemsTable .totals .cost { margin: 0 10px 8px 0; }
+#orderItemsTable .addThis {
+	display: block;
+	background: transparent url(../images/add-insurance.png) no-repeat top left;
+	padding: 5px 0 0 30px;
+	height: 25px;
+	margin-top: 10px;
+}
+#orderItemsTable .innerSpace {
+	margin-bottom: 0;
+	height: 5px;
+}
+/*
+===========
+INFO PANELS
+===========
+*/
+.infoContainer {
+	margin: 0 0 20px 0;
+	background: #24246c url(../images/icon-info.gif) no-repeat 16px 50%;
+	_position: relative;
+}
+.infoContainerSmall {
+	margin: 0 0 10px 0;
+	background: #24246c url(../images/icon-info-small.gif) no-repeat 10px 50%;
+}
+.infoContainer,
+.infoContainerSmall {
+	-webkit-border-radius: 4px 6px 6px 4px;
+	-moz-border-radius: 4px 6px 6px 4px;
+	border-radius: 4px 6px 6px 4px;
+}
+.infoContainerArrow {
+	display: inline-block;
+	background: url(../images/info-arrow-up.gif) no-repeat 16px top;
+	padding-top: 5px;
+}
+.infoContainer .infoMessage,
+.infoContainerSmall .infoMessage {
+	background-color: #ddd;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+	border-radius: 0 4px 4px 0;
+}
+.infoContainer .infoMessage {
+	margin: 0 0 0 62px;
+	padding: 12px 0 6px 0;
+}
+.infoContainerSmall .infoMessage {
+	margin: 0 0 0 37px;
+	padding: 7px 0 3px 0;
+}
+.infoContainer ul,
+.infoContainerSmall ul {
+	color: #000;
+	margin: 0 10px !important;
+	list-style-type: none;
+}
+/*
+====
+MISC
+====
+*/
+.genericInfo {
+	background-color: #ECF7FE;
+	border-radius: 4px 4px 4px 4px;
+	margin-bottom: 20px;
+	padding: 8px 10px 1px;
+}
+#buttonRow { _display: inline-block; }
+#buttonRow input { margin-bottom: 0; }
+.removeLinkWrapper { margin-bottom: 0; }
+.removeItem {
+	cursor: pointer;
+	background: url(../images/remove-icon.gif) no-repeat 0 center;
+	padding-left: 24px;
+	display: inline-block;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+}
+.totals .removeItem {
+	margin-left: 10px;
+}

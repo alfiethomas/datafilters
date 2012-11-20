@@ -1,0 +1,12 @@
+#handsetList li {
+    margin: 0 1% 20px;
+}
+#handsetList li img {
+	float: left;
+	width: 50%;
+}
+.handset-details-wrapper {
+	float: left;
+	width: 50%;
+	text-align: left;
+}

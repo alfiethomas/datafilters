@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DataFilter - Debug QUnit Tests</title>
+  <link rel="stylesheet" href="styles/nouislider.css" type="text/css" />  
+  <link rel="stylesheet" href="styles/style.css"       type="text/css" />  
+</head>
+<body>
+  <div id="qunit"></div>
+  <script type="text/javascript" src="scripts/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="scripts/jquery.nouislider.min.js"></script>
+  <script type="text/javascript" src="scripts/application2.js"></script>
+  <script src="qunit/testSetUp.js"></script>  
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      if (getParameter("list")) {
+        setUpList();
+        initDataFilterForList(getSortingDropdownItems());
+
+      } else if (getParameter("custom")) {
+        setUpTable();
+        initDataFilterForTableWithCustomTextExtract(getSortingDropdownItems());
+        
+      } else {
+        setUpTable();
+        initDataFilterForTable(function() { 
+          $('#filters').prepend($(document.createElement('label')).prop("id", "success").text("success"));
+        });        
+      }
+    });
+  </script>
+</body>
+</html>

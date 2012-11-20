@@ -1,0 +1,55 @@
+/*
+=========
+HOME PAGE
+=========
+*/
+#homepage-menu-wrapper {
+	width: 100%;
+	_margin-bottom: 30px;
+}
+#homepage-menu {
+	list-style: none;
+	overflow: hidden;
+	margin: 0 3px 30px 3px;	
+}
+#homepage-menu li {
+	float: left;	
+	margin: 0 3px 6px 3px;
+}
+#homepage-menu li a {
+	color: #fff;
+	display: block;
+	width: 98px;
+	height: 98px;
+}
+#homepage-menu li a span {
+	display: block;
+	padding: 7px;
+}
+#homepage-menu li a.phones {
+	background: url("../images/homepage/thumbnail-phones.jpg") repeat-x;
+}
+#homepage-menu li a.tariffs {
+	background: url("../images/homepage/thumbnail-tariffs.jpg") repeat-x;
+}
+#homepage-menu li a.accessories {
+	background: url("../images/homepage/thumbnail-accessories.jpg") repeat-x;
+}
+#homepage-menu li a.o2Recycle {
+	background: url("../images/homepage/thumbnail-o2Recycle.jpg") repeat-x;
+}
+#homepage-menu li a.mobileBroadband {
+	background: url("../images/homepage/thumbnail-mobileBroadband.jpg") repeat-x;
+}
+#homepage-menu li a.homePhone {
+	background: url("../images/homepage/thumbnail-homePhone.jpg") repeat-x;
+}
+#homepage-menu li a.o2Money {
+	background: url("../images/homepage/thumbnail-o2Money.jpg") repeat-x;
+}
+#homepage-menu li a.upgrades {
+	background: url("../images/homepage/thumbnail-Upgrades.jpg") repeat-x;
+}
+#homepage-menu li a.tablets {
+	background: url("../images/homepage/thumbnail-Tablets.jpg") repeat-x;
+}

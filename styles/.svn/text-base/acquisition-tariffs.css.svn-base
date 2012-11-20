@@ -1,0 +1,253 @@
+/*
+==============
+TARIFF TABLE
+==============
+*/
+#sortBy {
+	margin-bottom: 10px;
+}
+#tariffExtraInfoLinks {
+	float: right;
+	margin-bottom: 10px;
+}
+#tariffExtraInfoLinks a {
+	font-weight: bold;
+}
+#tariffExtraInfoLinks .altHiddenTxt {
+	position: absolute;
+	margin-left: -9999px;
+}
+#tariffTable {
+	font-size: 1em;
+	float: left;
+	width: 100%;
+	_width: 97%;
+}
+#tariffTable th {
+	background-color: #ccc;
+	text-align: left;
+}
+#tariffTable td {
+	background-color: #fafafa;
+	border-bottom: 1px solid #ccc;
+}
+#tariffTable th, #tariffTable td {
+	padding: 5px 0.5%;
+}
+#tariffTable .monthlyCost {
+	font-weight: bold;
+}
+#tariffTable .planDetails, #tariffTable .showPhones {
+	display: inline-block;
+	width: auto;
+}
+#tariffTable tr.hiddenRow td {
+	padding: 0;
+}
+#tariffTable .showPhones {
+	padding-bottom: 3px;
+}
+#tariffTable .showPhonesSelected {
+	background-color: #dbd5e6;
+	position: relative;
+}
+#tariffTable ul.supportedPhones {
+	list-style: none;
+	overflow: hidden;	
+	background-color: #dbd5e6;
+	margin: -6px 0 0 0;    
+	position: relative;
+	zoom: 1;
+}
+#tariffTable ul.supportedPhones li {
+	float: left;
+	padding: 0 1%;
+    width: 14%;
+	min-height: 170px;
+	height: auto !important;
+	height: 170px;
+}
+#tariffTable ul.supportedPhones li.title {
+	background-color: #ABCDEF;
+    float: left;
+    font-weight: bold;
+    margin: 1%;
+    min-height: 0;
+	_height: 20px;
+    text-align: center;
+    width: 98%;
+	padding: 0;
+}
+#tariffTable ul.supportedPhones li span {
+	display: block;
+	font-size: 0.916em;
+}
+#tariffTable ul.supportedPhones li span.phonePrice {
+	font-weight: bold;
+}
+/* tariff table column width classes */
+#tariffTable .col1 {
+	width: 9%;
+}
+#tariffTable .col2 {
+	width: 11%;
+}
+#tariffTable .col3 {
+	width: 8%;
+}
+#tariffTable .col4 {
+	width: 8%;
+}
+#tariffTable .col5 {
+	width: 9%;
+}
+#tariffTable .col6 {
+	width: 10%;
+}
+#tariffTable .col7 {
+	width: 11%;
+}
+#tariffTable .col8 {
+	width: 18%;
+}
+#tariffTable .col9 {
+	width: 7%;
+}
+/* classes relating to dataTable */
+.dataTables_length, .dataTables_filter {
+	display: none;
+}
+.dataTables_paginate a {
+	margin-right: 10px;
+	cursor: pointer;
+}
+/*
+============
+Tariff tabs
+============
+*/
+#tariffTabs {
+	float: left;
+	width: 100%;
+	_width: 97%;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #959595;
+}
+#tariffTabs ul {
+	list-style: none;
+}
+#tariffTabs ul li {
+	float: left;
+	margin-right: 1px;
+	margin-bottom: 0;
+	position: relative;
+	top: 2px;
+	min-height: 62px;
+	height:auto !important;
+	height: 62px;
+	width: 147px;
+	background: url("../images/tariffTabs-bg.jpg") no-repeat 0 -64px transparent;
+}
+#tariffTabs ul li.active {
+	background: url("../images/tariffTabs-bg.jpg") no-repeat 0 0 transparent;
+	min-height: 64px;
+	height:auto !important;
+	height: 64px;
+	top: 1px;
+}
+#tariffTabs ul li a {	
+	font-size: 1.5em;
+	font-weight: bold;
+	line-height: 1.05;	
+	color: #0086c3;	
+	display: block;
+	padding: 16px 22px 0 22px;
+}
+#tariffTabs ul li.active a {	
+	color: #333;	
+}
+#tariffTabs ul li a:hover {
+	text-decoration: none;
+}
+/*
+=========================
+DIAlOG BOX
+=========================
+*/
+/* data usage details & plan details popup content */
+#planDetailsPopupClose, #dataUsagePopupClose {
+	font-weight: bold;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+#planDetailsPopupContent, #dataUsagePopupContent {
+	background-color: #fff;
+	text-align: left;
+	padding: 30px 0;
+	font-size: 0.916em;
+}
+#planDetailsPopupContent table {
+	margin-bottom: 20px;
+	border: 1px solid #aaa;	
+	_font-size: 1em;
+}
+#planDetailsPopupContent table td {
+	border: 1px solid #aaa;
+	padding: 1px;
+}
+#planDetailsPopupContent h4, #dataUsagePopupContent h4 {
+	margin-bottom: 5px;
+}
+.dataUsageSection {
+	margin-bottom: 20px;
+}
+/* NYRO MODAL specific classes */
+.nyroModalBg {
+	position: fixed;
+	_position: absolute;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: #000;
+	opacity: 0.7;
+}
+.nmReposition {
+	position: absolute;
+}
+.nyroModalCloseButton {
+	top: -13px;
+	right: -13px;
+	width: 12px;
+	height: 12px;
+	text-indent: -9999em;
+	z-index: 999999;
+	/*background: url(../img/close.gif);*/
+	display: none;
+}
+.nyroModalTitle {
+	top: -26px;
+	left: 0;
+	margin: 0;
+    font-size: 1.1em;
+	color: #ddd;
+}
+.nyroModalCont {
+	position: absolute !important;
+	border: 4px solid #777;
+	margin: 25px;
+	background: #fff;
+}
+.nyroModalCont iframe {
+	width: 600px;
+	height: 400px;
+}
+.nyroModalLink, .nyroModalDom, .nyroModalForm, .nyroModalFormFile {
+	position: relative;
+	padding: 10px;
+	min-height: 250px;
+	min-width: 250px;
+	max-width: 900px;
+}

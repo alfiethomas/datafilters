@@ -1,0 +1,120 @@
+/*
+==============
+FONTS & BASICS
+==============
+*/
+body { background: #fff url("../images/bg-gradient.png") repeat-x scroll left top; }
+h2 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+}
+/*
+======
+HEADER
+======
+*/
+/*
+======
+HEADER
+======
+*/
+#header { display: none; }
+#headerMob {
+	display: block;
+	width: 100%;
+}
+/* --- quick links -- */
+#headerMob #quickLinksMob {
+	float: none;
+	text-align: right;
+	color: #fff;
+}
+#headerMob #quickLinksMob ul { margin: 0; }
+#headerMob #quickLinksMob ul li {
+	list-style: none;
+	margin: 3px 10px 0 0;
+	padding: 0;
+}
+#headerMob #quickLinksMob a {
+	color: #fff;
+	font-size: 0.900em;
+}
+/* --- logo -- */
+#headerMob a#logo-m { float: left; }
+#headerMob a#logo-m img { margin-left: 12px; }
+#headerMob a span.O2 {
+	position: absolute;
+	top: -1000px;
+}
+/* --- navigation --- */
+#headerMob .mobileNavContainer {
+	display: block;
+	margin: 0 8px 6px;
+	padding-bottom: 12px;
+	background: url(../images/header-separator-mobile.gif) repeat-x bottom left;
+}
+#headerMob .mobileNavContainer ul {
+	margin: 0;
+	padding: 0;
+	margin-left: 53px; /* width of logo and any margin */
+}
+#headerMob .mobileNavContainer li {	
+	padding: 0;
+	list-style-type: none;
+	float: left;
+	width: 33%;
+	text-align: center;
+	margin: 12px 0 0 0;
+}	
+#headerMob .mobileNavContainer li a {
+	color: #81cbfc;
+	font-size: 1.350em;
+}
+#headerMob .mobileNavContainer li a:hover{
+	color: #98d3fb;
+	text-decoration: none;
+}
+/*
+======
+LAYOUT
+======
+*/
+#wrapper {
+	min-width: 320px;
+}
+#container {	
+	padding-bottom: 30px;
+}
+#containerInner {
+	border-bottom: 1px solid #BFBFBF;
+}
+#panel {
+	padding: 20px 0 0 0;
+	margin-bottom: 30px;
+}
+/*
+======
+FOOTER
+======
+*/
+#footer {
+	display: none;
+}
+#branding {
+	padding-bottom: 30px;
+}
+#branding .logo {
+	margin: 0 0 0 5px;
+	width: 91px;
+}
+#branding img {
+	width: 100%;
+	height: auto;
+}
+#branding p {
+	margin: 0 5px;
+    padding: 0 0 0 91px;
+}
+#branding p a {
+	display: block;
+}

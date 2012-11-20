@@ -1,0 +1,162 @@
+/* 
+================
+Selected Handset 
+================
+*/
+#selectedHandset {
+	background-color: #deebf6;
+	margin: 0 7px 30px 7px;
+	padding: 7px 10px 5px 10px;
+}
+#selectedHandset .handsetImg {
+	float: left;
+	background: url("../images/handset-shadow-small.png") no-repeat scroll center bottom transparent;
+	padding: 0 5px 7px 5px;
+}
+#selectedHandset .handsetDetails {
+	padding: 10px 7px 0 80px;
+}
+#selectedHandset .handsetDetails p {
+	color: #26225B;
+}
+/* tariff info */
+#tariffInfo {
+	margin: 0 7px 20px 7px;
+}
+#tariffInfo a.link {
+	display: block;
+	background: url("../images/link-chevron.gif") no-repeat scroll 0 8px transparent;
+	margin: 15px 0;
+}
+/*
+=======
+FILTERS
+=======
+*/
+#filters {
+	margin: 0 7px 20px 7px;
+	border: 2px solid #bfc2c7;
+	padding: 10px;
+}
+#filters label {
+	color: #005896;
+	font-weight: bold;
+	margin-right: 5px;
+}
+#filters select {
+	padding: 2px 0 2px 2px;
+}
+/*
+===========
+TARIFF LIST
+===========
+*/
+#tariffList {
+	list-style: none;
+	margin: 0 7px;
+	overflow: hidden;
+	_position: relative;
+	_float: left;
+	_width: 96%;
+	_margin: 0 1%;
+}
+#tariffList li {
+	display: block;
+	_float: left;
+	margin-bottom: 10px;
+	background: url("../images/row-shadow-left.jpg") no-repeat scroll bottom left transparent;
+}
+.tariffWrapper {
+	padding: 0 4px 21px 4px;
+	_padding: 0 0 21px 0;
+	background: url("../images/row-shadow-right.jpg") no-repeat scroll bottom right transparent;
+}
+#tariffList .tariffDetails {
+	float: left;
+    width: 75%;
+	_width: 74%;
+	margin-right: 1%;
+}
+#tariffList .tariffPlanIcon {
+	float: right;
+    width: 24%;
+	text-align: center;
+}
+#tariffList .tariffPlanIcon .tariffPlanWrapper {
+	float: right;
+}
+#tariffList .tariffPlanIcon img {
+	margin: 9px 0 6px 0;
+}
+#tariffList .tariffPlanIcon p {
+	color: #0E7CB3;
+	font-size: 0.833em;
+	line-height: 1.1;
+}
+#tariffList .tariffPlanIcon p span.featureTariff {
+	display: block;
+}
+#tariffList .price {
+	color: #26225b;
+}
+#tariffList .price .pound {
+	font-size: 1.916em; /* 23px */
+}
+#tariffList .price .value {
+	font-size: 3.083em; /* 37px */
+	letter-spacing: -1px;
+}
+#tariffList .price .wrapper {
+	float: left;	
+}
+#tariffList .price .month {
+	font-size: 1em;
+	color: #0E7CB3;
+	text-align: right;
+	line-height: 0.5;
+	*line-height: 0.8;
+}
+#tariffList .tenure {
+	color: #616A74;
+	margin: 15px 0 12px 0;
+	line-height: 1.4;
+}
+#tariffList .mins, #tariffList .text, #tariffList .data {
+	padding: 4px 0 9px 30px;
+	margin-bottom: 0;
+	line-height: 1.3
+}
+#tariffList .mins {
+	background: url("../images/tariff-icons.gif") no-repeat scroll 0 2px transparent;
+}
+#tariffList .mins span {
+	color: #26225b;
+}
+#tariffList .text {
+	background: url("../images/tariff-icons.gif") no-repeat scroll 0 -64px transparent;
+}
+#tariffList .text span {
+	color: #005896;
+}
+#tariffList .data {
+	background: url("../images/tariff-icons.gif") no-repeat scroll 0 -130px transparent;
+	margin-bottom: 5px;
+}
+#tariffList .data span {
+	color: #0E7CB3;
+}
+#tariffList .dataInfo a.link {
+	font-size: 0.916em;
+}
+#tariffList .extras {
+	margin-bottom: 15px;
+}
+#tariffList .extras p {
+	color: #616a74;
+	font-size: 0.916em;
+	line-height: 1.3;
+	margin-bottom: 0;
+}
+#tariffList .buttonRow input {
+	margin: 0;
+}

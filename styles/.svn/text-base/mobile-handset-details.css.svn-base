@@ -1,0 +1,130 @@
+/* handset carousel */
+.handsetGallery .carousel-item {
+	width: 150px;
+	margin: 0 auto 10px auto;
+	background: url("../images/handset-shadow.png") no-repeat scroll center bottom transparent;
+	padding-bottom: 10px;
+}
+/* key handset feature list */ 
+#keyFeatures {
+	list-style-type: none;	
+	margin: 0 7px 30px 14px;
+}
+#keyFeatures li {
+	display: block;
+	background: url("../images/bullet.gif") no-repeat scroll 0 6px transparent;
+	padding-left: 10px;
+	line-height: 1.2;
+	color: #26225b;
+	margin-bottom: 5px;
+}
+/*
+#promotions .promo-regBg {
+	float: left;
+	_float: none;
+	width: 100%;
+	margin-bottom: 5px;
+    margin-left: -7px;
+}
+#promotions .promoHeadline {
+	float: left;
+	min-width: 185px;
+	_width: auto;
+	min-height: 20px; 
+	height: auto !important; 
+	height: 20px;
+	font-size: 1.1em;
+	font-weight: bold;
+	line-height: 1.55;    
+	background: url("images/promo-arrow.gif") no-repeat scroll top right #b80020;
+	background-size: auto 100%;
+	color: #fff;
+	padding: 0 20px 0 15px;	
+}
+*/
+/* overview tab content */
+#overviewList {
+	margin: 0 7px 30px 7px;
+	list-style: none;
+}
+#overviewList li {
+	display: block;
+	margin-bottom: 10px;	
+	background: url("../images/row-shadow-left.jpg") no-repeat scroll bottom left transparent;
+}
+#overviewList li .wrapper {
+	background: url("../images/row-shadow-right.jpg") no-repeat scroll bottom right transparent;
+	padding-bottom: 6px;
+	min-height: 97px;
+	height: auto !important;
+	height: 97px;
+}
+#overviewList li img {
+	float: left;
+    margin: 0 4px;
+}
+#overviewList li .description {
+	padding: 0 0 7px 98px;
+}
+#overviewList li .description p {
+	font-size: 0.916em;
+	line-height: 1.5;
+}
+#overviewList li .description .title {
+	color: #26225b;
+	font-weight: bold;
+	margin-bottom: 0;
+}
+#additionalInfo {
+	margin: 0 7px 30px 7px;
+}
+/* free delivery and o2 recycle content */
+#additionalInfo .wrapper {
+	margin: 5px;
+}
+#additionalInfo .title {
+	font-size: 1.3em;
+	font-weight: bold;
+	margin-bottom: 0;
+	line-height: 1.5;
+}
+#additionalInfo .title sub {
+	vertical-align: bottom;
+}
+#additionalInfo p {
+	color: #fff;
+	line-height: 1.3;
+}
+#freeDelivery, #o2Recycle {
+	float: left;
+	background: url("../images/additional-info-bg.jpg") repeat-x scroll top left #94c7e6;
+	width: 49%;
+	_width: 48%;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+	position: relative;
+}
+#o2Recycle {
+	margin-left: 2%;
+	_margin-left: 3%;
+}
+#freeDelivery .wrapper {
+	margin-right: 45px;
+}
+#freeDelivery .icon {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	background: url("../images/freeDelivery-bg.png") no-repeat scroll bottom right transparent;
+	width: 69px;
+	height: 73px;
+}
+#o2Recycle .icon {
+	position: absolute;
+	right: -7px;
+	top: -21px;
+	background: url("../images/o2Recycle-bg.png") no-repeat scroll top right transparent;
+	width: 73px;
+	height: 43px;
+}

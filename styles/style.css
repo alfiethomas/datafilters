@@ -1,0 +1,112 @@
+body, html {
+	background-color: lightblue;
+	font: normal normal normal 1em/1.5em Helvetica, sans-serif;
+}
+
+h3 {
+	margin-bottom: 5px;
+}
+
+ul {
+	margin: 0;
+	padding: 0;
+}
+
+ul li {
+	list-style-type: none;
+	margin: 0;
+}
+
+table, #filters, .paginationHolder, #tariffList {
+	-webkit-border-radius: 10px;
+	background-color: white;
+	padding: 10px;
+	float: right;
+	width: 758px;	
+	border: 1px solid;
+	padding-left: 20px;
+}
+
+table {
+	width: 790px;
+}
+
+td, th {
+	text-align: left;
+	width: 100px;
+}
+
+li a { cursor: hand; cursor: pointer; }
+
+li p:nth-child(odd) { color:green }
+li p:nth-child(even) { color:red }
+
+#tariffList li p {
+	margin: 0px;
+	display: inline-block;
+	padding-right: 25px;
+	width: 90px;
+}
+
+#tariffList li {
+	list-style-type: disc;
+	margin-left: 10px;
+}
+
+#filters ul.MaxMin li {
+	display: inline-block;
+	margin: 5px;
+}
+
+#qunit {
+ width: 1025px;
+}
+
+#filters {
+	float: left;
+	text-align: left;
+	width: 190px;
+}
+
+.paginationHolder ul li {
+	display: inline-block;
+	padding: 3px;
+}
+
+.active {
+	color: red;
+}
+
+.paginationHolder ul li a {
+	text-decoration: underline;
+}
+
+.paginationHolder {
+	margin-bottom: 10px;
+	text-align: right;
+}
+
+.filterSet {
+	margin-bottom: 15px;
+}											
+
+.filterSelect {
+	font-weight: bold;
+}
+
+.noUiSliderLabel {
+	padding-top: 0px;
+}
+
+#tariffTable th.sortable {
+	padding-left: 25px;
+	background: url(../images/pointer.gif) no-repeat top left;
+}
+
+#tariffTable th.sorted-asc {
+	background: url(../images/pointer-active-asc.gif) no-repeat top left;
+}
+
+#tariffTable th.sorted-desc {
+	background: url(../images/pointer-active-desc.gif) no-repeat top left;
+}

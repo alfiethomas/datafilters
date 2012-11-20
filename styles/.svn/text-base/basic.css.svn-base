@@ -1,0 +1,90 @@
+body {
+	margin: 3px;
+	padding: 0;
+	background-color: #163974;
+	color: #2C2C2C;
+    font-family: Verdana,Geneva,sans-serif;
+	font-size: 75%;
+}
+ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+/* header adjustments */
+#header {
+	margin-bottom: 10px;
+}
+.O2 {
+	display: none;
+}
+#logo-m {
+	margin-bottom: 5px;
+}
+.headerIcons {
+	text-align: right;
+	margin-bottom: 5px;
+}
+.mobileNavContainer ul li {
+	margin-right: 5px;
+}
+.mobileNavContainer ul li a {
+	color: #fff;
+	padding: 5px 0;
+	display: block;
+}
+/* container adjustments */
+#container {
+	background-color: #fff;
+	padding: 0 3px;
+}
+#containerTopBg {
+	display: none;
+}
+h1 {
+	padding-top: 10px;
+}
+.promo {
+	color: #B80020;
+}
+#handsetList li {
+	border-bottom: 1px solid #aaa;
+	padding-bottom: 10px;
+}
+#handsetList li.shadow {
+	border: 0;
+	padding-bottom: 0;
+}
+#tariffList .price .pound {
+	font-weight: bold;
+}
+#tariffList .price .value {
+	font-size: 1.083em;
+	font-weight: bold;
+}
+#tariffList li {
+	border-bottom: 1px solid #aaa;
+	padding-bottom: 10px;
+}
+#tariffList li.shadow {
+	border: 0;
+	padding-bottom: 0;
+}
+/* footer adjustments */
+#footer-menu {
+	background-color: #E1E4E6;
+	margin-bottom: 10px;
+}
+#footer-menu li a {
+	color: #616A74;
+	padding: 5px 3px;
+	display: block;
+}
+#footerLinks {
+	margin-bottom: 10px;
+}
+#footerLinks li a {
+	color: #fff;
+	padding: 5px 0;
+	display: block;
+}

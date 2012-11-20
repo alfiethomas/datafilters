@@ -1,0 +1,48 @@
+#gallery {
+	border: 1px #9C0 dotted;
+	width: 310px;
+	float: left;
+	margin: 0 0 50px 0;
+}
+#productSummary {
+	border: 1px #3399cc dashed;
+	width: 360px;
+	float: right;
+	margin: 0 0 50px 0;
+}
+#tabs {
+	border: 1px #9C0 dotted;
+	clear: both;
+}
+#options {
+	border: 1px #9C0 dotted;
+	margin: 0 0 50px 0;
+}
+#ancillary { border: 1px #9C0 dotted; }
+#summary {
+	border: 1px #9C0 dotted;
+	margin: 0 0 30px 0;
+}
+#merchandising {
+	border: 1px #9C0 dotted;
+	margin: 0;
+}
+/*
+===============
+PRODUCT SUMMARY
+===============
+*/
+#sellingPoints {
+	background: url(../images/dash.gif) repeat-x top left;
+	padding-top: 20px;
+}
+#sellingPoints ul {
+	background: url(../images/dash.gif) repeat-x bottom left;
+	padding: 0 0 15px 15px;
+	margin-left: 0;
+}
+#productSummary .phoneCost {
+	color: #017f7d;
+	font-weight: bold;
+	font-size: 1.8em;
+}

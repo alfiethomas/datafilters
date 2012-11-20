@@ -1,0 +1,27 @@
+/*
+====
+TABS
+====
+*/
+$(document).ready(function () {
+    $('#tab1, #tab2, #tab3, #tab4, #tab5, #tab6, #tab7, #tab8').hide();
+	
+	// tabs requiring no page reload
+	$('#tab1').show();
+	$('#tabs li:first').addClass('active');
+	
+	// adding server side value to return to a specific tab
+	// var currentTabValue = '#tab' + $('#currentTabValue').attr('class');
+	// $('#tabContent div' + currentTabValue).show();
+	// $('#tabs li a[href="' + currentTabValue + '"]').parent().addClass('activeTab');
+
+    $('#tabs li a').click(function () {
+        $('#tabs li').removeClass('active');
+        $(this).parent().addClass('active');
+        var currentTab = $(this).attr('href');
+
+        $('#tab1, #tab2, #tab3, #tab4, #tab5, #tab6, #tab7, #tab8').hide();
+        $(currentTab).show();
+        return false;
+    });
+});

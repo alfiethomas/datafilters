@@ -1,0 +1,463 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+html { -webkit-text-size-adjust: none; }
+.clear { clear: both; }
+/*
+==============
+FONTS & BASICS
+==============
+*/
+h1,
+h2,
+h3,
+h4,
+p,
+a,
+form {
+	font-family: Verdana, sans-serif;
+	color: #000;
+	font-weight: normal;
+}
+a img {
+	border: 0;
+}
+h1 {
+	font-size: 1.8em;
+	font-weight: bold;
+	color: #26225b;
+	margin-bottom: 20px;	
+}
+h2 {
+	font-size: 1.6em;
+	font-weight: bold;
+	color: #26225b;
+	margin-bottom: 15px;	
+}
+h3 {
+	color: #26225b;
+	font-size: 1.166em;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+p {
+	font-size: 1.2em;
+	line-height: 1.6em;
+	margin-bottom: 0.6em;
+	color: #616a74;
+}
+a {
+	color: #0086C3;
+	text-decoration: none;
+	font-size: 1.2em;
+}
+li, label, span, table th, table td {
+	font-size: 1.2em;
+}
+/* normalize fonts within 3 levels of li */
+li p, li a, li span, li label {    
+    font-size: 1em;
+}
+li li, li li p, li li a, li li span, li li label {
+    font-size: 1em;
+}
+li li li, li li li p, li li li a, li li li span, li li li label {
+    font-size: 1em;
+}
+/* normalize fonts within para */
+p a, p span, p label {
+	font-size: 1em;
+}
+/* normalize fonts within table */
+table th p, table td p, table th a, table td a, table th span, table td span, table th label, table td label, table td li, table td li p, table td li a, table td li span, table td li label {
+	font-size: 1em;
+}
+/*
+======
+LAYOUT
+======
+*/
+body { 
+	background: #fff url("../images/bg-gradient.jpg") repeat-x scroll 0 -152px;
+	font-size: 62.5%;
+	font-family: Verdana, Geneva, sans-serif;
+	color: #2c2c2c;
+}
+#wrapper {
+	min-width: 240px;
+	margin: 0 auto;
+	text-align: left;
+	float: left;
+	width: 100%;
+}
+#container {
+	background: #fff url("../images/bg-gradient-container.jpg") repeat-x left top;	
+}
+#leftColumn {
+	float: left;
+	width: 25%;
+	background-color: #e9f5fd;
+}
+#rightColumn {
+	width: 75%;
+	float: left;
+	background-color: #eeeeee;
+}
+#leftColumnInner {
+	margin: 10px;
+}
+#rightColumnInner {
+	margin: 10px;
+}
+/* common Content layout classes */
+#contentTop {
+	background: #fff url("../images/container-top-bg.jpg") repeat-x left top;
+	padding: 7px 0 30px 0;
+	margin: 0 7px;
+	background-color: #fff;
+	_position: relative;
+}
+#content {}
+.contentWhiteBg {
+	background-color: #fff;
+}
+h1#homepageTitle {
+	margin: 0 14px 10px 14px;	
+}
+h1#pageTitle {
+	margin: 0 7px 17px 7px;
+	padding-top: 15px;
+}
+h2.subTitle {
+	margin: 0 14px 15px 14px;
+}
+a.link {
+	color: #0E7CB3;
+	padding-left: 9px;
+	background: url("../images/link-chevron.gif") no-repeat scroll 0 5px transparent;
+}
+/*
+======
+HEADER
+======
+*/
+#header {
+	display: block;
+	margin: 10px 10px 15px 10px;
+}
+/* --- logo, basket and menu-- */
+#header .logoRow {
+	float: left;
+	width: 100%;
+	margin-bottom: 10px;
+}
+#header a#logo-m { float: left; }
+#header a span.O2 {
+	position: absolute;
+	top: -1000px;
+}
+#header .headerIcons {
+	float: right;
+	margin-top: 6px;
+}
+/* --- navigation --- */
+#header .mobileNavContainer {
+	float: left;
+}
+#header .mobileNavContainer ul {
+	margin: 0;
+	padding: 0;
+}
+#header .mobileNavContainer li {	
+	list-style-type: none;
+	float: left;
+	background: #1b2350 url("../images/mobile-nav-bg.jpg") repeat-x scroll 0 -56px;
+	margin: 0 20px 0 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	text-align: center;
+    width: 86px;
+	padding: 0.2em 0 0.3em;
+}
+#header .mobileNavContainer li.last {
+	margin-right: 0;
+}
+#header .mobileNavContainer li.active {
+	background: #1e8fcf url("../images/mobile-nav-bg.jpg") repeat-x scroll 0 0;
+}
+#header .mobileNavContainer li a {
+	color: #fff;
+	font-size: 1.333em;
+}
+#header .mobileNavContainer li a:hover{
+	color: #98d3fb;
+	text-decoration: none;
+}
+/*
+=======
+FOOTER
+=======
+*/
+#footer {	
+    margin-bottom: 16px;
+    width: 100%;
+}
+#footer-menu {
+	list-style: none;
+	width: 100%;
+	margin-bottom: 16px;
+}
+#footer-menu li {
+	margin-bottom: 1px;
+	background-color: ;
+	background: url("../images/footer-arrow.gif") no-repeat 12px 11px #E1E4E6;
+	padding: 0.45em 0;
+}
+#footer-menu li a {
+	color: #616a74;
+	display: block;
+	margin-left: 22px;
+}
+#footerLinks {
+	list-style: none outside none;
+    margin: 0 auto;
+    text-align: center;
+}
+#footerLinks li {
+	display: inline;
+	padding: 0 12px 0 6px;
+	background: url("../images/footer-link-separator.gif") no-repeat right 4px transparent;
+}
+#footerLinks li.last {
+	background: none;
+}
+#footerLinks li a {
+	color: #626a74;
+	font-size: 0.916em;
+}
+/*
+======
+BUTTON
+======
+*/
+input.btn-style,
+a.btn-style {
+	background: #108ece url("../images/button-gradient.jpg") repeat-x top left;
+	color: #fff;
+	font-size: 1.166em; /*14px*/
+	padding: 0.1em 0.7em 0.25em 0.7em;
+	border: 1px solid #4caada;
+	clear: both;
+	cursor: pointer;
+	display: inline-block;
+	float: right;
+	font-family: Verdana, Geneva, sans-serif;
+	margin: 0 4px 15px 0;
+	outline: none;
+	overflow: visible;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: bottom;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}
+/*
+ * responsive-carousel
+ * https://github.com/filamentgroup/responsive-carousel
+ *
+ * Copyright (c) 2012 Filament Group, Inc.
+ * Licensed under the MIT, GPL licenses.
+ */
+.carousel {
+	position: relative;
+}
+.carousel .carousel-item { display: none; }
+.carousel .carousel-active {
+	display: block;
+}
+.carousel .carousel-nav:nth-child(2) { display: none; }
+/* carousel navigation */
+.carousel-nav {
+    width: 100%;
+	_position: relative;
+	zoom: 1;
+}
+.carousel-nav .prev, .carousel-nav .next {
+	background-color: #204585;
+    color: #FFFFFF;
+    float: left;
+    line-height: 1.3;
+    padding: 0 2%;
+    width: 11%;
+	height: 20px;
+}
+.carousel-nav .prev {
+	text-align: right;
+}
+.carousel-pagination {
+	background: url("../images/carousel-selection-bg.jpg") repeat-x scroll 0 0 #12548a;
+    float: left;
+    list-style: none outside none;
+    margin-bottom: -6px;
+    text-align: center;
+    width: 70%;
+	height: 20px;
+}
+.carousel-nav-paginated li {
+	margin: 0 5px;
+	display: inline-block;
+	zoom:1; 
+	*display: inline; 
+	_height: 22px;
+}
+.carousel-nav-paginated li a {
+    background: url("../images/selection-inactive.png") no-repeat scroll 7px 5px transparent;
+	display: block;
+    height: 21px;
+    width: 22px;
+}
+.carousel-nav-paginated .carousel-active-page a {
+	background: url("../images/selection-active.png") no-repeat scroll 7px 5px transparent;
+}
+/*Additional classes for carousel */
+.carousel {
+	max-width: 360px;
+	_width: 320px;
+}
+.carousel img {
+	width: 100%;
+	height: auto;
+}
+#carouselBtnsRow {
+	background-color: #204585;
+}
+/*
+===============
+BLUE CONTAINERS
+===============
+*/
+.blueContainersWrapper {
+	padding-bottom: 20px;
+}
+.blueContainer {
+	background-color: #ebf5fa;
+	margin-bottom: 8px;
+	font-size: 1em;
+	width: 100%;
+}
+.blueContainer .leftText {
+	width: 80%;
+}
+.blueContainer .leftText .wrapper {
+	padding: 13px 0 13px 23px;
+}
+.blueContainer h3 {
+	line-height: 1.2;
+	margin-bottom: 6px;
+}
+.blueContainer p {
+	line-height: 1.3;
+}
+.blueContainer .description {
+	color: #005896;
+	font-size: 1em;
+	line-height: 1.3;
+	margin-bottom: 0.3em;
+}
+.blueContainer .rightImage {
+	text-align: right;
+}
+.blueContainer .rightImage a {
+	margin: 18px;
+	display: block;
+}
+.blueContainer .leftImage {
+	width: 71px;
+	vertical-align: top;
+}
+.blueContainer .leftImage img {	
+	margin: 13px;
+}
+.blueContainer .leftImageLarge {
+	width: 81px;
+	vertical-align: top;
+}
+.blueContainer .leftImageLarge img {	
+	margin: 13px;
+}
+.blueContainer .rightText {}
+.blueContainer .rightText .wrapper {
+	padding: 13px 23px 13px 0;
+}
+.blueContainer .middleText {}
+.blueContainer .middleText .wrapper {
+	padding: 13px 0;
+}
+.blueContainer .buttonRow {
+	text-align: right;
+	padding: 0 18px 13px 0;
+}
+.blueContainer .buttonRow input {
+	margin-bottom: 0;
+}
+.blueContainer .blueText {
+	color: #005896;
+}
+.blueContainer .redText {
+	color: #b0232a;
+}
+/*
+===========
+TABS
+===========
+*/
+#tabs {
+	background: url("../images/tabs-shadow.png") repeat-x scroll top left transparent;
+	overflow: hidden;
+	list-style: none;
+	margin: 0 7px 20px 7px;
+	_position: relative;
+	_float: left;
+	_width: 96%;
+}
+#tabs li {
+	float: left;
+	display: block;	
+	margin-right: 3px;
+	width: 94px;
+	padding-bottom: 9px;
+}
+#tabs li a {
+	color: #fff;
+	display: block;
+	text-align: center;
+	padding: 13px 0;
+	background: url("../images/tabs-bg.jpg") repeat-x scroll 0 -84px transparent;
+}
+#tabs li a.twoLines {
+	padding: 5px 0;
+	padding: 6px 0\9; /* CSS hack for version 8 and below in IE */
+}
+#tabs li.active {
+	float: left;
+	background: url("../images/tab-pointer.png") no-repeat scroll bottom center transparent;
+}
+#tabs li.active a {
+	font-weight: bold;	
+	background: url("../images/tabs-bg.jpg") repeat-x scroll 0 0 transparent;
+}
+.tabContentInfo {
+	margin: 0 7px 30px 7px;
+}
+
+
+
+
+

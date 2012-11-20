@@ -1,0 +1,8 @@
+* compare tests
+* scrollTo
+* showResultsButton
+* applyButton
+* data / period / minsText compare
+* callbacks
+* text fn per filter set
+* 
