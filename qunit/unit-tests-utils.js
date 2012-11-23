@@ -31,3 +31,11 @@ test("replaceAll should do what it says on the tin", function() {
 	equal($('qunit').DataFilter('replaceAll', "hello", "~", "!"), "hello");
 	equal($('qunit').DataFilter('replaceAll', "h~el~~lo", "~", "!"), "h!el!!lo"); 
 });
+
+test("isAlphaNumeric should do what is says on the tin", function() {
+ 	equal($('qunit').DataFilter('isAlphaNumeric', "hello 123"), true);	
+});
+
+test("substringBeforeFirst should do what is says on the tin", function() {
+ 	equal($('qunit').DataFilter('isAlphaNumeric', "hello 123"), true);	
+});

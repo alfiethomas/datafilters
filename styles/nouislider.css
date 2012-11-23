@@ -1,20 +1,29 @@
 #tariffTable th.sortable {
-	background: url(../images/tariff-pointer.gif) no-repeat top right;
+	background: url(pointer.gif) no-repeat top right;
 }
 
 #tariffTable th.sorted-asc {
-	background: url(../images/tariff-pointer-active-asc.gif) no-repeat top right;
+	background: url(pointer-active-asc.gif) no-repeat top right;
 }
 
 #tariffTable th.sorted-desc {
-	background: url(../images/tariff-pointer-active-desc.gif) no-repeat top right;
+	background: url(pointer-active-desc.gif) no-repeat top right;
 }
 
 p.refresh a {
 	padding-right: 15px;
 }
 
+p.refresh {
+	float: right;
+}
+
+p.showAll {
+	float: left;
+}
+
 #filters .filterSet {
+	padding-top: 10px;
 	padding-bottom: 25px;
 }
 

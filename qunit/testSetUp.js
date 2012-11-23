@@ -7,7 +7,8 @@ function initDataFilterForList(sortBy) {
             "Test3"  : { "id": "testClass3", "dataType": "period",   "filterType": "max"            },
             "Test4"  : { "id": "testClass4", "dataType": "default",  "filterType": "minMax"         },
             "Test5"  : { "id": "testClass5", "dataType": "currency", "filterType": "min"            },
-            "Test6"  : { "id": "testClass6", "dataType": "currency", "filterType": "minWithBanding" }
+            "Test6"  : { "id": "testClass6", "dataType": "currency", "filterType": "minWithBanding" },
+            "Test7"  : { "id": "testClass7", "dataType": "default",  "filterType": "select"         },
         },
         "pageSize": 4,
         "sortingDropDown": sortBy
@@ -36,7 +37,8 @@ function initDataFilterForTable(successFn) {
             "Test3"  : { "id": 3, "dataType": "period",   "filterType": "max"            },
             "Test4"  : { "id": 4, "dataType": "default",  "filterType": "minMax"         },
             "Test5"  : { "id": 5, "dataType": "currency", "filterType": "min"            },
-            "Test6"  : { "id": 6, "dataType": "currency", "filterType": "minWithBanding" }
+            "Test6"  : { "id": 6, "dataType": "currency", "filterType": "minWithBanding" },
+            "Test7"  : { "id": 7, "dataType": "default",  "filterType": "select"         }
         },
         "pageSize": 4,
         "onSuccess": successFn
@@ -59,7 +61,7 @@ function initDataFilterForTableWithCustomTextExtract() {
 function setUpTable() {
 	var table = $(document.createElement("table")).attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
 	var tr = $(document.createElement("tr"));
-	for (i=1; i<=6; i++) {
+	for (i=1; i<=7; i++) {
 		tr.append($(document.createElement("th")).prop("class", "sorting").text("Test"+i));
 	}
 	table.append($(document.createElement('thead')).append(tr));
@@ -72,6 +74,7 @@ function setUpTable() {
 		tr.append($(document.createElement("td")).text("row"+i+"-col4"));
 		tr.append($(document.createElement("td")).text("£"+(i%4)));
 		tr.append($(document.createElement("td")).text("£"+(i*10)));
+		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
 		table.append(tr);
 	}
 	
@@ -89,6 +92,7 @@ function setUpList() {
 		li.append($(document.createElement("p")).attr({"class": "testClass4"}).text("row"+i+"-col4")); 
 		li.append($(document.createElement("p")).attr({"class": "testClass5"}).text("£"+(i%4))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text("£"+(i*10))); 
+		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
 		list.append(li);
 	}
 

@@ -149,7 +149,6 @@ function sliderTest(element, filterNum, type, label, selectText, toNum, resetNum
 	equal($('#'+id+' option:selected').text(), "No "+type, "Associated dropdown should be set to 'No "+type+"'");
 	equal($('#selectLabel_'+id).text(), label+": ", "Associated dropdown label should be '"+label+": '");
 
-	console.log('#slider_'+sliderId);
 	$('#slider_'+sliderId).noUiSlider('move', { knob: knob, to: toNum });	
 	equal(filter.find("#sliderLabel_"+sliderId).text(), label+" "+selectText, "Label should update to "+label+"' row3-col3' when moved to position "+toNum);
 	equal($(element+" tbody tr:visible").length, 3, "Should only be 3 visible rows)");	
@@ -262,5 +261,5 @@ function clearAllCheckboxes() {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10);
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7";
 }

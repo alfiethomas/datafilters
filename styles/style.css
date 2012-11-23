@@ -100,13 +100,13 @@ li p:nth-child(even) { color:red }
 
 #tariffTable th.sortable {
 	padding-left: 25px;
-	background: url(../images/pointer.gif) no-repeat top left;
+	background: url(pointer.gif) no-repeat top left;
 }
 
 #tariffTable th.sorted-asc {
-	background: url(../images/pointer-active-asc.gif) no-repeat top left;
+	background: url(pointer-active-asc.gif) no-repeat top left;
 }
 
 #tariffTable th.sorted-desc {
-	background: url(../images/pointer-active-desc.gif) no-repeat top left;
+	background: url(pointer-active-desc.gif) no-repeat top left;
 }
