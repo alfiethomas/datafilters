@@ -15,8 +15,10 @@
 			sortingDropDown: undefined,
 			defaultTableSort: undefined,
 			slidersEnabled: true,
+			multiSelectLabel: "Select to add",
 			extractTextFn: function(element) { return element.text() },
-			onSuccess: function() {}
+			onSuccess: function() {},
+			afterFilter: function() {}
 		}, options);		
 
 		var state = {
@@ -51,7 +53,6 @@
 
 				function validate() {
 					var valid = true;
-					if (state.element.length == 0) valid = logValidationError("Element defined in initialisation can not be found");  
 					if ($('#filters').length == 0) valid = logValidationError("No element with id 'filters'");
 					if ($('.paginationHolder').length == 0) logValidationWarning("No .paginationHolder class elements for paging"); 
 					return valid;
@@ -206,16 +207,18 @@
 				var index = this.id.split("_")[1];
 
 				switch (type) {
-					case "Select"     : addToSearches(searches, index, getSearchStringForSelect(this.id)); break;
-					case "Checkboxes" : addToSearches(searches, index, getSearchStringForCheckboxGroup(this.id)); break;
-					case "Max"        : addToSearches(searches, index, getSearchStringForMaxSelect(this.id)); break;
-					case "Min"        : addToSearches(searches, index, getSearchStringForMinSelect(this.id)); break;
+					case "Select"      : addToSearches(searches, index, getSearchStringForSelect(this.id)); break;
+					case "MultiSelect" : addToSearches(searches, index, getSearchStringForMultiSelect(this.id)); break;
+					case "Checkboxes"  : addToSearches(searches, index, getSearchStringForCheckboxGroup(this.id)); break;
+					case "Max"         : addToSearches(searches, index, getSearchStringForMaxSelect(this.id)); break;
+					case "Min"         : addToSearches(searches, index, getSearchStringForMinSelect(this.id)); break;
 				}
 			});
 
 			filterRows(matches, searches);
 			createPagination();
 			scrollToResults();
+			settings.afterFilter();
 		}
 
 		function scrollToResults() {
@@ -227,9 +230,22 @@
 		}
 
 		function doScrollToResults() {
-			$('html, body').animate({
-		         scrollTop: $("#scrollTo").offset().top
-		    }, 1000);			
+			if (utils.exists($("#scrollTo"))) {
+				$('html, body').animate({
+			         scrollTop: $("#scrollTo").offset().top
+			    }, 1000, function() {console.log('scrolled')});			
+			}
+		}
+
+		function scrollAfterPaging() {
+			if (utils.exists($("#scrollTo"))) {
+				doScrollToResults();
+			
+			} else if (utils.exists($(".paginationHolder").eq(0))) {
+				if ($(window).scrollTop() > $(".paginationHolder").eq(0).offset().top) {
+					$('html, body').scrollTop($(".paginationHolder").eq(0).offset().top);
+				}
+		    }						
 		}
 
 		function addToSearches(searches, index, searchString) {
@@ -335,6 +351,15 @@
 			return $('select#'+id+' option:selected').prop("value");
 		}
 
+		function getSearchStringForMultiSelect(id) {
+			var searchString = "";
+			id = id.split("_")[1];
+			$('#MultiSelectItems_'+id+' p').each(function () {
+				searchString += addToSearchString(searchString, $(this).text());
+			});
+			return searchString;
+		}		
+
 		function getSearchStringForCheckboxGroup(id) {
 			var searchString = "";
 			$('ul#'+id+' li input[type=checkbox]').each(function () {
@@ -438,31 +463,83 @@
 		}
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
+
+			function updateSlider(select) { 
+				updateSliderLabel(id, select.value);
+				moveSlider(type+"_"+id, select.selectedIndex);
+			}
+
 			var containerDiv = $(document.createElement("div"));
-			createSlider(containerDiv, items, id, type, true);
+			createSlider(containerDiv, items, id, type);
 			containerDiv.append(createSelectlabel(id, type, labelForSelect));
-			containerDiv.append(createSelect(items, id, type, labelForSelect));
+			containerDiv.append(createSelect(items, id, type, updateSlider));
 			return containerDiv;
 		}
 
-		function createSelect(items, id, type, usingSlider) {
+		function createMultiSelect(items, id) {
+
+			function addOption(select) {
+				if (select.value != settings.multiSelectLabel) {
+					var multiSelect = '#MultiSelectItems_'+id;
+					$(multiSelect).append($(document.createElement('p')).text(select.value).prop("class", select.selectedIndex).click(function() {
+						var text = $(this).text();
+						$(select).append($(document.createElement("option")).prop("value", text).text(text));
+						sortSelect($(select));
+						$(this).remove();
+						filterAfterChange();
+					}));
+					$(select).find("option:selected").remove();
+				}
+			}
+
+			var containerDiv = $(document.createElement("div"));
+			containerDiv.append(createSelectlabel(id, "MultiSelect", ""));
+			containerDiv.append(createSelect(items, id, "MultiSelect", addOption));
+			containerDiv.append($(document.createElement("div")).attr({"id": "MultiSelectItems_"+id, "class": "multiSelect" }));
+
+			return containerDiv;
+		}
+
+		function getSelectWidth(select) {
+		    if (state[select.prop("id")] == undefined) {
+		    	state[select.prop("id")] = select.width();
+		    } 
+		    return state[select.prop("id")];
+		}
+
+		function sortSelect(select) {
+		    var selectedValue = select.val();
+		    select.html($("option", select).sort(function(a, b) { 
+		    	if (a.text == settings.multiSelectLabel) return -1;
+		    	if (b.text == settings.multiSelectLabel) return 1;
+		        return a.text == b.text ? 0 : a.text < b.text ? -1 : 1 
+		    }));
+		    select.val(selectedValue);
+		}
+
+		function createSelectStandalone(items, id) {
+			var containerDiv = $(document.createElement("div"));
+			containerDiv.append(createSelectlabel(id, "Select", ""));
+			containerDiv.append(createSelect(items, id, "Select"));
+			return containerDiv;
+		}
+
+		function createSelect(items, id, type, changeFunction) {
 			if (type == undefined) type = "Select";
 
 			id = type+'_'+id;
 			var select = $(document.createElement("select")).attr({"id": id, "data-role": "filterSetSelector"});
 			
-			if (type == "Min")    select.append($(document.createElement("option")).text("No Min"));
-			if (type == "Select") select.append($(document.createElement("option")).text("All").prop("value", ""));
+			if (type == "Min")         select.append($(document.createElement("option")).text("No Min"));
+			if (type == "Select")      select.append($(document.createElement("option")).text("All").prop("value", ""));
+			if (type == "MultiSelect") select.append($(document.createElement("option")).text(settings.multiSelectLabel).prop("value", ""));
 
 			$.each(items, function(iteration, item) {
 			    select.append($(document.createElement("option")).prop("value", item).text(item));
 			});
 
 			select.change(function(event) {
-				if (usingSlider) {
-					updateSliderLabel(id, this.value);
-					moveSlider(id, this.selectedIndex);
-				}
+				if (changeFunction) changeFunction(this);
 		        filterAfterChange();
 		    })	
 
@@ -555,16 +632,19 @@
 		}
 
 		function moveSlider(id, index) {
-			state.pauseFilter = true;
 			if (utils.exists('#slider_'+id)) {
 				var knob = (utils.contains(id, "MaxMin")) ? "1" : "0";
 				$('#slider_'+id).noUiSlider('move', { knob: knob, to: index });	
+				state.pauseFilter = true;
 			
 			} else {
 				var knob = (utils.contains(id, "Max")) ? "1" : "0";
 				id = id.split("_")[1];
 
-				if (utils.exists('#slider_MaxMin_'+id)) $('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index });
+				if (utils.exists('#slider_MaxMin_'+id))  {
+					$('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index });
+					state.pauseFilter = true;
+				}
 			}
 		}
 
@@ -627,6 +707,7 @@
 				
 				ul.append(li.append($(document.createElement("a")).text(i).click(function(event) {
 					doPaging(event.currentTarget.text);
+					scrollAfterPaging();
 				})));		
 			}
 
@@ -646,12 +727,14 @@
 		function pagingShowAllLi(ul, text, currentPageParam, itemsPerPageParam) {
 			ul.append($(document.createElement("li")).append($(document.createElement("a")).attr({"class": "pagingShow"}).text(text).click(function(event) {
 				doPaging(currentPageParam, itemsPerPageParam);
+				scrollAfterPaging();				
 			})));		
 		}
 
 		function pagingNextPrevLi(ul, pagingSymbol, altText, currentPageParam) {
 			ul.append($(document.createElement("li")).append($(document.createElement("a")).click(function(event) {
 				doPaging(currentPageParam);
+				scrollAfterPaging();
 			}).html(pagingSymbol)));		
 		}
 
@@ -779,7 +862,8 @@
 			extractCurrencyValue: function(string) {
 				if (string == undefined) return "";
 
-				var trimmedString = string.trim();
+				var trimmedString = string.trim(
+					);
 				if (string.indexOf('£') != -1) {
 					return utils.replaceAll(trimmedString, '£', '');
 				
@@ -838,7 +922,8 @@
 	    }	
 
 	    var factoryFunctionForFilterType = {
-	    	"select"         : createSelect,
+	    	"select"         : createSelectStandalone,
+	    	"multiSelect"    : createMultiSelect,
 	    	"checkboxes"     : createCheckboxes,
 	    	"min"            : createMin,
 	    	"max"            : createMax,

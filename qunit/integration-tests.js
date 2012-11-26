@@ -12,6 +12,14 @@ test("Test List with sortBy", function(sortBy) {
 	sortingTestsForList();
 });
 
+test("Test no paging", function() {
+	remove();
+	setUpTable();
+	initDataFilterForTableWithNoPaging();
+	expect(0);
+	//equal($('.paginationHolder').text(), "", "Should not create pagination when no paging");
+});
+
 test("Test custom text extract", function() {
 	remove();
 	setUpTable();
@@ -45,7 +53,7 @@ test("Test Table", function() {
 			maxMinWithSliderTest('#tariffTable');
 			remove();
 		}); 
-	}, 1);	
+	}, 100);	
 });
 
 
@@ -55,6 +63,7 @@ function commonTests(element, selector) {
 	equal($(selector+':visible').eq(0).text(), getTextForRow(1), "Validate first row");
 
 	pagingTests(selector);
+	dropdownTests(element, selector);
 	checkboxTests(element, selector);
 }
 
@@ -98,6 +107,34 @@ function pagingTests(selector) {
 	equal($('ul.pagination li:nth-child(7)').text(), "Show Less", "Should have Show Less option after clicking show all");
 }
 
+function dropdownTests(element, selector) {
+
+	// check initial state
+	equal($("select[id*='MultiSelect_'] option").length, 11, "Select list should be 11 items");
+	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should be 'Select to add'");
+	equal($(selector+":visible").length, 10, "Should be 10 rows when nothing selected");
+
+	// select item - should remove from dropwdown and add to div
+	selectSelect($("select[id*='MultiSelect_']"), 3);
+	equal($("select[id*='MultiSelect_'] option").length, 10, "Select list should be 10 items - was 11");
+	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8", "row2-col8 shoulld be added to list of items div");
+	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should return to 'Select to add");
+	equal($(selector+":visible").length, 1, "Should be 1 row visible");
+
+	// select item - should remove from dropwdown and add to div
+	selectSelect($("select[id*='MultiSelect_']"), 3);
+	equal($("select[id*='MultiSelect_'] option").length, 9, "Select list should be 9 items - was 1o");
+	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8row3-col8", "row3-col8 shoulld be added to list of items div");
+	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should return to 'Select to add");
+	equal($(selector+":visible").length, 2, "Should be 2 row visible");
+
+	// reset - click all items that have been selected
+	$("div[id*='MultiSelectItems_'] p").click();
+	equal($("select[id*='MultiSelect_'] option").length, 11, "Select list should be 11 items");
+	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should be 'Select to add'");
+	equal($(selector+":visible").length, 10, "Should be 10 rows when nothing selected");
+}	
+
 function checkboxTests(element, selector) {
 	equal($("ul[id*='Checkboxes']").eq(0).find("li").length, 10, "Should be 100 checkboxes as all elements are different");
 	
@@ -122,10 +159,12 @@ function checkboxTests(element, selector) {
 
 function minWithSliderTest(element) {
 	sliderTest(element, 2, "Min", "From", "row7-col2", 8, 0);
+	checkDropdownMovesSlider(element, 2, "Min", 8, 0, "144px", "0px");
 }
 
 function maxWithSliderTest(element) {
 	sliderTest(element, 3, "Max", "Up to", "row3-col3", 2, 10);
+	checkDropdownMovesSlider(element, 3, "Max", 2, 10, "36px", "180px");
 }
 
 function maxMinWithSliderTest(element) {
@@ -143,20 +182,37 @@ function sliderTest(element, filterNum, type, label, selectText, toNum, resetNum
 	if (isMaxMin) sliderId = "MaxMin_"+filterNum;
 	if (knob == undefined) knob = 0;
 
+	// check defaults
 	var filter = $(".filterSet").eq(filterNum);
 	equal(filter.find("a").text(), "Test"+filterNum, "Filter "+(filterNum+1)+" should be for Test"+filterNum);
 	equal(filter.find("#sliderLabel_"+sliderId).text(), "Show All", "Slider label should be defaulted to 'Show All'");
 	equal($('#'+id+' option:selected').text(), "No "+type, "Associated dropdown should be set to 'No "+type+"'");
 	equal($('#selectLabel_'+id).text(), label+": ", "Associated dropdown label should be '"+label+": '");
 
+	// move slider
 	$('#slider_'+sliderId).noUiSlider('move', { knob: knob, to: toNum });	
 	equal(filter.find("#sliderLabel_"+sliderId).text(), label+" "+selectText, "Label should update to "+label+"' row3-col3' when moved to position "+toNum);
 	equal($(element+" tbody tr:visible").length, 3, "Should only be 3 visible rows)");	
 	equal($('#'+id+' option:selected').text(), selectText, "Associated dropdown should be set to '"+selectText+"'");	
 
+	// reset slider
 	$('#slider_'+sliderId).noUiSlider('move', { knob: knob, to: resetNum });	
 	equal($(element+" tbody tr:visible").length, 10, "Should 10 visible rows");
 	equal($('#'+id+' option:selected').text(), "No "+type, "Associated dropdown should be set to 'No "+type+"'");	
+}
+
+function checkDropdownMovesSlider(element, filterNum, type, toNum, resetNum, toPx, resetPx) {
+	var id = type+"_"+filterNum;
+	
+	// select dropwdown
+	selectSelectById(id, toNum);
+	equal($("#slider_"+id).find(".noUi-handle").css("left"), toPx, "Slider should move to "+toPx+"+ when option "+toNum+" selected");
+	equal($(element+" tbody tr:visible").length, 3, "Should only be 3 visible rows");	
+
+	// reset
+	selectSelectById(id, resetNum);
+	equal($("#slider_"+id).find(".noUi-handle").css("left"), resetPx, "Slider should move to "+resetPx+" when reset");
+	equal($(element+" tbody tr:visible").length, 10, "Should 10 visible rows");	
 }
 
 function sortingTestsForTable(table) {
@@ -253,6 +309,16 @@ function selectCheckbox(element,ulNum,liNum) {
 	return checkbox.attr('value');
 }
 
+function selectSelectById(id, index) {
+	selectSelect($('select#'+id), index);
+}
+
+function selectSelect(select, index) {
+	select.find('option').eq(index).prop('selected', 'selected');
+	select.change();
+
+}
+
 function clearAllCheckboxes() {
 	$("ul[id*='Checkboxes'] li input").prop("checked", false);
 
@@ -261,5 +327,5 @@ function clearAllCheckboxes() {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7";
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8";
 }

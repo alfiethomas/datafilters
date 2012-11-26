@@ -37,5 +37,6 @@ test("isAlphaNumeric should do what is says on the tin", function() {
 });
 
 test("substringBeforeFirst should do what is says on the tin", function() {
- 	equal($('qunit').DataFilter('isAlphaNumeric', "hello 123"), true);	
+ 	equal($('qunit').DataFilter('substringBeforeFirst', "hello.123.456", "."), "hello");	
+ 	equal($('qunit').DataFilter('substringBeforeFirst', "hello", "."), "hello");
 });

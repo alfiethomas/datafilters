@@ -1,0 +1,6 @@
+* Paging with Show All as default
+* Only sliders if touch supported
+* Dropdown with tags
+* remove nasty pause filter hack
+* Only do 16px select for IOS
+* refactor createSelect

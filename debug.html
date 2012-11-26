@@ -26,10 +26,42 @@
       } else {
         setUpTable();
         initDataFilterForTable(function() { 
-          $('#filters').prepend($(document.createElement('label')).prop("id", "success").text("success"));
+          $('#filters').prepend($(document.createElement('label')).prop("id", "success").text(" - callback success"));
         });        
       }
+
+      filterGroups(1); 
+
+       $('#filters').prepend($(document.createElement('label')).prop("id", "success").text("Click a heading to open"));
     });
+
+    function filterGroups(numberToShow) {
+        numberToShow = parseInt(numberToShow);
+        if(isNaN(numberToShow)) numberToShow = 2;
+        if(numberToShow < 1) numberToShow = Number.MAX_VALUE;
+
+        $('.filterContent').live('each', function() {
+            $(this).css('height', $(this).height());
+        });
+      
+      $(".filterContent").hide(); 
+      
+      $(".filterContent").each(function(index) { 
+          if(index < numberToShow) {
+              $(this).show();
+              $(this).siblings(".filterSelect").addClass("opened");
+          }
+      });
+      
+      $(".filterSet").last().css('background-image', 'none');
+
+        $(".filterSelect").click(function () {
+            $(this).next(".filterContent").slideToggle(300);
+            $(this).toggleClass("opened");
+            $(this).siblings(".filterSelect").removeClass("opened");
+        return false;
+        });
+      }  
   </script>
 </body>
 </html>
