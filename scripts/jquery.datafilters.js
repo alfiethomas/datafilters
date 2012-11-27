@@ -25,6 +25,7 @@
 			element: $(this),
 			elementId: $(this).attr("id"),
 			elementType: $(this).prop('tagName'),
+			elementIds: {},
 			filtersInitialised: false,
 			initialised: false,
 			pauseFilter: false,
@@ -72,8 +73,15 @@
 		function doInit() {
 			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
 
-			$.each(settings.dataElements, function(groupName, config) {
-				initDataElement(groupName, config);
+			$.each(settings.dataElements, function(groupName, config) {				
+				
+				if (state.elementIds[config.id]) {
+					console.log("Duplicate id ["+config.id+"] - can only create single filter by ID - all but first being ignored");
+				
+				}  else {
+					state.elementIds[config.id] = config.id;
+					initDataElement(groupName, config);
+				}
 			});
 
 			applyToFiltersElement();
@@ -129,6 +137,7 @@
 			}
 
 			state.initialised = true;
+			setTimeout(function() { state.pauseFilter = false });
 		}
 
 		function addButton(text, clickFn) {
@@ -363,7 +372,7 @@
 		function getSearchStringForCheckboxGroup(id) {
 			var searchString = "";
 			$('ul#'+id+' li input[type=checkbox]').each(function () {
-				if (this.checked) searchString += addToSearchString(searchString, this.value);
+				if (this.checked && this.value != "All") searchString += addToSearchString(searchString, this.value);
 			});
 			return searchString;
 		}
@@ -650,27 +659,44 @@
 
 		function createCheckboxes(items, index) {
 			var ul = $(document.createElement("ul")).attr({"id": 'Checkboxes_'+index, "data-role": "filterSetSelector"});
+			
+			// add all checkbox
+			ul.append(createCheckboxLi("All", index, true, function() { 
+				$.each($('ul#Checkboxes_'+index+' input[type="checkbox"]'), function(i, item) {
+					checkAll(index, true);
+					if (i > 0) $(item).prop("checked", false);
+					filterAfterChange();
+				});
+			}));
+
 			$.each(items, function(iteration, item) {
-			    ul.append(
-			    	$(document.createElement("li")).attr({"class": "checkboxLi"})
-			   		.append(createCheckboxLabel(item).prepend(createCheckbox(item, index)))
-			   )
+			    ul.append(createCheckboxLi(item, index, false, function(event) { 
+			    	checkAll(index, false);
+			    	filterAfterChange() 
+			    }));
 			});
 			return ul;	
 		}
 
-		function createCheckbox(item, index) {
+		function checkAll(index, checked) {
+			$('ul#Checkboxes_'+index+' input[type="checkbox"]').eq(0).prop("checked", checked);			
+		}
+
+		function createCheckboxLi(item, index, checked, clickFn) {
+			return $(document.createElement("li")).attr({"class": "checkboxLi"})
+			   		.append(createCheckboxLabel(item).prepend(createCheckbox(item, index, checked, clickFn)))			
+		}
+
+		function createCheckbox(item, index, checked, clickFn) {
 		    return $(document.createElement("input")).attr({
 		        "id":    index + '_' + item
 		       ,"class": "filterCheckbox" 
 		       ,"name":  index
 		       ,"value": item
 		       ,"type":  'checkbox'
-		       ,"checked":false
+		       ,"checked": checked
 		    })
-		    .click(function(event) {
-		        filterAfterChange();
-		    });
+		    .click(clickFn);
 		}
 
 		function createCheckboxLabel(item) {
@@ -745,7 +771,7 @@
 
 		function createSortingDropDown(items) {
 			var select = $(document.createElement("select")).attr({"id": "sortBySelect"});
-			select.append($(document.createElement("option")).prop("value", "sortBy").text("Sort by..."));
+			select.append($(document.createElement("option")).prop("value", "sortBy").text("Sort by"));
 			$.each(items, function(key, sortConfig) {
 				var value = sortConfig.id + "_" + sortConfig.direction;
 			    select.append($(document.createElement("option")).prop("value", value).text(key));

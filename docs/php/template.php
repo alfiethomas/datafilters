@@ -11,11 +11,21 @@ echo
     <meta http-equiv=Content-Type content=text/html;charset=UTF-8>
     <meta name="description" content="DataFilters - a jQuery pluging for lists and tables of data. Makes filtering structured data a breeze." /> 
     <meta name="keywords" content="Data, Filter, jQuery, Plugin, List, Table, Checkboxes, Sliders, Dropdowns, Dynamic" /> 
+    
     <link href="http://fonts.googleapis.com/css?family=Ubuntu:bold" rel="stylesheet" type="text/css">
-    <link type="text/css" href="static/css/styles.css" rel=stylesheet media="all">
+    <link href="../styles/nouislider.css" rel="stylesheet" type="text/css">
+    <link href="static/css/sunburst.css" rel="stylesheet" type="text/css"/>
+    <link href="static/css/styles.css" rel=stylesheet type="text/css">
+        
+    <script src="static/js/prettify.js" type="text/javascript"></script>
+    <script src="../scripts/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../scripts/jquery.datafilters.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../scripts/jquery.nouislider.min.js" type="text/javascript" ></script>
+    <script src="static/js/base.js" type="text/javascript" ></script>    
+    
     <title>DataFilters | ', $title, '</title>
   </head>
-<body>
+<body onload="prettyPrint()">
   <div id=container>
     <div id=header>
       <h1>DataFilters JQuery Plugin</h1>
@@ -62,12 +72,12 @@ function buildNav($selectedItem, $className) {
         $selectedItem = "gallery";
     }
 	$items = array(
-        array('link'=>'index.php', 'label' => 'Home', 'id' => 'home', 'class' => $className),
-        array('link'=>'download.php', 'label' => 'Download', 'id' => 'download', 'class' => $className), 
-        array('link'=>'documentation.php', 'label' => 'Documentation', 'id' => 'documentation', 'class' => $className), 
-        array('link'=>'examples.php', 'label' => 'Examples', 'id' => 'examples', 'class' => $className), 
-        array('link'=>'support.php', 'label'=>'Support', 'id' => 'support', 'class' => $className),
-        array('link'=>'credits.php', 'label'=>'Credits', 'id' => 'credits', 'class' => $className)
+        array('link'=>'index.php',    'label' => 'Home',          'id' => 'home',          'class' => $className),
+        array('link'=>'examples.php', 'label' => 'Examples',      'id' => 'examples',      'class' => $className), 
+        array('link'=>'config.php',   'label' => 'Configuration', 'id' => 'documentation', 'class' => $className), 
+        array('link'=>'download.php', 'label' => 'Download',      'id' => 'download',      'class' => $className), 
+        array('link'=>'support.php',  'label'=>'Support',         'id' => 'support',       'class' => $className),
+        array('link'=>'credits.php',  'label'=>'Credits',         'id' => 'credits',       'class' => $className)
 	);
 
 	$myNav = "";

@@ -25,9 +25,11 @@
         
       } else {
         setUpTable();
-        initDataFilterForTable(function() { 
-          $('#filters').prepend($(document.createElement('label')).prop("id", "success").text(" - callback success"));
-        });        
+        initDataFilterForTable(
+          function() { 
+            $('#filters').prepend($(document.createElement('label')).prop("id", "success").text(" - callback success"));
+          }
+        );        
       }
 
       filterGroups(1); 

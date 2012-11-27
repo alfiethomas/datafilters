@@ -22,13 +22,13 @@ table, #filters, .paginationHolder, #tariffList {
 	background-color: white;
 	padding: 10px;
 	float: right;
-	width: 850px;	
+	width: 1000px;	
 	border: 1px solid;
 	padding-left: 20px;
 }
 
 table {
-	width: 882px;
+	width: 1032px;
 }
 
 td, th {
@@ -60,7 +60,7 @@ li p:nth-child(even) { color:red }
 }
 
 #qunit {
- width: 1120px;
+ width: 1270px;
 }
 
 #filters {

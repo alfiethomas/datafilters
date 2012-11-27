@@ -24,13 +24,14 @@ test("Test custom text extract", function() {
 	remove();
 	setUpTable();
 	initDataFilterForTableWithCustomTextExtract();
-	equal($('ul#Checkboxes_1 li input[type="checkbox"]').length, 10, "Should be 10 checkboxes");
+	equal($('ul#Checkboxes_1 li input[type="checkbox"]').length, 11, "Should be 11 checkboxes");
 	equal($('#tariffTable tbody tr:visible').length, 4, "Should be 4 rows visible");
-	equal($('ul#Checkboxes_1 li label').eq(0).text(), "row1", "First checkbox text should be row1");
-	equal($('ul#Checkboxes_1 li input[type="checkbox"]').eq(0).prop("value"), "row1", "First checkbox value should be row1");
+	equal($('ul#Checkboxes_1 li label').eq(0).text(), "All", "First checkbox text should be All");
+	equal($('ul#Checkboxes_1 li label').eq(1).text(), "row1", "2nd checkbox text should be row1");
+	equal($('ul#Checkboxes_1 li input[type="checkbox"]').eq(1).prop("value"), "row1", "2nd checkbox value should be row1");
 	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));
 
-	selectCheckbox('tariffTable',1,1)
+	selectCheckbox('tariffTable',1,2)
 	equal($('#tariffTable tbody tr:visible').length, 1, "Should be 1 row visible");
 	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));
 });
@@ -38,12 +39,18 @@ test("Test custom text extract", function() {
 test("Test Table", function() {
 	remove();
 	setUpTable();
-	initDataFilterForTable(function() {
-		$('#qunit').append($(document.createElement('label')).prop("id", "success").text("success"));
-	});
+	initDataFilterForTable(
+		function() {
+			$('#qunit').append($(document.createElement('label')).prop("id", "success").text("success"));
+		},
+		function () {
+			$('#qunit #success').text("filtered");	
+		}
+	);
 	equal($('#success').text(), "success", "Should add success label using onSuccess callback");
 	commonTests('#tariffTable', '#tariffTable tbody tr');
 	sortingTestsForTable('#tariffTable');
+	equal($('#success').text(), "filtered", "Should updated success label after filter using callback")
 
 	setTimeout(function() { 
 		test("Test Table Delayed slider test", function() { 
@@ -136,25 +143,31 @@ function dropdownTests(element, selector) {
 }	
 
 function checkboxTests(element, selector) {
-	equal($("ul[id*='Checkboxes']").eq(0).find("li").length, 10, "Should be 100 checkboxes as all elements are different");
+	equal($("ul[id*='Checkboxes']").eq(0).find("li").length, 11, "Should be 11 checkboxes as all elements are different so one for each and All checkbox");
+
+	var all = getCheckbox(element, 1, 1);
+	equal(all.attr('value'), "All", "First checkbox text should be All");
+	equal(all.attr('checked'), "checked", "All checkbox should be checked");
 	
-	equal(selectCheckbox(element, 1, 1), "row1-col1", "Select and check first checkbox is row1-col1");
+	equal(selectCheckbox(element, 1, 2), "row1-col1", "Select and check first checkbox is row1-col1");
+	equal(getCheckbox(element, 1, 1).attr('checked'), undefined, "All checkbox should not be checked");
 	equal($(selector+":visible").length, 1, "Should be 1 row when 1 checkbox selected");
 	equal($(selector+':visible').eq(0).text(), getTextForRow(1), "Should be first row");
 
-	equal(selectCheckbox(element, 1, 2), "row10-col1", "Select and check second checkbox is row10-col1 - (2nd row is 10 as 10 is sorted after 1)");
+	equal(selectCheckbox(element, 1, 3), "row10-col1", "Select and check second checkbox is row10-col1 - (2nd row is 10 as 10 is sorted after 1)");
  	equal($(selector+":visible").length, 2, "Should be 2 rows when 2 checkboxes selected");	
  	equal($(selector+':visible').eq(1).text(), getTextForRow(10), "2nd row should be row10");
+ 	clearAllCheckboxes(element,1);
 
- 	clearAllCheckboxes();
- 	equal(selectCheckbox(element, 2, 1), "~row1", "Select and check first checkbox in second list is row1");	
+ 	equal(getCheckbox(element,1,1).attr('checked'), "checked", "All checkbox should be checked");
+ 	equal(selectCheckbox(element, 2, 2), "~row1", "Select and check first checkbox in second list is row1");	
  	equal($(selector+":visible").length, 2, "Should be 2 rows when checkbox row1 selected as configured to non-word matching so matches row1 & row10");
-
- 	clearAllCheckboxes();
- 	equal(selectCheckbox(element, 2, 2), "row2", "Select and check second checkbox in second list is row2");	
+ 	clearAllCheckboxes(element, 2);
+ 	
+ 	equal(all.attr('checked'), "checked", "All checkbox should be checked");
+ 	equal(selectCheckbox(element, 2, 3), "row2", "Select and check second checkbox in second list is row2");	
  	equal($(selector+":visible").length, 1, "Should be 1 row when checkbox row2 selected as configured for word matching."); 	
-
- 	clearAllCheckboxes();
+ 	clearAllCheckboxes(element, 2);
 }
 
 function minWithSliderTest(element) {
@@ -263,7 +276,7 @@ function sortingTestsForList() {
 	function nthOption(n) {return $("#sortBySelect option:nth-child("+n+")") }
 
 	equal($("#sortBySelect option").length, 9, "Should be 9 entries in sorting dropdown - 8 options and sortby");
-	equal(nthOption(1).text(), "Sort by...", "First elemnt in sorting drop down");
+	equal(nthOption(1).text(), "Sort by", "First elemnt in sorting drop down");
 	equal(nthOption(3).text(), "test1 - highest", "Check another element in sorting dropdown");
 	equal(nthOption(3).attr("selected"), "selected", "Configured default option should be selected"); 
 	assertSortOrderForList("#tariffList", "testClass1", ["row9-col1","row8-col1","row7-col1","row6-col1"]);
@@ -303,8 +316,12 @@ function getCurrentPage() {
 	return $('ul.pagination li.active a').text();	
 }
 
+function getCheckbox(element,ulNum,liNum) {
+	return $("ul[id*='Checkboxes']").eq(ulNum-1).find("li:nth-child("+liNum+") input");	
+}
+
 function selectCheckbox(element,ulNum,liNum) {
-	var checkbox = $("ul[id*='Checkboxes']").eq(ulNum-1).find("li:nth-child("+liNum+") input");
+	var checkbox = getCheckbox(element,ulNum,liNum);
 	checkbox.prop("checked", true).click().prop("checked", true);	
 	return checkbox.attr('value');
 }
@@ -319,13 +336,10 @@ function selectSelect(select, index) {
 
 }
 
-function clearAllCheckboxes() {
-	$("ul[id*='Checkboxes'] li input").prop("checked", false);
-
-	// click first on to trigger filter
-	$("ul[id*='Checkboxes']").eq(0).find("li:nth-child(1) input").click().prop("checked", false);	
+function clearAllCheckboxes(element,ulNum) {
+	getCheckbox(element,ulNum,1).click().prop("checked", true);	
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8";
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9";
 }

@@ -1,8 +1,8 @@
 function initDataFilterForList(sortBy) {
 	$('#tariffList').DataFilter('init', { 
         "dataElements": {
-            "Test1"  : { "id": "testClass1", "dataType": "default",  "filterType": "checkboxes"    },
-            "Test1b" : { "id": "testClass1", "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },
+            "Test1"  : { "id": "testClass1", "dataType": "default",  "filterType": "checkboxes"     },
+            "Test9"  : { "id": "testClass9", "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },            
             "Test2"  : { "id": "testClass2", "dataType": "default",  "filterType": "min"            },
             "Test3"  : { "id": "testClass3", "dataType": "period",   "filterType": "max"            },
             "Test4"  : { "id": "testClass4", "dataType": "default",  "filterType": "minMax"         },
@@ -30,11 +30,11 @@ function getSortingDropdownItems() {
 	}	
 }
 
-function initDataFilterForTable(successFn) {
+function initDataFilterForTable(successFn, afterFilterFn) {
 	$('#tariffTable').DataFilter('init', { 
         "dataElements": {
             "Test1"  : { "id": 1, "dataType": "default",  "filterType": "checkboxes"     },
-            "Test1b" : { "id": 1, "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },
+            "Test9"  : { "id": 9, "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },
             "Test2"  : { "id": 2, "dataType": "default",  "filterType": "min"            },
             "Test3"  : { "id": 3, "dataType": "period",   "filterType": "max"            },
             "Test4"  : { "id": 4, "dataType": "default",  "filterType": "minMax"         },
@@ -45,6 +45,7 @@ function initDataFilterForTable(successFn) {
         },
         "pageSize": 4,
         "onSuccess": successFn,
+        "afterFilter": afterFilterFn,
         "settings.scrollToAnimationLength": 1
 	});	
 }
@@ -75,7 +76,7 @@ function initDataFilterForTableWithNoPaging() {
 function setUpTable() {
 	var table = $(document.createElement("table")).attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
 	var tr = $(document.createElement("tr"));
-	for (i=1; i<=8; i++) {
+	for (i=1; i<=9; i++) {
 		tr.append($(document.createElement("th")).prop("class", "sorting").text("Test"+i));
 	}
 	table.append($(document.createElement('thead')).append(tr));
@@ -90,6 +91,7 @@ function setUpTable() {
 		tr.append($(document.createElement("td")).text("£"+(i*10)));
 		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col8"));
+		tr.append($(document.createElement("td")).text("row"+i+"-col9"));
 		table.append(tr);
 	}
 	
@@ -109,6 +111,7 @@ function setUpList() {
 		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text("£"+(i*10))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
 		li.append($(document.createElement("p")).attr({"class": "testClass8"}).text("row"+i+"-col8"));
+		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row"+i+"-col9"));
 		list.append(li);
 	}
 
