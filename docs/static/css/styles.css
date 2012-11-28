@@ -283,6 +283,11 @@ h2 {
 	color: #222222;
 }
 
+h3 {
+	color: #222222;
+	margin: 0px;	
+}
+
 h2 a {
 	font-size: 0.7em;
 	text-decoration: none;
@@ -329,6 +334,7 @@ pre.prettyprint {
 
 .noUiSlider {
 	width: 125px;
+	border-radius: 2px;
 }
 
 .noUiSliderLabel {
@@ -397,6 +403,7 @@ p.refresh img, p.openAll img, p.closeAll img {
 #example ul.pagination {
 	text-align: right;
 	margin: 5px 0px;
+	font-weight: bold;
 }
 
 .pagination li {
@@ -414,15 +421,19 @@ a.filterSelect.opened {
 }
 
 .noUi-midBar {
-	background: #804444;
+	background: #802222;
+	border-radius: 2px;
 }
 
 .noUi-handle > div:hover, .noUi-handle > div.noUi-activeHandle {
-	background: #804444;
-	border-color: #444;
+	background: #800000;
+	border-color: #000;
+	border-width: 2px;
+	border-radius: 2px;	
 }
 
 .noUi-handle > div {
-	background: #800000;
-	border-color: #000;	
+	background: #802222;
+	border-color: #444;	
+	border-radius: 2px;	
 }
