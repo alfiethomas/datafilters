@@ -1,6 +1,19 @@
 <?php include("php/template.php"); ?>
 <?php showPageStart("home", "A jQuery plugin for lists and tables of data"); ?>
 
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#source').hide();
+    $('#hideSource').hide();
+    $('#showSource').click(function() { $('#source').slideDown('slow', function() { $('#showSource').hide(); $('#hideSource').show(); }) });
+    $('#hideSource').click(function() { $('#source').slideUp('slow',   function() { $('#showSource').show(); $('#hideSource').hide(); }) });
+  });      
+</script>
+
+<script type="text/javascript">
+<?php include("php/homepageExampleJavascript.php"); ?>
+</script>
+
 <div id="content">
   <p>
     DataFilters is a jQuery plugin that makes filtering and sorting tables and structured lists of data a breeze. Simply configure and apply to the
@@ -34,25 +47,58 @@
   </div> 
   <div style="clear: both"></div>
 
-  <h2>A Working Example <a id="showSource">(show source)</a></h2>
+  <h2>A Working Example <a id="showSource">(show source)</a><a id="hideSource">(hide source)</a></h2>
 
-    <pre class="prettyprint">
+  <div id="source">
+
+    <h3>HTML (abbreviated)</h3>
+<pre class="prettyprint">      
+&lt;div id="example"&gt;         
+  
+&lt;!-- Placeholder for generated filters - requires an id of "filters" --&gt;
+  &lt;div id="filters"&gt;Filters&lt;/div&gt;
+  &lt;div id="table"&gt;
+
+    &lt;!-- Placeholder for generated paging if using - requires a class of "pagninationHolder" --&gt;
+    &lt;span class="paginationHolder"&gt;&lt;/span&gt; 
+
+    &lt;table id="tariffTable" border="0" cellpadding="0" cellspacing="0"&gt;
+
+      &lt;!-- Make sure you use thead and tbody --&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th class="col1 sorting"&gt;Monthly&lt;br/&gt;cost&lt;/th&gt;
+          ...
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+
+      &lt;!-- Make sure you use thead and tbody --&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td class="monthlyCost"&gt;&pound;13&lt;span&gt;.50&lt;/span&gt;&lt;/td&gt;
+          ...
+        &lt;/tr&gt;
+        ...
+        ...
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+
+    &lt;!-- Paging placeholder can be used more than once --&gt;
+    &lt;span class="paginationHolder"&gt;&lt;/span&gt;   
+
+  &lt;/div&gt; &lt;!-- end table div --&gt;
+&lt;/div&gt; &lt;!-- end exmple div --&gt;
+</pre>    
+
+    <h3>JavaScript</h3>
+    <pre class="prettyprint">      
 <?php include("php/homepageExampleJavascript.php"); ?>
-    </pre>    
+    </pre> 
+
+    <h3>Result</h3><br>   
+  </div>
 
   <div id="example">         
-
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $('.prettyprint').hide();
-        $('#showSource').click(function() { $('.prettyprint').slideDown('slow'); });
-      });      
-    </script>
-
-    <script type="text/javascript">
-    <?php include("php/homepageExampleJavascript.php"); ?>
-    </script>
-
     <div id="filters">Filters</div>
     <div id="table">
 

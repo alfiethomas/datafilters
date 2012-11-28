@@ -16,7 +16,7 @@ echo
     <link href="../styles/nouislider.css" rel="stylesheet" type="text/css">
     <link href="static/css/sunburst.css" rel="stylesheet" type="text/css"/>
     <link href="static/css/styles.css" rel=stylesheet type="text/css">
-        
+
     <script src="static/js/prettify.js" type="text/javascript"></script>
     <script src="../scripts/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../scripts/jquery.datafilters.js" type="text/javascript" charset="utf-8"></script>
@@ -29,7 +29,7 @@ echo
   <div id=container>
     <div id=header>
       <h1>DataFilters JQuery Plugin</h1>
-      <img src="static/css/filter_data.png" />
+      <img src="static/css/filter_data_small.png" />
   
    <!-- header div ends -->
     </div>

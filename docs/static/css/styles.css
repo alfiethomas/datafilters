@@ -302,6 +302,15 @@ pre.prettyprint {
 	width: 170px;
 }
 
+#filters select {
+	width: 75px;
+}
+
+#filters .selectLabel {
+	width: 45px;
+	display: inline-block;
+}
+
 #table {
 	float: left;
 }
@@ -332,7 +341,11 @@ pre.prettyprint {
 }
 
 .filterSet {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
+}
+
+.filterContent {
+	padding-bottom: 20px;
 }
 
 .filterContent {
