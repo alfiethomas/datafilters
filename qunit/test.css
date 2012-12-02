@@ -1,0 +1,42 @@
+.noUiSlider {
+	width:					180px;
+	border:					1px solid #CCC;
+	height:					8px;
+	background:				#EEE;
+	-webkit-touch-callout:	none;
+	position:               relative; 
+	margin-bottom:          15px;
+}
+.noUiSliderLabel {
+	padding: 10px 0px; 
+}
+
+
+.noUi-midBar {
+	height:					100%;
+	z-index:				0;
+	background:				#39C;
+	-webkit-touch-callout:	none;
+}
+.noUi-handle > div {
+	position:				absolute;
+	width:					16px;
+	height:					16px;
+	top:					-5px;
+	left:					-8px;
+	z-index: 				5;
+	border:					1px solid #CCC;
+	background:				#EEE;
+}
+.noUi-handle > div:hover,
+.noUi-handle > div.noUi-activeHandle {
+	background:				#ACE;
+	border-color:			#369;
+}
+.disabled > .noUi-midBar {
+	background:				#999;
+}
+.disabled .noUi-handle > div {
+	border-color:			#CCC;
+	background:				#CCC;
+}

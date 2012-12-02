@@ -1,3 +1,12 @@
+/* IE patches */
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
+if (!window.console) console = { log: function(){} };
+
 (function($) {
 
 	$.fn.DataFilter = function(method, options) {
@@ -7,6 +16,7 @@
 		 */
 
 		var settings = $.extend( {
+			enableFreeTextSearch: false,
 			scrollToEnabled: false,
 			useShowResultsButton: false,
 			useApplyButton: false,
@@ -16,6 +26,8 @@
 			defaultTableSort: undefined,
 			slidersEnabled: true,
 			multiSelectLabel: "Select to add",
+			itemsLabel: "items",
+			itemLabel: "item",
 			extractTextFn: function(element) { return element.text() },
 			onSuccess: function() {},
 			afterFilter: function() {}
@@ -28,7 +40,6 @@
 			elementIds: {},
 			filtersInitialised: false,
 			initialised: false,
-			pauseFilter: false,
 			sort: {},
 			paging: {
 				currentPage: 1,
@@ -37,7 +48,7 @@
 				totalItems: 0,
 				numMatchedItems: 0
 			},
-			wrapper: $(document.createElement('div'))
+			wrapper: $(document.createElement('div')).attr("class", "filterWrapper")
 		}
 
 		methods = {		
@@ -55,7 +66,10 @@
 				function validate() {
 					var valid = true;
 					if ($('#filters').length == 0) valid = logValidationError("No element with id 'filters'");
-					if ($('.paginationHolder').length == 0) logValidationWarning("No .paginationHolder class elements for paging"); 
+					if ($('.paginationHolder').length == 0) {
+						logValidationWarning("No .paginationHolder class elements for paging - paging will be disabled"); 
+						settings.pageSize = -1;
+					}
 					return valid;
 				}	
 
@@ -72,6 +86,8 @@
 
 		function doInit() {
 			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
+
+			if (settings.enableFreeTextSearch) addFreeTextSearch();
 
 			$.each(settings.dataElements, function(groupName, config) {				
 				
@@ -113,12 +129,16 @@
 					var data = functionsForElementType[state.elementType].getAllDataForGivenIdFn(config.id);
 					items = extractUniqueValues(data, sortFn);
 				}
-				createFilterGroup(config.id, groupName, factoryFn, items);
+
+				if (items.length > 0) {
+					createFilterGroup(config.id, groupName, factoryFn, items);
+				} else {
+					console.log("No items found for id '" + config.id + "' so '" + groupName + "' not added as a filter");
+				}
 			}
 		};
 
 		function ready(itemsPerPageValue) {
-			state.pauseFilter = false;
 			state.filtersInitialised = true;
 			state.paging.defaultItemsPerPage = itemsPerPageValue;
 			doPaging(1, itemsPerPageValue);	
@@ -137,12 +157,10 @@
 			}
 
 			state.initialised = true;
-			setTimeout(function() { state.pauseFilter = false });
 		}
 
 		function addButton(text, clickFn) {
 			var btn = $(document.createElement("button")).attr({"type": "button", "class": "btn-style"}).click(function() { 
-				state.pauseFilter = false;
 				clickFn(); 
 			}).text(text);
 			state.wrapper.append($(document.createElement("div")).append(btn));			
@@ -184,8 +202,6 @@
 		}		
 
 		function doPaging(page,itemsPerPageValue) {
-			state.pauseFilter = false;
-
 			if (page) state.paging.currentPage = page;
 			if (state.paging.currentPage <= 0) state.paging.currentPage = 1;
 
@@ -205,8 +221,7 @@
 		}
 
 		function doFilter() {
-			if (!state.filtersInitialised || state.pauseFilter) {
-				state.pauseFilter = false;
+			if (!state.filtersInitialised) {
 				return;	
 			} 
 
@@ -319,7 +334,20 @@
 				if (!matched) return false;
 			});
 
+			if (settings.enableFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
+				matched = matchesRegex($(row).text().replace(/(\r\n|\n|\r)/gm,""), getAndRegex($('#freeTextSearch').val().trim()));
+			}
+
 			return matched;	
+		}
+
+		function getAndRegex(text) {
+			var regex = "";
+			var tokens = text.split(" ");
+			for (i=0; i<tokens.length; i++) {
+				regex += "(?=.*"+tokens[i]+")";
+			}
+			return regex;
 		}
 
 		function doMatch(row, index, value) {
@@ -372,7 +400,7 @@
 		function getSearchStringForCheckboxGroup(id) {
 			var searchString = "";
 			$('ul#'+id+' li input[type=checkbox]').each(function () {
-				if (this.checked && this.value != "All") searchString += addToSearchString(searchString, this.value);
+				if ($(this).prop("checked") && $(this).prop("name") != "All") searchString += addToSearchString(searchString, $(this).prop("name"));
 			});
 			return searchString;
 		}
@@ -403,7 +431,13 @@
 
 		function addFilterAttrs(element, idValue) {
 			return element.attr({"id": idValue, "class": 'filterContent'})
-		}				
+		}	
+
+		function addFreeTextSearch() {
+			wrapInFilterGroup("Search", $('<div>').append($('<input/>').attr({ type: 'text', id: 'freeTextSearch' }).keyup(function() {
+				filter();
+			})));
+		}			
 
 		function createMaxWithBanding(items, index) {
 			return createMax(getBandedItems(items), index);
@@ -448,8 +482,8 @@
 
 		function createMinMax(items, id) {
 			var ul = $(document.createElement("ul")).attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Min","From: "), createSelect(items,id,"Min")));
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Max","Up to: "), createSelect(items,id,"Max")));
+			ul.append(wrapSelectInLi(createSelectlabel(id,"Min","From: ").addClass("forSlider"),  createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider")));
+			ul.append(wrapSelectInLi(createSelectlabel(id,"Max","Up to: ").addClass("forSlider"), createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider")));
 			
 			var containerDiv = $(document.createElement("div"));
 			createSlider(containerDiv, items, id, "MaxMin");
@@ -472,17 +506,18 @@
 		}
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
-
-			function updateSlider(select) { 
-				updateSliderLabel(id, select.value);
-				moveSlider(type+"_"+id, select.selectedIndex);
-			}
-
 			var containerDiv = $(document.createElement("div"));
 			createSlider(containerDiv, items, id, type);
-			containerDiv.append(createSelectlabel(id, type, labelForSelect));
-			containerDiv.append(createSelect(items, id, type, updateSlider));
+			containerDiv.append(createSelectlabel(id, type, labelForSelect).addClass("forSlider"));
+			containerDiv.append(createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider"));
 			return containerDiv;
+		}
+
+		function updateSliderFn(type, id) {
+			return function updateSlider(select) { 
+				updateSliderLabel(id, select.value);
+				moveSlider(type+"_"+id, select.selectedIndex);
+			}			
 		}
 
 		function createMultiSelect(items, id) {
@@ -643,16 +678,14 @@
 		function moveSlider(id, index) {
 			if (utils.exists('#slider_'+id)) {
 				var knob = (utils.contains(id, "MaxMin")) ? "1" : "0";
-				$('#slider_'+id).noUiSlider('move', { knob: knob, to: index });	
-				state.pauseFilter = true;
+				$('#slider_'+id).noUiSlider('move', { knob: knob, to: index, surpressChange: true });	
 			
 			} else {
 				var knob = (utils.contains(id, "Max")) ? "1" : "0";
 				id = id.split("_")[1];
 
 				if (utils.exists('#slider_MaxMin_'+id))  {
-					$('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index });
-					state.pauseFilter = true;
+					$('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index, surpressChange: true });
 				}
 			}
 		}
@@ -691,7 +724,7 @@
 		    return $(document.createElement("input")).attr({
 		        "id":    index + '_' + item
 		       ,"class": "filterCheckbox" 
-		       ,"name":  index
+		       ,"name":  item
 		       ,"value": item
 		       ,"type":  'checkbox'
 		       ,"checked": checked
@@ -707,58 +740,81 @@
 
 		function createPagination() {
 			$('.paginationHolder').each(function(){
-				$(this).empty().append(createPaginationUl());
+				$(this).empty().append(doCreatePagination());
 			});	
 		}
 
-		function createPaginationUl() {
+		function doCreatePagination() {
+			var ul = createPagingUl();
+			if (settings.pageSize > 0  && state.paging.numMatchedItems > state.paging.itemsPerPage) 
+				addPageNumbersToPagingUl(ul);
+			if (settings.pageSize > 0) 
+				addShowAllLess(ul); 
+			return ul;
+		}
+
+		function createPagingUl() {
 			var from = ((state.paging.currentPage-1) * state.paging.itemsPerPage) + 1;
 			var to = ((state.paging.currentPage) * state.paging.itemsPerPage);
 			if (to > state.paging.numMatchedItems) to = state.paging.numMatchedItems;
 
+			var ul = $(document.createElement("ul")).attr({"class": "pagination"});
+			var showing = "Showing ";
+
+			if (settings.pageSize > 0) {
+			 	showing += from + " - " + to + " of ";
+			} 
+
+			showing += state.paging.numMatchedItems + " " + ((state.paging.numMatchedItems==1) ? settings.itemLabel : settings.itemsLabel);
+
+			if (state.paging.numMatchedItems < state.paging.totalItems) {
+				showing += "<span class='totalItems'> (filtered from " + state.paging.totalItems + ")</span>";
+			}
+			
+			return ul.append($(document.createElement("li")).attr({"class": "showing"}).html(showing));
+		}
+
+		function addShowAllLess(ul) {
+			if (state.paging.numMatchedItems > state.paging.itemsPerPage) {
+				pagingShowAllLi(ul, "Show All", 1, -1);
+
+			} else if (state.paging.defaultItemsPerPage > 0 && state.paging.itemsPerPage > state.paging.defaultItemsPerPage) {
+				pagingShowAllLi(ul, "First Page", 1, state.paging.defaultItemsPerPage);
+			}				
+		}		
+
+		function addPageNumbersToPagingUl(ul) {
 			var numPages = parseInt((state.paging.numMatchedItems/state.paging.itemsPerPage) + ((state.paging.numMatchedItems%state.paging.itemsPerPage > 0) ? 1 : 0)); 
 			var prev = (state.paging.currentPage>1) ? state.paging.currentPage-1 : 1;
 			var next = (state.paging.currentPage<numPages) ? state.paging.currentPage+1 : numPages;
 			if (next > numPages) next = numPages;
 
-			var ul = $(document.createElement("ul")).attr({"class": "pagination"});
-			ul.append($(document.createElement("li")).attr({"class": "showing"}).text("Showing " + from + " - " + to + " of " + state.paging.numMatchedItems));
-
 			pagingNextPrevLi(ul, "&laquo;", "Skip to first page", 1);
 			pagingNextPrevLi(ul, "&lsaquo;", "Skip to previous page", prev);
 
 			for (i=1; i<=numPages; i++) {
-				var li = $(document.createElement("li"));
-				if (i == state.paging.currentPage) li.attr({"class": "active"});
+				var li = $(document.createElement("li")).addClass("pageNumber");
+				if (i == state.paging.currentPage) li.addClass("active");
 				
 				ul.append(li.append($(document.createElement("a")).text(i).click(function(event) {
-					doPaging(event.currentTarget.text);
+					doPaging($(this).text());
 					scrollAfterPaging();
 				})));		
 			}
 
 			pagingNextPrevLi(ul, "&rsaquo;",  "Skip to next page", next);
-			pagingNextPrevLi(ul, "&raquo;", "Skip to last page", numPages);
-
-			if (state.paging.numMatchedItems > state.paging.itemsPerPage) {
-				pagingShowAllLi(ul, "Show All", 1, -1);
-
-			} else if (state.paging.defaultItemsPerPage > 0 && state.paging.itemsPerPage > state.paging.defaultItemsPerPage) {
-				pagingShowAllLi(ul, "Show Less", 1, state.paging.defaultItemsPerPage);
-			}
-
-			return ul;
+			pagingNextPrevLi(ul, "&raquo;", "Skip to last page", numPages);	
 		}
 
 		function pagingShowAllLi(ul, text, currentPageParam, itemsPerPageParam) {
-			ul.append($(document.createElement("li")).append($(document.createElement("a")).attr({"class": "pagingShow"}).text(text).click(function(event) {
+			ul.append($(document.createElement("li")).append($(document.createElement("a")).addClass("pagingShow").text(text).click(function(event) {
 				doPaging(currentPageParam, itemsPerPageParam);
 				scrollAfterPaging();				
 			})));		
 		}
 
 		function pagingNextPrevLi(ul, pagingSymbol, altText, currentPageParam) {
-			ul.append($(document.createElement("li")).append($(document.createElement("a")).click(function(event) {
+			ul.append($(document.createElement("li")).prop("class", "pageNumber").append($(document.createElement("a")).click(function(event) {
 				doPaging(currentPageParam);
 				scrollAfterPaging();
 			}).html(pagingSymbol)));		

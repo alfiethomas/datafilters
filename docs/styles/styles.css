@@ -260,6 +260,11 @@ p {
 
 
 /* Examples */
+table {
+	border-radius: 2px;
+	box-shadow: 1px 1px 2px 2px #CCC;
+}
+
 td {
 	background-color: #EEE;
 	padding: 5px 15px;
@@ -295,11 +300,6 @@ h2 a {
 
 pre.prettyprint {
 	margin-bottom: 30px;
-}
-
-#example {
-	 clear: both;
-	 padding: 0px 20px;
 }
 
 #filters {
@@ -365,23 +365,19 @@ pre.prettyprint {
 p.refresh, p.openAll, p.closeAll {
 	font-size: 90%;
 	font-weight: normal;
-	margin-bottom: 10px;
-	margin-top: -5px;
+	margin-bottom: 4px;
+	margin-top: -8px;
 	margin-right: 5px;
-	margin-left: -3px;
+	margin-left: -5px;
 }
 
 p.closeAll {
 	display: none;
 }
 
-p.openAll, p.closeAll {
-	float: left;	
-}
-
 p.refresh img, p.openAll img, p.closeAll img {
 	vertical-align: middle;
-	padding-left: 3px;
+	padding: 0px;
 }
 
 #tariffTable th.sortable {
@@ -408,7 +404,22 @@ p.refresh img, p.openAll img, p.closeAll img {
 
 .pagination li {
 	display: inline;
+}
+
+.pagination li a {
+	display: inline;
 	padding: 0px 4px;
+}
+
+.pagination .showing {
+	color: #222222;
+}
+
+#content ul.pagination li.active a {
+	color: #222222;
+	background-color: #E5E5E5;
+	border: 1px solid #AAA;
+	border-radius: 2px;
 }
 
 a.filterSelect {
@@ -417,7 +428,7 @@ a.filterSelect {
 	display: inline-block;
 }
 a.filterSelect.opened { 
-	background: url(close.gif) no-repeat left top; 
+	background: url(close.jpg) no-repeat left top; 
 }
 
 .noUi-midBar {
@@ -434,6 +445,56 @@ a.filterSelect.opened {
 
 .noUi-handle > div {
 	background: #802222;
-	border-color: #444;	
+	border-color: #222;	
 	border-radius: 2px;	
 }
+
+.filterWrapper {
+	clear: both;
+	margin-top: 10px;
+}
+
+/* size based styles for examples */
+.phoneCost, .col2 {
+	display: none;
+}
+
+#example {
+	 clear: both;
+	 padding: 0px;
+}
+
+.filterSet:nth-child(6) {
+	display: none;
+}
+
+@media (-webkit-min-device-pixel-ratio:1.2),-moz-touch-enabled,(max-device-width:1024px){
+	#example ul li.pageNumber {
+		font-size: 1.2em;
+		padding-left: 4px; 
+	}
+}
+
+@media screen and (min-width: 900px) {
+	.phoneCost, .col2 {
+		display: block;
+	}
+
+	#example {
+		 padding: 0px 20px;
+	}
+
+	.filterSet:nth-child(6) {
+		display: block;
+	}	
+}
+
+/* ucomment to hide slider lables and dropdowns */
+/*#filters .forSlider {
+	display: none;
+}
+
+.filterContent {
+	padding-bottom: 10px;
+}*/
+/* slider hiding styles end */

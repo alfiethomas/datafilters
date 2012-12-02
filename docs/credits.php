@@ -1,9 +1,9 @@
 <?php include("php/template.php"); ?>
-<?php showPageStart("home", "A jQuery plugin for lists and tables of data"); ?>
+<?php showPageStart("credits", "A jQuery plugin for lists and tables of data"); ?>
 
 <div id="content">
   <p>
-    Credit to be added in the near future. The site uses noUiSlider for sliders.
+    Credits to be added in the near future. The site uses <a href="http://refreshless.com/nouislider/">noUiSlider</a> for sliders.
   </p>
 </div>
 

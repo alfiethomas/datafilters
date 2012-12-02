@@ -13,7 +13,8 @@ function initDataFilterForList(sortBy) {
         },
         "pageSize": 4,
         "sortingDropDown": sortBy,
-        "settings.scrollToAnimationLength": 1
+        "scrollToAnimationLength": 1
+
 	});
 }
 
@@ -46,7 +47,7 @@ function initDataFilterForTable(successFn, afterFilterFn) {
         "pageSize": 4,
         "onSuccess": successFn,
         "afterFilter": afterFilterFn,
-        "settings.scrollToAnimationLength": 1
+        "scrollToAnimationLength": 1
 	});	
 }
 
@@ -69,7 +70,17 @@ function initDataFilterForTableWithNoPaging() {
         "dataElements": {
             "Test1"  : { "id": 1, "dataType": "default",  "filterType": "checkboxes" }
         },
-        "settings.scrollToAnimationLength": 1
+        "scrollToAnimationLength": 1
+   	});	
+}
+
+function initDataFilterForTableWithTextSearch() {
+	$('#tariffTable').DataFilter('init', { 
+        "dataElements": {
+            "Test1"  : { "id": 1, "dataType": "default",  "filterType": "checkboxes" }
+        },
+        "scrollToAnimationLength": 1,
+        "enableFreeTextSearch": true
    	});	
 }
 

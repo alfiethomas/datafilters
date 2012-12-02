@@ -23,6 +23,14 @@
         setUpTable();
         initDataFilterForTableWithCustomTextExtract(getSortingDropdownItems());
         
+      } else if (getParameter("noPaging")) {
+        setUpTable();
+        initDataFilterForTableWithNoPaging();
+        
+      } else if (getParameter("freeText")) {
+        setUpTable();
+        initDataFilterForTableWithTextSearch();
+        
       } else {
         setUpTable();
         initDataFilterForTable(

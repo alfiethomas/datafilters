@@ -22,7 +22,7 @@
   <p>
     DataFilters uses your existing data and respects the current styling. It has been designed to be unintrusive. If Javascript is disabled or there is an
     error whilst enchancing the data, then the original data is left untouched. For added confidence, DataFilters is covered by an extensive test suite  
-    (see <a href="support.hmtl">support page</a> for full details.)
+    (see <a href="support.php">support page</a> for full details.)
   </p>              
   <p>
     DataFilters can be configured to dynamically create various filtering and sorting elements such as:
@@ -59,7 +59,7 @@
   &lt;div id="filters"&gt;Filters&lt;/div&gt;
   &lt;div id="table"&gt;
 
-    &lt;!-- Placeholder for generated paging if using - requires a class of "pagninationHolder" --&gt;
+    &lt;!-- Placeholder for page info - requires a class of "pagninationHolder" --&gt;
     &lt;span class="paginationHolder"&gt;&lt;/span&gt; 
 
     &lt;table id="tariffTable" border="0" cellpadding="0" cellspacing="0"&gt;
@@ -558,6 +558,7 @@
 </tbody>
 </table>  
 <span class="paginationHolder"></span>   
+<br>
     </div> <!-- end table div -->
   </div> <!-- end exmple div -->
 </div> <!-- end content div -->

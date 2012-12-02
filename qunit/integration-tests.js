@@ -16,8 +16,30 @@ test("Test no paging", function() {
 	remove();
 	setUpTable();
 	initDataFilterForTableWithNoPaging();
-	expect(0);
-	//equal($('.paginationHolder').text(), "", "Should not create pagination when no paging");
+	equal($('#tariffTable tbody tr:visible').length, 10, "All rows (10) visible");
+	equal($('ul.pagination li:nth-child(1)').text(), "Showing 10 items", "Validate showing paging element does not show page numbers");
+
+	selectCheckbox('tariffTable',1,2)
+	equal($('#tariffTable tbody tr:visible').length, 1, "Should be 1 row visible");
+	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));	
+});
+
+test("Test free text search", function() {
+	remove();
+	setUpTable();
+	initDataFilterForTableWithTextSearch();
+	equal($('#tariffTable tbody tr:visible').length, 10, "All rows (10) visible");
+
+	selectCheckbox('tariffTable',1,2);
+	selectCheckbox('tariffTable',1,3);
+	selectCheckbox('tariffTable',1,4);
+	equal($('#tariffTable tbody tr:visible').length, 3, "Should be 3 rows visible - 3 checkboxes selected");
+
+	$('#freeTextSearch').val("row1");
+	var event = jQuery.Event("keyup");
+	$("#freeTextSearch").trigger(event);	
+
+	equal($('#tariffTable tbody tr:visible').length, 2, "Should be 2 rows visible - 3 checkboxes selected, but only 2 rows match text");	
 });
 
 test("Test custom text extract", function() {
@@ -28,7 +50,7 @@ test("Test custom text extract", function() {
 	equal($('#tariffTable tbody tr:visible').length, 4, "Should be 4 rows visible");
 	equal($('ul#Checkboxes_1 li label').eq(0).text(), "All", "First checkbox text should be All");
 	equal($('ul#Checkboxes_1 li label').eq(1).text(), "row1", "2nd checkbox text should be row1");
-	equal($('ul#Checkboxes_1 li input[type="checkbox"]').eq(1).prop("value"), "row1", "2nd checkbox value should be row1");
+	equal($('ul#Checkboxes_1 li input[type="checkbox"]').eq(1).prop("name"), "row1", "2nd checkbox value should be row1");
 	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));
 
 	selectCheckbox('tariffTable',1,2)
@@ -76,7 +98,7 @@ function commonTests(element, selector) {
 
 function pagingTests(selector) {
 
-	equal($('ul.pagination li:nth-child(1)').text(), "Showing 1 - 4 of 10", "Validate showing paging element");
+	equal($('ul.pagination li:nth-child(1)').text(), "Showing 1 - 4 of 10 items", "Validate showing paging element");
 
 	// show last page
 	clickPagingElement(6);
@@ -87,20 +109,20 @@ function pagingTests(selector) {
 	// trigger show all
 	equal($('ul.pagination li:nth-child(9)').text(), "Show All", "Should have Show All option");	
 	toggleShowAllLess();
-	equal($('ul.pagination li:nth-child(7)').text(), "Show Less", "Should have Show Less option after clicking show all");
+	equal($('ul.pagination li:nth-child(2)').text(), "First Page", "Should have First Page option after clicking show all");
 	equal($(selector+':visible').length, 10, "After clicking show all 10 elements should be visible");
-	equal($('ul.pagination').children().length, 7, "Should have 1 page, showing, show all, next, prev, first & last");
+	equal($('ul.pagination').children().length, 2, "Should have just showing and First Page");
 
-	// trigger show less
+	// trigger First Page
 	toggleShowAllLess();
-	equal($('ul.pagination li:nth-child(9)').text(), "Show All", "Should have Show All option after clicking show less");	
-	equal($(selector+':visible').length, 4, "8 elements should be visible after clicking show less");	
+	equal($('ul.pagination li:nth-child(9)').text(), "Show All", "Should have Show All option after clicking First Page");	
+	equal($(selector+':visible').length, 4, "8 elements should be visible after clicking First Page");	
 
 	function testPaging(elementToClick, pageToGoTo, previousPage, numVisibileItems, selector) {
 		clickPagingElement(elementToClick);
 		equal($('ul.pagination li:nth-child('+(pageToGoTo+3)+')').text(), pageToGoTo+"", "Validate element "+elementToClick+" in paging is page "+pageToGoTo);
-		equal($('ul.pagination li:nth-child('+(pageToGoTo+3)+')').attr("class"), "active", "Page "+pageToGoTo+" should have active class");	
-		equal($('ul.pagination li:nth-child('+(previousPage+3)+')').attr("class"), undefined, "Page "+previousPage+" should have no class");
+		equal($('ul.pagination li:nth-child('+(pageToGoTo+3)+')').attr("class"), "pageNumber active", "Page "+pageToGoTo+" should have active class");	
+		equal($('ul.pagination li:nth-child('+(previousPage+3)+')').attr("class"), "pageNumber", "Page "+previousPage+" should have no class");
 		equal($(selector+':visible').length, numVisibileItems, numVisibileItems+" elements should be visible");	
 	}
 
@@ -111,7 +133,7 @@ function pagingTests(selector) {
 
 	// leave on all
 	toggleShowAllLess();
-	equal($('ul.pagination li:nth-child(7)').text(), "Show Less", "Should have Show Less option after clicking show all");
+	equal($('ul.pagination li:nth-child(2)').text(), "First Page", "Should have First Page option after clicking show all");
 }
 
 function dropdownTests(element, selector) {
@@ -146,7 +168,7 @@ function checkboxTests(element, selector) {
 	equal($("ul[id*='Checkboxes']").eq(0).find("li").length, 11, "Should be 11 checkboxes as all elements are different so one for each and All checkbox");
 
 	var all = getCheckbox(element, 1, 1);
-	equal(all.attr('value'), "All", "First checkbox text should be All");
+	equal(all.attr('name'), "All", "First checkbox text should be All");
 	equal(all.attr('checked'), "checked", "All checkbox should be checked");
 	
 	equal(selectCheckbox(element, 1, 2), "row1-col1", "Select and check first checkbox is row1-col1");
@@ -238,10 +260,12 @@ function sortingTestsForTable(table) {
 	toggleShowAllLess();
 	equal($(table+" tbody tr:visible").length, 4, "Check 4 rows showing after showing less");
 	sortingTestsForColumn(table, 1, asc, dsc);
+	equal(getCurrentPage(), "1", "Should go to page 1 after sorting");
 
 	clickPagingElement(5);
 	equal(getCurrentPage(), "2", "Validate currently on page 2");
 	sortingTestsForColumn(table, 1, asc, dsc);
+	equal(getCurrentPage(), "1", "Should go to page 1 after sorting");
 
 	// configured to sort using period
 	asc = ["row1-col3","row2-col3","row3-col3","row4-col3"];
@@ -265,11 +289,9 @@ function sortingTestsForColumn(table, colNum, asc, dsc) {
 
 	sortByColumn(table, colNum);
 	assertSortOrder(table, colNum, asc);
-	equal(getCurrentPage(), "1", "Should go to page 1 after sorting");
 
 	sortByColumn(table, colNum);
 	assertSortOrder(table, colNum, dsc);	
-	equal(getCurrentPage(), "1", "Should go to page 1 after sorting");
 }
 
 function sortingTestsForList() {
@@ -323,7 +345,7 @@ function getCheckbox(element,ulNum,liNum) {
 function selectCheckbox(element,ulNum,liNum) {
 	var checkbox = getCheckbox(element,ulNum,liNum);
 	checkbox.prop("checked", true).click().prop("checked", true);	
-	return checkbox.attr('value');
+	return checkbox.attr('name');
 }
 
 function selectSelectById(id, index) {

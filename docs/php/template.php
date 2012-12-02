@@ -12,16 +12,18 @@ echo
     <meta name="description" content="DataFilters - a jQuery pluging for lists and tables of data. Makes filtering structured data a breeze." /> 
     <meta name="keywords" content="Data, Filter, jQuery, Plugin, List, Table, Checkboxes, Sliders, Dropdowns, Dynamic" /> 
     
+    <link rel="shortcut icon" href="favicon.ico" />
+
     <link href="http://fonts.googleapis.com/css?family=Ubuntu:bold" rel="stylesheet" type="text/css">
     <link href="../styles/nouislider.css" rel="stylesheet" type="text/css">
-    <link href="static/css/sunburst.css" rel="stylesheet" type="text/css"/>
-    <link href="static/css/styles.css" rel=stylesheet type="text/css">
+    <link href="styles/sunburst.css" rel="stylesheet" type="text/css"/>
+    <link href="styles/styles.css" rel=stylesheet type="text/css">
 
-    <script src="static/js/prettify.js" type="text/javascript"></script>
+    <script src="scripts/prettify.js" type="text/javascript"></script>
     <script src="../scripts/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../scripts/jquery.datafilters.js" type="text/javascript" charset="utf-8"></script>
-    <script src="../scripts/jquery.nouislider.min.js" type="text/javascript" ></script>
-    <script src="static/js/base.js" type="text/javascript" ></script>    
+    <script src="../scripts/jquery.nouislider.js" type="text/javascript" ></script>
+    <script src="scripts/base.js" type="text/javascript" ></script>    
     
     <title>DataFilters | ', $title, '</title>
   </head>
@@ -29,7 +31,7 @@ echo
   <div id=container>
     <div id=header>
       <h1>DataFilters JQuery Plugin</h1>
-      <img src="static/css/filter_data_small.png" />
+      <img src="styles/filter_data_small.png" />
   
    <!-- header div ends -->
     </div>
@@ -62,7 +64,7 @@ echo
 
   <!-- container div ends -->
   </div>
-<script type="text/javascript" src="static/js/respond.src.js"></script>
+<script type="text/javascript" src="scripts/respond.src.js"></script>
 </body>
 </html>';	
 }
@@ -74,10 +76,10 @@ function buildNav($selectedItem, $className) {
 	$items = array(
         array('link'=>'index.php',    'label' => 'Home',          'id' => 'home',          'class' => $className),
         array('link'=>'examples.php', 'label' => 'Examples',      'id' => 'examples',      'class' => $className), 
-        array('link'=>'config.php',   'label' => 'Configuration', 'id' => 'documentation', 'class' => $className), 
+        array('link'=>'config.php',   'label' => 'Configuration', 'id' => 'configuration', 'class' => $className), 
         array('link'=>'download.php', 'label' => 'Download',      'id' => 'download',      'class' => $className), 
-        array('link'=>'support.php',  'label'=>'Support',         'id' => 'support',       'class' => $className),
-        array('link'=>'credits.php',  'label'=>'Credits',         'id' => 'credits',       'class' => $className)
+        array('link'=>'support.php',  'label' =>'Support',        'id' => 'support',       'class' => $className),
+        array('link'=>'credits.php',  'label' =>'Credits',        'id' => 'credits',       'class' => $className)
 	);
 
 	$myNav = "";
@@ -106,7 +108,7 @@ function preventIosTextSizeAdjustment() {
         -webkit-text-size-adjust: none;  
       }
     </style>
-    <script src="/static/js/ios-orientationchange-fix.js"></script>
+    <script src="scripts/ios-orientationchange-fix.js"></script>
     ';
 	}
 	return '';
