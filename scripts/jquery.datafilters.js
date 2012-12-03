@@ -382,7 +382,11 @@ if (!window.console) console = { log: function(){} };
 		}
 
 		function matchesRange(index, value, range) {
+			range = utils.replaceAll(range, "Up to ", "Free-");
+
 			var values = range.split('-');
+			if (values.length == 1) values[1] = values[0];
+
 			var compareFn = getSortFunctionForColumn(index);
 			var matched = compareFn(values[0], value, -1) >= 0 && compareFn(values[1], value, 1) >= 0;
 			return matched;
@@ -488,13 +492,16 @@ if (!window.console) console = { log: function(){} };
 			var bandedItems = getBandedItems(items);
 			var rangeItems = [];
 			for (i=0; i<bandedItems.length; i++) {
-				if (i>0) {
+
+				if (i==0) {
+					if (bandedItems[i] == "Free") rangeItems.push(bandedItems[i]);	
+				} else {
 					rangeItems.push(bandedItems[i-1] + "-" + bandedItems[i]);
-				}
+				} 
 			}
 
 			var start = utils.now();
-			var combinedRangeItems = comnineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems);
+			var combinedRangeItems = combineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems);
 
 			return createCheckboxes(combinedRangeItems, index, "Range");
 		}
@@ -504,18 +511,28 @@ if (!window.console) console = { log: function(){} };
 			return items;
 		}
 
-		function comnineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems) {
+		function combineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems) {
 			var combinedRangeItems = [];
 			var currentRange = rangeItems[0];
 
 			for (i=0; i<rangeItems.length; i++) {
 				
 				if (rangeFirstIndexMacth(index, rangeItems[i], items) == -1) {
-					if (i<rangeItems.length-1) currentRange = currentRange.split('-')[0] + '-' + rangeItems[i+1].split('-')[1];
+					if (i<rangeItems.length-1) {
+						currentRange = currentRange.split('-')[0] + '-' + rangeItems[i+1].split('-')[1];
+					}
 				
 				} else {
+					
+					if (utils.startsWith(currentRange, "Free-")) {
+						currentRange = currentRange.replace("Free-", "Up to ");  
+					}
+					
 					combinedRangeItems.push(currentRange);
-					if (i<rangeItems.length-1) currentRange = rangeItems[i+1];
+					
+					if (i<rangeItems.length-1) {
+						currentRange = rangeItems[i+1];
+					}
 				}
 			}
 
