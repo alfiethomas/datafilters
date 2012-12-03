@@ -5,7 +5,6 @@ exit
 fi	
 
 java -jar build/yuicompressor-2.4.7.jar scripts/jquery.datafilters.js -o scripts/jquery.datafilters.min.js
-find . -iregex '.*\(\.php\)' -exec touch {} \;
 git add -A
 git commit -m "$1"
 git push -u origin master
