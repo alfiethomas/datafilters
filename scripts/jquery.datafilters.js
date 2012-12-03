@@ -231,11 +231,12 @@ if (!window.console) console = { log: function(){} };
 				var index = this.id.split("_")[1];
 
 				switch (type) {
-					case "Select"      : addToSearches(searches, index, getSearchStringForSelect(this.id)); break;
-					case "MultiSelect" : addToSearches(searches, index, getSearchStringForMultiSelect(this.id)); break;
-					case "Checkboxes"  : addToSearches(searches, index, getSearchStringForCheckboxGroup(this.id)); break;
-					case "Max"         : addToSearches(searches, index, getSearchStringForMaxSelect(this.id)); break;
-					case "Min"         : addToSearches(searches, index, getSearchStringForMinSelect(this.id)); break;
+					case "Select"           : addToSearches(searches, index, getSearchStringForSelect(this.id)); break;
+					case "MultiSelect"      : addToSearches(searches, index, getSearchStringForMultiSelect(this.id)); break;
+					case "Checkboxes"       : addToSearches(searches, index, getSearchStringForCheckboxGroup(this.id)); break;
+					case "CheckboxesRange"  : addCheckboxesRangeSearcehs(searches, index); break;
+					case "Max"              : addToSearches(searches, index, getSearchStringForMaxSelect(this.id)); break;
+					case "Min"              : addToSearches(searches, index, getSearchStringForMinSelect(this.id)); break;
 				}
 			});
 
@@ -257,7 +258,7 @@ if (!window.console) console = { log: function(){} };
 			if (utils.exists($("#scrollTo"))) {
 				$('html, body').animate({
 			         scrollTop: $("#scrollTo").offset().top
-			    }, 1000, function() {console.log('scrolled')});			
+			    }, 1000);			
 			}
 		}
 
@@ -353,28 +354,46 @@ if (!window.console) console = { log: function(){} };
 		function doMatch(row, index, value) {
 			var cellText = functionsForElementType[state.elementType].extractTextFn(row, index);
 
-			return utils.contains(value, "--M") ? 
-				matchesMaxMin(index, cellText, value) :
-				matchesRegex(cellText, value);
+			if (utils.startsWith(value, "--MAX--") || utils.startsWith(value, "--MIN--")) { 
+				return matchesMaxMin(index, cellText, value);
+
+			} else if (utils.startsWith(value, "--RANGE--")) { 
+				return matchesRanges(index, cellText, value);
+
+			} else {
+				return matchesRegex(cellText, value);
+			}
 		}
 
 		function matchesRegex(text, regex) {
 			return text.search(new RegExp(regex, "i")) > -1;
 		}
 
-		function matchesMaxMin(columnIndex, value, maxMin) {
-			var maxMinValue = maxMin.split('_')[1];
-			var compareFn = getSortFunctionForColumn(columnIndex);
-			var sortDirction = utils.contains(maxMin, "--MAX--_") ? 1 : -1;
-			var matched = utils.contains(maxMinValue, "No M") ? true : compareFn(maxMinValue, value, sortDirction) >= 0;
+		function matchesRanges(index, value, ranges) {
+			var atLeastOneMactch = false;
+			var rangesArray = ranges.split('--RANGE--_');
+
+			for (i=0; i<rangesArray.length; i++) {
+				if (rangesArray[i].trim().length > 0) {
+					atLeastOneMactch = atLeastOneMactch || matchesRange(index, value, rangesArray[i]);
+				}
+			}
+			return atLeastOneMactch;
+		}
+
+		function matchesRange(index, value, range) {
+			var values = range.split('-');
+			var compareFn = getSortFunctionForColumn(index);
+			var matched = compareFn(values[0], value, -1) >= 0 && compareFn(values[1], value, 1) >= 0;
 			return matched;
 		}
 
-		function getSearchStringForMaxSelect(id) { return getSearchStringForMinMaxSelect(id, "--MAX--_"); }
-		function getSearchStringForMinSelect(id) { return getSearchStringForMinMaxSelect(id, "--MIN--_"); }
-
-		function getSearchStringForMinMaxSelect(id, type) {
-			return type + $('select#'+id+'>option:selected').val();
+		function matchesMaxMin(index, value, maxMin) {
+			var maxMinValue = maxMin.split('_')[1];
+			var compareFn = getSortFunctionForColumn(index);
+			var sortDirction = utils.contains(maxMin, "--MAX--_") ? 1 : -1;
+			var matched = utils.contains(maxMinValue, "No M") ? true : compareFn(maxMinValue, value, sortDirction) >= 0;
+			return matched;
 		}
 
 		function getSearchStringArrayForMinMaxSelect(index) {
@@ -382,7 +401,14 @@ if (!window.console) console = { log: function(){} };
 				getSearchStringForMaxSelect("Max_"+index), 
 				getSearchStringForMinSelect("Min_"+index)
 			];
-		}
+		}	
+
+		function getSearchStringForMaxSelect(id) { return getSearchStringForMinMaxSelect(id, "--MAX--_"); }
+		function getSearchStringForMinSelect(id) { return getSearchStringForMinMaxSelect(id, "--MIN--_"); }
+
+		function getSearchStringForMinMaxSelect(id, type) {
+			return type + $('select#'+id+'>option:selected').val();
+		}			
 
 		function getSearchStringForSelect(id) {
 			return $('select#'+id+' option:selected').prop("value");
@@ -404,6 +430,16 @@ if (!window.console) console = { log: function(){} };
 			});
 			return searchString;
 		}
+
+		function addCheckboxesRangeSearcehs(searches, index) {
+			var rangeSearches = "";
+			$('ul#CheckboxesRange_'+index+' li input[type=checkbox]').each(function () {
+				if ($(this).prop("checked") && $(this).prop("name") != "All") {
+					rangeSearches += "--RANGE--_" + $(this).parent().text();
+				}
+			});
+			addToSearches(searches, index, rangeSearches);
+		}		
 
 		function addToSearchString(searchString, value) {
 			var searchToAdd = matchWordBoundaryUnlessTextStartWithTilda(value);
@@ -448,10 +484,54 @@ if (!window.console) console = { log: function(){} };
 			return createMin(bandedItems, index);
 		}
 
+		function createRangeBanding(items, index) {
+			var bandedItems = getBandedItems(items);
+			var rangeItems = [];
+			for (i=0; i<bandedItems.length; i++) {
+				if (i>0) {
+					rangeItems.push(bandedItems[i-1] + "-" + bandedItems[i]);
+				}
+			}
+
+			var start = utils.now();
+			var combinedRangeItems = comnineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems);
+
+			return createCheckboxes(combinedRangeItems, index, "Range");
+		}
+
 		function removeLastItemToEnsureAResultIsAlwaysReturned(items) {
 			if (items.length > 1) items.pop();
 			return items;
-		}		
+		}
+
+		function comnineRangesToEnsureTheyAllMatchSomething(index, items, rangeItems) {
+			var combinedRangeItems = [];
+			var currentRange = rangeItems[0];
+
+			for (i=0; i<rangeItems.length; i++) {
+				
+				if (rangeFirstIndexMacth(index, rangeItems[i], items) == -1) {
+					if (i<rangeItems.length-1) currentRange = currentRange.split('-')[0] + '-' + rangeItems[i+1].split('-')[1];
+				
+				} else {
+					combinedRangeItems.push(currentRange);
+					if (i<rangeItems.length-1) currentRange = rangeItems[i+1];
+				}
+			}
+
+			return combinedRangeItems;
+		}
+
+		function rangeFirstIndexMacth(index, range, items) {
+			if (state.elementType == "TABLE") index = parseInt(index)-1;
+
+			for (j=0; j<items.length; j++) {
+				if (matchesRange(index, items[j], range)) {
+					return j;
+				}
+			}
+			return -1;
+		}
 
 		function getBandedItems(items) {
 			var low = utils.extractCurrencyValue(items[0]);
@@ -690,29 +770,30 @@ if (!window.console) console = { log: function(){} };
 			}
 		}
 
-		function createCheckboxes(items, index) {
-			var ul = $(document.createElement("ul")).attr({"id": 'Checkboxes_'+index, "data-role": "filterSetSelector"});
+		function createCheckboxes(items, index, type) {
+			var id = (type) ? 'Checkboxes'+type+'_'+index : 'Checkboxes_'+index;
+			var ul = $(document.createElement("ul")).attr({"id": id, "data-role": "filterSetSelector"});
 			
 			// add all checkbox
 			ul.append(createCheckboxLi("All", index, true, function() { 
-				$.each($('ul#Checkboxes_'+index+' input[type="checkbox"]'), function(i, item) {
-					checkAll(index, true);
+				$.each($('ul#'+id+' input[type="checkbox"]'), function(i, item) {
+					checkAll(id, true);
 					if (i > 0) $(item).prop("checked", false);
 					filterAfterChange();
 				});
 			}));
 
 			$.each(items, function(iteration, item) {
-			    ul.append(createCheckboxLi(item, index, false, function(event) { 
-			    	checkAll(index, false);
+			    ul.append(createCheckboxLi(item, id, false, function(event) { 
+			    	checkAll(id, false);
 			    	filterAfterChange() 
 			    }));
 			});
 			return ul;	
 		}
 
-		function checkAll(index, checked) {
-			$('ul#Checkboxes_'+index+' input[type="checkbox"]').eq(0).prop("checked", checked);			
+		function checkAll(id, checked) {
+			$('ul#'+id+' input[type="checkbox"]').eq(0).prop("checked", checked);			
 		}
 
 		function createCheckboxLi(item, index, checked, clickFn) {
@@ -1011,7 +1092,8 @@ if (!window.console) console = { log: function(){} };
 	    	"max"            : createMax,
 	    	"minMax"         : createMinMax,
 	    	"minWithBanding" : createMinWithBanding,
-	    	"maxWithBanding" : createMaxWithBanding
+	    	"maxWithBanding" : createMaxWithBanding,
+	    	"rangeBanding"   : createRangeBanding
 	    }
 
 	    var functionsForElementType = {

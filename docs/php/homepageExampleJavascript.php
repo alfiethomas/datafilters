@@ -10,7 +10,7 @@ function initFilters() {
       "UK Minutes"    : { "id": 4, "dataType": "amount",   "filterType": "min"            },
       "UK Data"       : { "id": 6, "dataType": "amount",   "filterType": "minMax"         },          
       "UK Texts"      : { "id": 5, "dataType": "amount",   "filterType": "min"            },
-      "Phone Price"   : { "id": 2, "dataType": "currency", "filterType": "maxWithBanding" }
+      "Phone Price"   : { "id": 2, "dataType": "currency", "filterType": "rangeBanding" }
     },
     pageSize: 20,
     enableFreeTextSearch: true,
