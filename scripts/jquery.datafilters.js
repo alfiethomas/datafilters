@@ -382,9 +382,9 @@ if (!window.console) console = { log: function(){} };
 		}
 
 		function matchesRange(index, value, range) {
-			range = utils.replaceAll(range, "Up to ", "Free-");
+			range = utils.replaceAll(range, "Up to ", "Free -");
 
-			var values = range.split('-');
+			var values = range.split(' - ');
 			if (values.length == 1) values[1] = values[0];
 
 			var compareFn = getSortFunctionForColumn(index);
@@ -496,7 +496,7 @@ if (!window.console) console = { log: function(){} };
 				if (i==0) {
 					if (bandedItems[i] == "Free") rangeItems.push(bandedItems[i]);	
 				} else {
-					rangeItems.push(bandedItems[i-1] + "-" + bandedItems[i]);
+					rangeItems.push(bandedItems[i-1] + ' - ' + bandedItems[i]);
 				} 
 			}
 
@@ -519,13 +519,13 @@ if (!window.console) console = { log: function(){} };
 				
 				if (rangeFirstIndexMacth(index, rangeItems[i], items) == -1) {
 					if (i<rangeItems.length-1) {
-						currentRange = currentRange.split('-')[0] + '-' + rangeItems[i+1].split('-')[1];
+						currentRange = currentRange.split(' - ')[0] + ' - ' + rangeItems[i+1].split(' - ')[1];
 					}
 				
 				} else {
 					
-					if (utils.startsWith(currentRange, "Free-")) {
-						currentRange = currentRange.replace("Free-", "Up to ");  
+					if (utils.startsWith(currentRange, "Free -")) {
+						currentRange = currentRange.replace("Free -", "Up to ");  
 					}
 					
 					combinedRangeItems.push(currentRange);
