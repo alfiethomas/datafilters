@@ -5,7 +5,8 @@ if(typeof String.prototype.trim !== 'function') {
   }
 }
 
-if (!window.console) console = { log: function(){} };
+if (!window.console) console = { log: function(string){ alert(string) } };   
+
 
 (function($) {
 
@@ -18,18 +19,28 @@ if (!window.console) console = { log: function(){} };
 		var settings = $.extend( {
 			enableFreeTextSearch: false,
 			scrollToEnabled: false,
+			animationEnabled: false,
 			useShowResultsButton: false,
 			useApplyButton: false,
 			pageSize: -1,
-			dataElements: {},
+			filters: {},
 			sortingDropDown: undefined,
 			defaultTableSort: undefined,
 			slidersEnabled: true,
 			multiSelectLabel: "Select to add",
 			itemsLabel: "items",
 			itemLabel: "item",
+			noResultsHtml: "<p>No matching items, please modify your search criteria</p>",
+			disableIfSlow: false,
+			slowTimeMs: 1000,
+			useLoadingOverlayOnFilter: false,
+			loadingMinTime: 300,
+			useLoadingOverlayOnFilterIfSlow: true,
+			disableFreeTextIfSlow: true,
+			useLoadingOverlayOnStartUp: false,
 			extractTextFn: function(element) { return element.text() },
 			onSuccess: function() {},
+			onSlow: function(time) { console.log("Too slow to create filters: " + time + "ms") },
 			afterFilter: function() {}
 		}, options);		
 
@@ -55,8 +66,7 @@ if (!window.console) console = { log: function(){} };
 
 			init: function(){
 				if (validate()) {
-					doInit();
-					settings.onSuccess();
+					utils.wrapFunctionWithLoading(doInit, settings.useLoadingOverlayOnStartUp);
 					return this;
 				
 				} else {
@@ -85,25 +95,52 @@ if (!window.console) console = { log: function(){} };
 		}
 
 		function doInit() {
-			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
-
+			var start = utils.now();
+			
 			if (settings.enableFreeTextSearch) addFreeTextSearch();
 
-			$.each(settings.dataElements, function(groupName, config) {				
-				
-				if (state.elementIds[config.id]) {
-					console.log("Duplicate id ["+config.id+"] - can only create single filter by ID - all but first being ignored");
+			for (filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
+				var filter = settings.filters[filtersIndex];
+
+				if (state.elementIds[filter.id]) {
+					console.log("Duplicate id ["+filter.id+"] - can only create single filter by ID - all but first being ignored");
 				
 				}  else {
-					state.elementIds[config.id] = config.id;
-					initDataElement(groupName, config);
+					state.elementIds[filter.id] = filter.id;
+					initDataElement(filter);
 				}
-			});
+			}
 
-			applyToFiltersElement();
-			applySorting();
+			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
 
-			ready(settings.pageSize);			
+			state.filterCreationTime = utils.now() - start;
+			console.log(state.filterCreationTime);
+			
+			if (settings.disableIfSlow && state.filterCreationTime > settings.slowTimeMs) {
+				handleSlowness();
+				settings.onSlow(state.filterCreationTime);
+			
+			} else {
+				applyToFiltersElement();
+				applySorting();
+				addNoResultsHolder();
+
+				ready(settings.pageSize);	
+				console.log(utils.now() - start);		
+				
+				settings.onSuccess();
+			}
+		}
+
+		function handleSlowness() {
+			if (settings.useLoadingOverlayOnFilterIfSlow) settings.useLoadingOverlay = true;
+			if (settings.disableFreeTextIfSlow) $('freeTextSearch').remove();
+		}
+
+		function addNoResultsHolder() {
+			if (!utils.exists("#noFilterResults")) {
+				state.element.after($('<div/>').attr("id", "noFilterResults").html(settings.noResultsHtml).hide());
+			}
 		}
 
 		function applyToFiltersElement() {
@@ -116,13 +153,13 @@ if (!window.console) console = { log: function(){} };
 			if (settings.sortingDropDown != undefined) selectDefaultSortingDropdownItem(settings.sortingDropDown); 			
 		}
 
-		function initDataElement(groupName, config) {
+		function initDataElement(config) {
 			state.filtersInitialised = false;
 			sortFn = compareFunctionForDataType[config.dataType]
 			state.sort[config.id] = sortFn;
 			factoryFn = factoryFunctionForFilterType[config.filterType];
 
-			if (groupName && factoryFn) { 
+			if (config.heading && factoryFn && sortFn) { 
 				var items = config.items;
 
 				if (items == undefined) {
@@ -131,10 +168,14 @@ if (!window.console) console = { log: function(){} };
 				}
 
 				if (items.length > 0) {
-					createFilterGroup(config.id, groupName, factoryFn, items);
+					createFilterGroup(config.id, config.heading, factoryFn, items);
 				} else {
-					console.log("No items found for id '" + config.id + "' so '" + groupName + "' not added as a filter");
+					console.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
 				}
+			
+			} else {
+				console.log("Can not create filter for id '" + config.id + "' so '" + config.heading + "' with filterType '" + config.filterType + 
+					"' and dataType '" + config.dataType + "' not added as a filter");
 			}
 		};
 
@@ -216,15 +257,18 @@ if (!window.console) console = { log: function(){} };
 		}
 
 		function filter() {
-			state.paging.currentPage = 1;
-			doFilter();
-		}
+			utils.wrapFunctionWithLoading(function() {
+				state.paging.currentPage = 1;
+				doFilter();
+			}, settings.useLoadingOverlayOnFilter);
+		}		
 
 		function doFilter() {
 			if (!state.filtersInitialised) {
 				return;	
 			} 
 
+			var start = utils.now();
 			var searches = {};
 			$('#filters [data-role="filterSetSelector"]').each(function () {
 				var type = this.id.split("_")[0];
@@ -243,23 +287,31 @@ if (!window.console) console = { log: function(){} };
 			filterRows(matches, searches);
 			createPagination();
 			scrollToResults();
+			checkForNoResults();
+			console.log("doFilter: " + (utils.now() - start));
+
 			settings.afterFilter();
 		}
 
+		function showLoading() { 
+		    $('body').addClass("loading"); 
+		}
+
+		function hideLoading() { 
+		    $('body').removeClass("loading"); 
+		} 		
+
 		function scrollToResults() {
 			if ((settings.useApplyButton && state.initialised) || 
-					(utils.exists("#scrollTo") && settings.scrollToEnabled && state.initialised)) {
+					(settings.scrollToEnabled && state.initialised)) {
 
 				doScrollToResults();
 			}
 		}
 
 		function doScrollToResults() {
-			if (utils.exists($("#scrollTo"))) {
-				$('html, body').animate({
-			         scrollTop: $("#scrollTo").offset().top
-			    }, 1000);			
-			}
+			var scrollToElement = utils.exists($("#scrollTo")) ? $("#scrollTo") : state.element;
+			$('html, body').animate({ scrollTop: scrollToElement.offset().top }, 300);			
 		}
 
 		function scrollAfterPaging() {
@@ -296,28 +348,37 @@ if (!window.console) console = { log: function(){} };
 			    if (matched) {
 
 			    	if (shouldShowItem(visibleItems)) {
-			    		$(this).show();
+			    		settings.animationEnabled ? $(this).show('slow') : $(this).show();
 			    		visibleItems++; 
 			    	} else {
-			    		$(this).hide();	
+			    		settings.animationEnabled ? $(this).hide('slow') : $(this).hide();
 			    	}
 
 			    	state.paging.numMatchedItems++;	
 
 			    } else {                  
-			    	$(this).hide();
+			    	settings.animationEnabled ? $(this).hide('slow') : $(this).hide();
 			    }
 			});	
 
+			setTimeout(function(){ hideThenShowToFixLayoutIssues(data) }, settings.animationEnabled ? 330 : 1);
 			//console.log("filtered:" + (utils.now() - start));
-			setTimeout(function(){ hideThenShowToFixLayoutIssues(data) }, 0);
-			//console.log("hacked:" + (utils.now() - start));
 		}
 
 		function hideThenShowToFixLayoutIssues(data) {
 			data.each(function() { 
 				if ($(this).css('display') != 'none') $(this).hide().show();
 			} );
+		}
+
+		function checkForNoResults() {
+			if (state.paging.numMatchedItems == 0) {
+				$('#noFilterResults').show();
+				$('.paginationHolder').hide();
+			} else {
+				$('#noFilterResults').hide();
+				$('.paginationHolder').show();
+			}
 		}
 
 		function shouldShowItem(visibleItems) {
@@ -336,7 +397,7 @@ if (!window.console) console = { log: function(){} };
 			});
 
 			if (settings.enableFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
-				matched = matchesRegex($(row).text().replace(/(\r\n|\n|\r)/gm,""), getAndRegex($('#freeTextSearch').val().trim()));
+				matched = matchesRegex($(row).text().replace(/(\r\n|\n|\r)/gm," "), getAndRegex($('#freeTextSearch').val().trim()));
 			}
 
 			return matched;	
@@ -382,7 +443,7 @@ if (!window.console) console = { log: function(){} };
 		}
 
 		function matchesRange(index, value, range) {
-			range = utils.replaceAll(range, "Up to ", "Free -");
+			range = utils.replaceAll(range, "up to ", "£0 - ");
 
 			var values = range.split(' - ');
 			if (values.length == 1) values[1] = values[0];
@@ -462,11 +523,16 @@ if (!window.console) console = { log: function(){} };
 			wrapInFilterGroup(group, factoryFn(items, index));
 		}	
 
-		function wrapInFilterGroup(group, element) {
+		function wrapInFilterGroup(group, element, prepend) {
 			var filterDiv = $(document.createElement("div")).attr({"class": "filterSet"})
 			filterDiv.append($(document.createElement("a")).attr({"class": "filterSelect"}).text(group));
 			filterDiv.append(addFilterAttrs(element));	
-			state.wrapper.append(filterDiv);	
+			
+			if (prepend) {
+				state.wrapper.prepend(filterDiv);	
+			} else {
+				state.wrapper.append(filterDiv);
+			}
 		}
 
 		function addFilterAttrs(element, idValue) {
@@ -474,9 +540,10 @@ if (!window.console) console = { log: function(){} };
 		}	
 
 		function addFreeTextSearch() {
-			wrapInFilterGroup("Search", $('<div>').append($('<input/>').attr({ type: 'text', id: 'freeTextSearch' }).keyup(function() {
-				filter();
-			})));
+			wrapInFilterGroup("Search", $('<div>').append($('<input/>').attr({ type: 'search', id: 'freeTextSearch', placeholder: "type to search" })
+				.keyup(function() { filter(); })
+				.click(function() { filter(); })
+			));
 		}			
 
 		function createMaxWithBanding(items, index) {
@@ -494,7 +561,11 @@ if (!window.console) console = { log: function(){} };
 			for (i=0; i<bandedItems.length; i++) {
 
 				if (i==0) {
-					if (bandedItems[i] == "Free") rangeItems.push(bandedItems[i]);	
+					if (bandedItems[i] == "Free") {
+						rangeItems.push(bandedItems[i]);	
+					} else {
+						rangeItems.push("up to " + bandedItems[i]);
+					}
 				} else {
 					rangeItems.push(bandedItems[i-1] + ' - ' + bandedItems[i]);
 				} 
@@ -523,9 +594,8 @@ if (!window.console) console = { log: function(){} };
 					}
 				
 				} else {
-					
 					if (utils.startsWith(currentRange, "Free -")) {
-						currentRange = currentRange.replace("Free -", "Up to ");  
+						currentRange = currentRange.replace("Free -", "up to ");  
 					}
 					
 					combinedRangeItems.push(currentRange);
@@ -556,10 +626,12 @@ if (!window.console) console = { log: function(){} };
 			var range = parseInt(high) - parseInt(low);
 			var step = 10;
 
-			if (range > 350) { step = 100 } else
-			if (range > 175) { step = 50  } else  
-			if (range >  75) { step = 25  } else 
-			if (range >  60) { step = 20  }
+			if (range > 1750) { step = 500 } else
+			if (range > 750)  { step = 250 } else
+			if (range > 350)  { step = 100 } else
+			if (range > 175)  { step = 50  } else  
+			if (range >  75)  { step = 25  } else 
+			if (range >  60)  { step = 20  }
 
 			var noItems = parseInt(range / step) + 1;
 			var startFrom = (low - (low%step)) + step;
@@ -796,8 +868,8 @@ if (!window.console) console = { log: function(){} };
 				$.each($('ul#'+id+' input[type="checkbox"]'), function(i, item) {
 					checkAll(id, true);
 					if (i > 0) $(item).prop("checked", false);
-					filterAfterChange();
 				});
+				filterAfterChange();
 			}));
 
 			$.each(items, function(iteration, item) {
@@ -926,15 +998,26 @@ if (!window.console) console = { log: function(){} };
 		function createSortingDropDown(items) {
 			var select = $(document.createElement("select")).attr({"id": "sortBySelect"});
 			select.append($(document.createElement("option")).prop("value", "sortBy").text("Sort by"));
-			$.each(items, function(key, sortConfig) {
-				var value = sortConfig.id + "_" + sortConfig.direction;
-			    select.append($(document.createElement("option")).prop("value", value).text(key));
-			});
+			
+			for(sortConfigIndex=0; sortConfigIndex<items.length; sortConfigIndex++) {
+				var sortConfig = items[sortConfigIndex];
+
+				if (state.sort[sortConfig.id] != undefined) {
+					var value = sortConfig.id + "_" + sortConfig.direction;
+				    select.append($(document.createElement("option")).prop("value", value).text(sortConfig.heading));
+
+				} else {
+					console.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + config.heading + "'' to sorting dropdown")
+				}
+
+			}
+			
 			select.change(function(event) {
 				var key = $('select#sortBySelect>option:selected').val();
 				if (key != "sortBy") sortData(state.element, functionsForElementType[state.elementType].getAllDataFn(), key.split('_')[0], key.split('_')[1]);
 		    });
-			wrapInFilterGroup("Sort by", select);   
+			
+			wrapInFilterGroup("Sort by", select, true);   
 		}
 
 		function selectDefaultSortingDropdownItem(items) {
@@ -1090,7 +1173,28 @@ if (!window.console) console = { log: function(){} };
 			substringBeforeFirst: function(text, delim) {
 				var index = text.indexOf(delim);
 				return (index > -1) ? text.substring(0, index) : text 
-			}														
+			},	
+
+			wrapFunctionWithLoading: function(functionToWrap, shouldWrap) {
+				if (shouldWrap) {
+					showLoading();
+
+					setTimeout(function() { 
+						var start = utils.now();
+						functionToWrap(); 
+						var timeTaken = utils.now() - start;
+						
+						if (timeTaken < settings.loadingMinTime) {
+							setTimeout(hideLoading, settings.loadingMinTime-timeTaken);
+						} else {
+							hideLoading();
+						}
+					}, 1);
+				
+				} else {
+					functionToWrap();
+				}			
+			}																
 		}	
 
 		// configuration section

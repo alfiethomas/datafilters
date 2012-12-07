@@ -14,7 +14,6 @@ echo
     
     <link rel="shortcut icon" href="favicon.ico" />
 
-    <link href="http://fonts.googleapis.com/css?family=Ubuntu:bold" rel="stylesheet" type="text/css">
     <link href="../styles/nouislider.css" rel="stylesheet" type="text/css">
     <link href="styles/sunburst.css" rel="stylesheet" type="text/css"/>
     <link href="styles/styles.css" rel=stylesheet type="text/css">
@@ -64,6 +63,7 @@ echo
 
   <!-- container div ends -->
   </div>
+  <div class="modal"></div>
 <script type="text/javascript" src="scripts/respond.src.js"></script>
 </body>
 </html>';	

@@ -8,12 +8,25 @@ body {
 }
 
 h1 {
-    font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 125%;
-	font-weight: normal;
+	font-weight: bold;
 	line-height: 100%;
 	margin: 5px 0px;
 }
+
+h1, h2, h3 {
+	clear: both;
+}
+
+ul li {
+	list-style: none;
+}
+ 
+.break {
+	display: block;
+	margin-top: 10px;
+ }
 
 #header h1 {
 	color: maroon;
@@ -35,6 +48,10 @@ a {
 a:hover {
 	text-decoration: underline;
 	background-color: #DDD;
+}
+
+#footer a:hover {
+	color: black;
 }
 
 p {
@@ -99,7 +116,7 @@ p {
 #content {
 	background-color: white;
 	color: black;
-	padding: 20px;
+	margin: 20px;
 	opacity: 0.9;
 }
 
@@ -258,11 +275,10 @@ p {
 	}
 }
 
-
-/* Examples */
 table {
 	border-radius: 2px;
 	box-shadow: 1px 1px 2px 2px #CCC;
+	padding: 2px 2px 2px 0px;
 }
 
 td {
@@ -270,7 +286,6 @@ td {
 	padding: 5px 15px;
 	border-top: 4px solid white;
 	border-left: 2px solid white;
-	width: 75px;
 }
 
 th {
@@ -282,9 +297,22 @@ th {
 	border-left: 2px solid white;
 }
 
+td, th {
+	vertical-align: top;
+}
+
+.ref {
+	text-decoration: none;
+}
+
+/* Examples */
+table#tariffTable td {
+	width: 75px;
+}
+
 h2 {
-	margin-top: 30px;
-	margin-bottom: 20px;
+	margin-top: 25px;
+	margin-bottom: 15px;
 	color: #222222;
 }
 
@@ -304,7 +332,7 @@ pre.prettyprint {
 
 #filters {
 	float: left;
-	width: 170px;
+	width: 170px;	
 }
 
 #filters select {
@@ -476,18 +504,63 @@ a.filterSelect.opened {
 }
 
 @media screen and (min-width: 900px) {
+	#filters {
+		margin-left: -10px;
+		margin-right: 10px;		
+	}
+
 	.phoneCost, .col2 {
 		display: block;
 	}
 
 	#example {
-		 padding: 0px 20px;
+		 margin: 30px 20px;
 	}
 
 	.filterSet:nth-child(6) {
 		display: block;
 	}	
 }
+
+#configuration ul {
+	margin-left: 10px;
+	padding-left: 20px;	
+}
+
+#configuration ul li {
+	font-size: 1em;
+}
+
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   speak for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('http://sampsonresume.com/labs/pIkfp.gif') 
+                50% 50% 
+                no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}​
 
 /* ucomment to hide slider lables and dropdowns */
 /*#filters .forSlider {

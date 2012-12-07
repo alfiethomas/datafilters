@@ -67,7 +67,7 @@
       &lt;!-- Make sure you use thead and tbody --&gt;
       &lt;thead&gt;
         &lt;tr&gt;
-          &lt;th class="col1 sorting"&gt;Monthly&lt;br/&gt;cost&lt;/th&gt;
+          &lt;th class="col1 sorting sorted-asc"&gt;Monthly&lt;br/&gt;cost&lt;/th&gt;
           ...
         &lt;/tr&gt;
       &lt;/thead&gt;
@@ -106,7 +106,7 @@
 <table id="tariffTable" border="0" cellpadding="0" cellspacing="0">
 <thead>
 <tr>
-<th class="col1 sorting">Monthly<br/>cost</th>
+<th class="col1 sorting sorted-asc">Monthly<br/>cost</th>
 <th class="col2 sorting">Phone<br/>cost</th>
 <th class="col3 sorting">Tariff<br/>length</th>
 <th class="col4 sorting">Minutes</th>

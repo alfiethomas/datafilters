@@ -1,6 +1,5 @@
-* Paging with Show All as default
+* Free tests
 * Only sliders if touch supported
-* Dropdown with tags
-* remove nasty pause filter hack
 * Only do 16px select for IOS
-* refactor createSelect
+* 'Show Results' button should scroll to the element div
+* Refactor default sort

@@ -94,6 +94,7 @@ function commonTests(element, selector) {
 	pagingTests(selector);
 	dropdownTests(element, selector);
 	checkboxTests(element, selector);
+	rangeBandingTests(element, selector);
 }
 
 function pagingTests(selector) {
@@ -190,6 +191,34 @@ function checkboxTests(element, selector) {
  	equal(selectCheckbox(element, 2, 3), "row2", "Select and check second checkbox in second list is row2");	
  	equal($(selector+":visible").length, 1, "Should be 1 row when checkbox row2 selected as configured for word matching."); 	
  	clearAllCheckboxes(element, 2);
+}
+
+function rangeBandingTests(element, selector) {
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible before starting range tests");
+
+	equal($("ul[id*='Checkboxes']").eq(2).find("li").length, 5, "Should be 5 checkboxes - All, up to 25, 25-50, 50-75, 75-100");
+	equal(getCheckbox(element,3,1).prop("checked"), true, "Check first range checkbox is selected");
+	equal(getCheckbox(element,3,1).parent().text(), "All", "Check first range checkbox is All");
+	equal(getCheckbox(element,3,2).parent().text(), "up to £25", "Check second range checkbox");
+	equal(getCheckbox(element,3,3).parent().text(), "£25 - £50", "Check third range checkbox");
+	equal(getCheckbox(element,3,4).parent().text(), "£50 - £75", "Check fouth range checkbox");
+	equal(getCheckbox(element,3,5).parent().text(), "£75 - £100", "Check fifth range checkbox");
+	
+	selectCheckbox(element,3,2);
+	equal($(selector+":visible").length, 2, "Should be 2 rows visible when 'up to £25' selected");
+
+	clearAllCheckboxes(element,3);
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible after resetting range tests");
+	
+	selectCheckbox(element,3,3);
+	equal($(selector+":visible").length, 3, "Should be 3 rows visible when '£25 - £50' selected");	
+
+	selectCheckbox(element,3,2);
+	selectCheckbox(element,3,4);
+	selectCheckbox(element,3,5);
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible when all checkboxes selected individually");
+
+	clearAllCheckboxes(element,3);
 }
 
 function minWithSliderTest(element) {
@@ -363,5 +392,5 @@ function clearAllCheckboxes(element,ulNum) {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9";
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10);
 }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>DataFilter - Debug QUnit Tests</title>
   <link rel="stylesheet" href="styles/nouislider.css" type="text/css" />  
-  <link rel="stylesheet" href="styles/style.css"       type="text/css" />  
+  <link rel="stylesheet" href="qunit/style.css"       type="text/css" />  
 </head>
 <body>
   <div id="qunit"></div>
@@ -40,7 +40,7 @@
         );        
       }
 
-      filterGroups(1); 
+      filterGroups(0); 
 
        $('#filters').prepend($(document.createElement('label')).prop("id", "success").text("Click a heading to open"));
     });
@@ -48,7 +48,7 @@
     function filterGroups(numberToShow) {
         numberToShow = parseInt(numberToShow);
         if(isNaN(numberToShow)) numberToShow = 2;
-        if(numberToShow < 1) numberToShow = Number.MAX_VALUE;
+        if(numberToShow < 0) numberToShow = Number.MAX_VALUE;
 
         $('.filterContent').live('each', function() {
             $(this).css('height', $(this).height());
