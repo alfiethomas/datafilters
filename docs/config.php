@@ -96,6 +96,13 @@
     </thead>  
     <tbody>
     <tr>
+        <td><a id="heading"></a>heading</td>
+        <td>yes</td>
+      <td>
+        The heading to be used when displaying the filter.
+      </td>
+    </tr>      
+    <tr>
         <td><a id="id"></a>id</td>
         <td>yes</td>
       <td>
@@ -167,7 +174,8 @@
       <td>
         
       </td>
-    </tr>                               
+    </tr>
+
   </tbody>
 </table>
 
@@ -233,7 +241,13 @@
       <td>
         
       </td>
-    </tr>                                         
+    </tr> 
+    <tr>
+        <td><a id="search"></a>search</td>
+      <td>
+        
+      </td>
+    </tr>                                            
   </tbody>
 </table>
 
@@ -254,23 +268,40 @@
         This is used to extract text from elements that need to be filtered. By default it just gets the text using the jQuery 
         <a href="http://api.jquery.com/text/">text()</a> method.
       </td>
-    </tr>     
+    </tr> 
+    <tr>
+        <td><a id="freeTextSearchExtractTextFn"></a>freeTextSearchExtractTextFn</td>
+        <td>function(element) { return element.text() }</td>
+      <td>
+        This is used to extract text from the row that needs to be filtered. By default it just gets the text using the jQuery 
+        <a href="http://api.jquery.com/text/">text()</a> method.
+      </td>
+    </tr>         
     <tr>
         <td><a id="onSuccess"></a>onSuccess</td>
         <td nowrap="nowrap">function() {}</td>
       <td>
         The function that is passed in using this will be called when the initial filters have been successfully created and the page is ready for use.
       </td>
-    </tr>             
-      <tr>
-        <td><a id="afterFilter"></a>afterFilter</td>
+    </tr>
+    <tr>
+        <td><a id="onSlow"></a>onSlow</td>
         <td nowrap="nowrap">function() {}</td>
+      <td>
+        
+      </td>
+    </tr>                    
+    <tr>
+      <td><a id="afterFilter"></a>afterFilter</td>
+      <td nowrap="nowrap">function() {}</td>
       <td>
         The function that is passed in using this will be called everytime the results have been filter. 
       </td>
     </tr>
   </tbody>
 </table>
+
+
 
 
 <h2>Properties</h2>
@@ -310,11 +341,19 @@
         <td><a id="scrollToEnabled"></a>scrollToEnabled</td>
         <td>false</td>
       <td>
-        If this is set to true AND there is an element in the DOM with an id of 'scrollTo', whenever a filter is updated, then page
-        will be scrolled to this point. It has an animation length of 300ms. 
+        If this is set to true, whenever a filter is updated, then page will be scrolled. If there is an element in the DOM with an id of 'scrollTo'
+        then the page is scrolled to that point, otherwise it scrolls to the first instance of an element with the "paginationHolder" class, or failing 
+        either of those two to the element being filtered. It has an animation length of 300ms. 
         <span class="break"></span>
         Use sparingly, can be a bit annoying if the page scrolls away from the current filters, but in some circumstances, particularly
         when you have a small filter set, it can be useful. This can be used nicely in conjunction with <a href="useApplyButton" class="ref">useApplyButton</a>.
+      </td>
+    </tr> 
+    <tr>
+        <td><a id="scrollToAnimationEnabled"></a>scrollToAnimationEnabled</td>
+        <td>true</td>
+      <td>
+        If <a href="scrollToEnabled" class="ref">scrollToEnabled</a> is true, then this can be used to turn of animation of the scrolling.
       </td>
     </tr> 
     <tr>
@@ -373,11 +412,54 @@
         This is used when no restults are returned. When the filters are initially applied, a hidden div with this html is append after the 
         element being filtered.
       </td>
-    </tr>                                     
+    </tr>  
+    <tr>
+        <td><a id="disableIfSlow"></a>disableIfSlow</td>
+        <td>false</td>
+      <td> 
+      </td>
+    </tr>   
+    <tr>
+        <td><a id="slowTimeMs"></a>slowTimeMs</td>
+        <td>1000</td>
+      <td> 
+      </td>
+    </tr>      
+    <tr>
+        <td><a id="disableFreeTextIfSlow"></a>disableIfSlow</td>
+        <td>false</td>
+      <td> 
+      </td>
+    </tr>      
+    <tr>
+        <td><a id="useLoadingOverlayOnStartUp"></a>useLoadingOverlayOnStartUp</td>
+        <td>false</td>
+      <td> 
+      </td>
+    </tr>  
+    <tr>
+        <td><a id="useLoadingOverlayOnFilterIfSlow"></a>useLoadingOverlayOnFilterIfSlow</td>
+        <td>false</td>
+      <td> 
+      </td>
+    </tr>  
+    <tr>
+        <td><a id="useLoadingOverlayOnFilter"></a>useLoadingOverlayOnFilter</td>
+        <td>false</td>
+      <td> 
+      </td>
+    </tr>  
+    <tr>
+        <td><a id="loadingMinTime"></a>loadingMinTime</td>
+        <td>300</td>
+      <td> 
+      </td>
+    </tr>                                             
     </tbody>    
   </table>
 </div>
 <!--
+
       sortingDropDown: undefined,
       defaultTableSort: undefined,
 -->

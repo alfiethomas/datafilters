@@ -15,10 +15,12 @@ function initFilters() {
     pageSize: 20,
     enableFreeTextSearch: true,
     useLoadingOverlayOnFilterIfSlow: true,
-    disableFreeTextIfSlow: true,
-    useLoadingOverlayOnStartUp: true,    
+    useLoadingOverlayOnStartUp: true,
+    disableFreeTextIfSlow: true,  
+    loadingMinTime: 500,
     //defaultTableSort: { "id": 1, "direction": "1"},
-    onSuccess: onSuccessFn       
+    onSuccess: onSuccessFn,
+    scrollToEnabled: true       
   });        
 
   filterGroups(4);      

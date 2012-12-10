@@ -5,7 +5,7 @@ if(typeof String.prototype.trim !== 'function') {
   }
 }
 
-if (!window.console) console = { log: function(string){ alert(string) } };   
+if (!window.console) console = { log: function(string){ } };   
 
 
 (function($) {
@@ -19,6 +19,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		var settings = $.extend( {
 			enableFreeTextSearch: false,
 			scrollToEnabled: false,
+			scrollToAnimationEnabled: true,
 			animationEnabled: false,
 			useShowResultsButton: false,
 			useApplyButton: false,
@@ -32,23 +33,24 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			itemLabel: "item",
 			noResultsHtml: "<p>No matching items, please modify your search criteria</p>",
 			disableIfSlow: false,
-			slowTimeMs: 1000,
+			slowTimeMs: 500,
 			useLoadingOverlayOnFilter: false,
 			loadingMinTime: 300,
 			useLoadingOverlayOnFilterIfSlow: true,
 			disableFreeTextIfSlow: true,
 			useLoadingOverlayOnStartUp: false,
 			extractTextFn: function(element) { return element.text() },
+			freeTextSearchExtractTextFn: function(element) { return element.text() },
 			onSuccess: function() {},
 			onSlow: function(time) { console.log("Too slow to create filters: " + time + "ms") },
-			afterFilter: function() {}
+			afterFilter: function() {},
+			logFn: function(string) { console.log(string) }
 		}, options);		
 
 		var state = {
 			element: $(this),
 			elementId: $(this).attr("id"),
 			elementType: $(this).prop('tagName'),
-			elementIds: {},
 			filtersInitialised: false,
 			initialised: false,
 			sort: {},
@@ -70,7 +72,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 					return this;
 				
 				} else {
-					console.log("Invalid use of DataFilter - check above log messages");
+					utils.log("Invalid use of DataFilter - check above log messages");
 				}
 
 				function validate() {
@@ -84,12 +86,12 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				}	
 
 				function logValidationError(message) {
-					console.log(message);
+					utils.log(message);
 					return false;
 				}
 
 				function logValidationWarning(message) {
-					console.log(message);
+					utils.log(message);
 				}	
 			}
 		}
@@ -101,20 +103,10 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 
 			for (filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
 				var filter = settings.filters[filtersIndex];
-
-				if (state.elementIds[filter.id]) {
-					console.log("Duplicate id ["+filter.id+"] - can only create single filter by ID - all but first being ignored");
-				
-				}  else {
-					state.elementIds[filter.id] = filter.id;
-					initDataElement(filter);
-				}
+				initDataElement(filter);
 			}
 
 			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
-
-			state.filterCreationTime = utils.now() - start;
-			console.log(state.filterCreationTime);
 			
 			if (settings.disableIfSlow && state.filterCreationTime > settings.slowTimeMs) {
 				handleSlowness();
@@ -125,15 +117,17 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				applySorting();
 				addNoResultsHolder();
 
-				ready(settings.pageSize);	
-				console.log(utils.now() - start);		
+				ready(settings.pageSize);			
 				
 				settings.onSuccess();
 			}
 		}
 
 		function handleSlowness() {
-			if (settings.useLoadingOverlayOnFilterIfSlow) settings.useLoadingOverlay = true;
+			if (settings.useLoadingOverlayOnFilterIfSlow) {
+				settings.useLoadingOverlay = true;
+				settings.animationEnabled = false;
+			}
 			if (settings.disableFreeTextIfSlow) $('freeTextSearch').remove();
 		}
 
@@ -170,11 +164,11 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				if (items.length > 0) {
 					createFilterGroup(config.id, config.heading, factoryFn, items);
 				} else {
-					console.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
+					utils.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
 				}
 			
 			} else {
-				console.log("Can not create filter for id '" + config.id + "' so '" + config.heading + "' with filterType '" + config.filterType + 
+				utils.log("Can not create filter for id '" + config.id + "' so '" + config.heading + "' with filterType '" + config.filterType + 
 					"' and dataType '" + config.dataType + "' not added as a filter");
 			}
 		};
@@ -185,7 +179,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			doPaging(1, itemsPerPageValue);	
 
 			if (settings.useApplyButton) {
-				addButton("Apply Filters", doFilter);
+				addButton("Apply Filters", filter);
 
 			} else if (settings.useShowResultsButton) {
 				addButton("Show Results", doScrollToResults);
@@ -249,7 +243,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			if (itemsPerPageValue) state.paging.itemsPerPage = parseInt(itemsPerPageValue);
 			if (state.paging.itemsPerPage <= 0) state.paging.itemsPerPage = Number.MAX_VALUE;
 
-			doFilter();
+			showRows();
 		}
 
 		function filterAfterChange() {
@@ -257,13 +251,17 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		}
 
 		function filter() {
-			utils.wrapFunctionWithLoading(function() {
-				state.paging.currentPage = 1;
-				doFilter();
-			}, settings.useLoadingOverlayOnFilter);
+			state.paging.currentPage = 1;
+			showRows();
 		}		
 
-		function doFilter() {
+		function showRows() {
+			utils.wrapFunctionWithLoading(function() {
+				doShowRows();
+			}, settings.useLoadingOverlayOnFilter);
+		}
+
+		function doShowRows() {
 			if (!state.filtersInitialised) {
 				return;	
 			} 
@@ -281,6 +279,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 					case "CheckboxesRange"  : addCheckboxesRangeSearcehs(searches, index); break;
 					case "Max"              : addToSearches(searches, index, getSearchStringForMaxSelect(this.id)); break;
 					case "Min"              : addToSearches(searches, index, getSearchStringForMinSelect(this.id)); break;
+					case "freeTextSearch"   : addToSearches(searches, index, getSearchStringForSearch(this.id)); break;
 				}
 			});
 
@@ -288,13 +287,14 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			createPagination();
 			scrollToResults();
 			checkForNoResults();
-			console.log("doFilter: " + (utils.now() - start));
+			if (settings.logTiming) utils.log("filter:" + (utils.now() - start));
 
 			settings.afterFilter();
 		}
 
 		function showLoading() { 
-		    $('body').addClass("loading"); 
+		    $('body').addClass("loading");
+		    if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) $('.modal').css('postion', 'absolute').css('top', (-($('html').offset().top))+'px') 
 		}
 
 		function hideLoading() { 
@@ -310,19 +310,12 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		}
 
 		function doScrollToResults() {
-			var scrollToElement = utils.exists($("#scrollTo")) ? $("#scrollTo") : state.element;
-			$('html, body').animate({ scrollTop: scrollToElement.offset().top }, 300);			
-		}
-
-		function scrollAfterPaging() {
-			if (utils.exists($("#scrollTo"))) {
-				doScrollToResults();
-			
-			} else if (utils.exists($(".paginationHolder").eq(0))) {
-				if ($(window).scrollTop() > $(".paginationHolder").eq(0).offset().top) {
-					$('html, body').scrollTop($(".paginationHolder").eq(0).offset().top);
-				}
-		    }						
+			var scrollToElement = utils.exists($("#scrollTo")) ? $("#scrollTo") : utils.exists($(".paginationHolder")) ? $(".paginationHolder").eq(0) : state.element;
+			if (settings.scrollToAnimationEnabled) { 
+				$('html, body').animate({ scrollTop: scrollToElement.offset().top }, 300);			
+			} else {
+				$('html, body').scrollTop(scrollToElement.offset().top);
+			}
 		}
 
 		function addToSearches(searches, index, searchString) {
@@ -339,8 +332,6 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			state.paging.numMatchedItems = 0;
 
 			var data = functionsForElementType[state.elementType].getAllDataFn();
-
-			var start = utils.now();
 			data.each(function() {
 			    var matched = matches(this, searches);
 			    state.paging.totalItems++;
@@ -362,7 +353,6 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			});	
 
 			setTimeout(function(){ hideThenShowToFixLayoutIssues(data) }, settings.animationEnabled ? 330 : 1);
-			//console.log("filtered:" + (utils.now() - start));
 		}
 
 		function hideThenShowToFixLayoutIssues(data) {
@@ -397,7 +387,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			});
 
 			if (settings.enableFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
-				matched = matchesRegex($(row).text().replace(/(\r\n|\n|\r)/gm," "), getAndRegex($('#freeTextSearch').val().trim()));
+				matched = matchesRegex(settings.freeTextSearchExtractTextFn($(row)), getAndRegex($('#freeTextSearch').val().trim()));
 			}
 
 			return matched;	
@@ -427,7 +417,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		}
 
 		function matchesRegex(text, regex) {
-			return text.search(new RegExp(regex, "i")) > -1;
+			return utils.convertToSingleLine(text).search(new RegExp(regex, "i")) > -1;
 		}
 
 		function matchesRanges(index, value, ranges) {
@@ -459,6 +449,10 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			var sortDirction = utils.contains(maxMin, "--MAX--_") ? 1 : -1;
 			var matched = utils.contains(maxMinValue, "No M") ? true : compareFn(maxMinValue, value, sortDirction) >= 0;
 			return matched;
+		}
+
+		function getSearchStringForSearch(id) {
+			return getAndRegex($('#'+id).val().trim());
 		}
 
 		function getSearchStringArrayForMinMaxSelect(index) {
@@ -540,11 +534,23 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		}	
 
 		function addFreeTextSearch() {
-			wrapInFilterGroup("Search", $('<div>').append($('<input/>').attr({ type: 'search', id: 'freeTextSearch', placeholder: "type to search" })
+			wrapInFilterGroup("Search", $('<div>').append(getFreeTextSearch()));
+		}
+
+		function getFreeTextSearch(id) {
+			var freeTextSearchId = 'freeTextSearch';
+			if (id) {
+				freeTextSearchId += '_'+id;
+			}
+
+			return $('<input/>').attr({ type: 'search', id: freeTextSearchId, placeholder: "type to search" })
 				.keyup(function() { filter(); })
-				.click(function() { filter(); })
-			));
-		}			
+				.click(function() { filter(); });			
+		}	
+
+		function createFreeTextSearch(items, index) {
+			return getFreeTextSearch(index).attr({"data-role": "filterSetSelector"});
+		}		
 
 		function createMaxWithBanding(items, index) {
 			return createMax(getBandedItems(items), index);
@@ -968,7 +974,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				
 				ul.append(li.append($(document.createElement("a")).text(i).click(function(event) {
 					doPaging($(this).text());
-					scrollAfterPaging();
+					doScrollToResults();
 				})));		
 			}
 
@@ -979,14 +985,14 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 		function pagingShowAllLi(ul, text, currentPageParam, itemsPerPageParam) {
 			ul.append($(document.createElement("li")).append($(document.createElement("a")).addClass("pagingShow").text(text).click(function(event) {
 				doPaging(currentPageParam, itemsPerPageParam);
-				scrollAfterPaging();				
+				doScrollToResults();				
 			})));		
 		}
 
 		function pagingNextPrevLi(ul, pagingSymbol, altText, currentPageParam) {
 			ul.append($(document.createElement("li")).prop("class", "pageNumber").append($(document.createElement("a")).click(function(event) {
 				doPaging(currentPageParam);
-				scrollAfterPaging();
+				doScrollToResults();
 			}).html(pagingSymbol)));		
 		}
 
@@ -1007,7 +1013,7 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				    select.append($(document.createElement("option")).prop("value", value).text(sortConfig.heading));
 
 				} else {
-					console.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + config.heading + "'' to sorting dropdown")
+					utils.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + sortConfig.heading + "' to sorting dropdown")
 				}
 
 			}
@@ -1158,6 +1164,10 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 			  return txt.replace(new RegExp(replace, 'g'),with_this);
 			},
 
+			convertToSingleLine: function(text) {
+				return text.replace(/(\r\n|\n|\r)/gm," ");
+			},
+
 			startsWith: function(txt, fragment) {
 				return txt.indexOf(fragment) == 0;
 			},
@@ -1175,15 +1185,26 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 				return (index > -1) ? text.substring(0, index) : text 
 			},	
 
+			log: function(string) {
+				settings.logFn(string);
+			},
+
 			wrapFunctionWithLoading: function(functionToWrap, shouldWrap) {
 				if (shouldWrap) {
 					showLoading();
 
 					setTimeout(function() { 
 						var start = utils.now();
-						functionToWrap(); 
-						var timeTaken = utils.now() - start;
 						
+						try {
+							functionToWrap(); 
+						} catch(e) {
+							hideLoading();
+							utils.log(e.message);
+							utils.log(e.stack);
+						}
+						
+						var timeTaken = utils.now() - start;
 						if (timeTaken < settings.loadingMinTime) {
 							setTimeout(hideLoading, settings.loadingMinTime-timeTaken);
 						} else {
@@ -1214,7 +1235,8 @@ if (!window.console) console = { log: function(string){ alert(string) } };
 	    	"minMax"         : createMinMax,
 	    	"minWithBanding" : createMinWithBanding,
 	    	"maxWithBanding" : createMaxWithBanding,
-	    	"rangeBanding"   : createRangeBanding
+	    	"rangeBanding"   : createRangeBanding,
+	    	"search"         : createFreeTextSearch
 	    }
 
 	    var functionsForElementType = {

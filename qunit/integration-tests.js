@@ -1,3 +1,17 @@
+test("Test logging", function() {
+	var logs = [];
+	remove();
+	setUpList();
+	$('#filters').empty().remove();	
+	$('#tariffList').DataFilter('init', { 
+        "filters": [
+            { "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" },
+        ],
+        logFn: function(string) { logs.push(string) }
+	});
+
+});
+
 test("Test List", function(sortBy) { 
 	remove();
 	setUpList();
@@ -84,7 +98,6 @@ test("Test Table", function() {
 		}); 
 	}, 100);	
 });
-
 
 function commonTests(element, selector) {
 	equal($(selector).length, 10, "Should be a total of 10 elements"); ;

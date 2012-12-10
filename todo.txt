@@ -3,3 +3,4 @@
 * Only do 16px select for IOS
 * 'Show Results' button should scroll to the element div
 * Refactor default sort
+* put loader stuff in default build

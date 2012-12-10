@@ -18,7 +18,7 @@ echo
     <link href="styles/sunburst.css" rel="stylesheet" type="text/css"/>
     <link href="styles/styles.css" rel=stylesheet type="text/css">
 
-    <script src="scripts/prettify.js" type="text/javascript"></script>
+    <!--script src="scripts/prettify.js" type="text/javascript"></script-->
     <script src="../scripts/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../scripts/jquery.datafilters.js" type="text/javascript" charset="utf-8"></script>
     <script src="../scripts/jquery.nouislider.js" type="text/javascript" ></script>
