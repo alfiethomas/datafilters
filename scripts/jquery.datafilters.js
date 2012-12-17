@@ -5,8 +5,7 @@ if(typeof String.prototype.trim !== 'function') {
   }
 }
 
-if (!window.console) console = { log: function(string){ } };   
-
+if (!window.console) console = { log: function(string){ } }; 
 
 (function($) {
 
@@ -29,20 +28,22 @@ if (!window.console) console = { log: function(string){ } };
 			defaultTableSort: undefined,
 			slidersEnabled: true,
 			multiSelectLabel: "Select to add",
+			useFixedWidthForMutliSelect: false,
 			itemsLabel: "items",
 			itemLabel: "item",
 			noResultsHtml: "<p>No matching items, please modify your search criteria</p>",
+			logTiming: false,
 			disableIfSlow: false,
-			slowTimeMs: 500,
+			slowTimeMs: 1000,
 			useLoadingOverlayOnFilter: false,
 			loadingMinTime: 300,
 			useLoadingOverlayOnFilterIfSlow: true,
-			disableFreeTextIfSlow: true,
+			disableFreeTextIfSlow: false,
 			useLoadingOverlayOnStartUp: false,
 			extractTextFn: function(element) { return element.text() },
 			freeTextSearchExtractTextFn: function(element) { return element.text() },
 			onSuccess: function() {},
-			onSlow: function(time) { console.log("Too slow to create filters: " + time + "ms") },
+			onSlow: function(time) { utils.log("Too slow to create filters: " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
 			afterFilter: function() {},
 			logFn: function(string) { console.log(string) }
 		}, options);		
@@ -51,6 +52,7 @@ if (!window.console) console = { log: function(string){ } };
 			element: $(this),
 			elementId: $(this).attr("id"),
 			elementType: $(this).prop('tagName'),
+			aliases: {},
 			filtersInitialised: false,
 			initialised: false,
 			sort: {},
@@ -101,21 +103,23 @@ if (!window.console) console = { log: function(string){ } };
 			
 			if (settings.enableFreeTextSearch) addFreeTextSearch();
 
-			for (filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
+			for (var filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
 				var filter = settings.filters[filtersIndex];
 				initDataElement(filter);
 			}
 
 			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
 			
-			if (settings.disableIfSlow && state.filterCreationTime > settings.slowTimeMs) {
+			var filterCreationTime = utils.now() - start;
+			if (settings.disableIfSlow && filterCreationTime > settings.slowTimeMs) {
 				handleSlowness();
-				settings.onSlow(state.filterCreationTime);
+				settings.onSlow(filterCreationTime);
 			
 			} else {
 				applyToFiltersElement();
 				applySorting();
 				addNoResultsHolder();
+				addModalDiv();
 
 				ready(settings.pageSize);			
 				
@@ -137,6 +141,10 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
+		function addModalDiv() {
+			if (!utils.exists($('#dataFiltersModal'))) $('body').append($('<div/>').prop('id', 'dataFiltersModal'));
+		}
+
 		function applyToFiltersElement() {
 			$('#filters').empty();
 			$('#filters').append(state.wrapper);
@@ -151,9 +159,10 @@ if (!window.console) console = { log: function(string){ } };
 			state.filtersInitialised = false;
 			sortFn = compareFunctionForDataType[config.dataType]
 			state.sort[config.id] = sortFn;
+			state.aliases[config.id] = config.alias;
 			factoryFn = factoryFunctionForFilterType[config.filterType];
 
-			if (config.heading && factoryFn && sortFn) { 
+			if (config.heading && config.id && factoryFn && sortFn) { 
 				var items = config.items;
 
 				if (items == undefined) {
@@ -179,10 +188,10 @@ if (!window.console) console = { log: function(string){ } };
 			doPaging(1, itemsPerPageValue);	
 
 			if (settings.useApplyButton) {
-				addButton("Apply Filters", filter);
+				addButton("Apply Filters", "applyFilter", filter);
 
 			} else if (settings.useShowResultsButton) {
-				addButton("Show Results", doScrollToResults);
+				addButton("Show Results", "showResults", function() { doScrollToResults(true) });
 			}
 
 			if (settings.defaultTableSort) {
@@ -191,14 +200,14 @@ if (!window.console) console = { log: function(string){ } };
 				if (settings.defaultTableSort.direction && settings.defaultTableSort.direction == "-1") th.click(); 
 			}
 
-			state.initialised = true;
+			setTimeout(function() { state.initialised = true }, 1);
 		}
 
-		function addButton(text, clickFn) {
-			var btn = $(document.createElement("button")).attr({"type": "button", "class": "btn-style"}).click(function() { 
+		function addButton(text, id, clickFn) {
+			var btn = $("<button/>").attr({"type": "button", "id": id, "class": "btn-style"}).click(function() { 
 				clickFn(); 
 			}).text(text);
-			state.wrapper.append($(document.createElement("div")).append(btn));			
+			state.wrapper.append($("<div/>").append(btn));			
 		}
 
 		function extractUniqueValues(data, sortFn) {
@@ -258,7 +267,7 @@ if (!window.console) console = { log: function(string){ } };
 		function showRows() {
 			utils.wrapFunctionWithLoading(function() {
 				doShowRows();
-			}, settings.useLoadingOverlayOnFilter);
+			}, settings.useLoadingOverlayOnFilter && state.initialised);
 		}
 
 		function doShowRows() {
@@ -294,7 +303,7 @@ if (!window.console) console = { log: function(string){ } };
 
 		function showLoading() { 
 		    $('body').addClass("loading");
-		    if(navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) $('.modal').css('postion', 'absolute').css('top', (-($('html').offset().top))+'px') 
+		    if(navigator.userAgent.match(/(iPhone|iPod|MSIE)/i)) $('.modal').css('postion', 'absolute').css('top', ((-($('html').offset().top))+25)+'px') 
 		}
 
 		function hideLoading() { 
@@ -302,20 +311,25 @@ if (!window.console) console = { log: function(string){ } };
 		} 		
 
 		function scrollToResults() {
-			if ((settings.useApplyButton && state.initialised) || 
-					(settings.scrollToEnabled && state.initialised)) {
-
-				doScrollToResults();
+			if (settings.scrollToEnabled  && state.initialised) {
+				doScrollToResults(settings.useApplyButton || settings.useShowResultsButton);
 			}
 		}
 
-		function doScrollToResults() {
+		function doScrollToResults(forceScroll) {
 			var scrollToElement = utils.exists($("#scrollTo")) ? $("#scrollTo") : utils.exists($(".paginationHolder")) ? $(".paginationHolder").eq(0) : state.element;
-			if (settings.scrollToAnimationEnabled) { 
-				$('html, body').animate({ scrollTop: scrollToElement.offset().top }, 300);			
-			} else {
-				$('html, body').scrollTop(scrollToElement.offset().top);
+
+			if (forceScroll || (getPageOffset() > scrollToElement.offset().top)) {
+				if (settings.scrollToAnimationEnabled) { 
+					$('html, body').animate({ scrollTop: scrollToElement.offset().top }, 300);			
+				} else {
+					$('html, body').scrollTop(scrollToElement.offset().top);
+				}
 			}
+		}
+
+		function getPageOffset() {
+			return (-$('html, body').offset().top > $('html, body').scrollTop()) ? -$('html, body').offset().top : $('html, body').scrollTop();
 		}
 
 		function addToSearches(searches, index, searchString) {
@@ -396,7 +410,7 @@ if (!window.console) console = { log: function(string){ } };
 		function getAndRegex(text) {
 			var regex = "";
 			var tokens = text.split(" ");
-			for (i=0; i<tokens.length; i++) {
+			for (var i=0; i<tokens.length; i++) {
 				regex += "(?=.*"+tokens[i]+")";
 			}
 			return regex;
@@ -424,7 +438,7 @@ if (!window.console) console = { log: function(string){ } };
 			var atLeastOneMactch = false;
 			var rangesArray = ranges.split('--RANGE--_');
 
-			for (i=0; i<rangesArray.length; i++) {
+			for (var i=0; i<rangesArray.length; i++) {
 				if (rangesArray[i].trim().length > 0) {
 					atLeastOneMactch = atLeastOneMactch || matchesRange(index, value, rangesArray[i]);
 				}
@@ -447,7 +461,7 @@ if (!window.console) console = { log: function(string){ } };
 			var maxMinValue = maxMin.split('_')[1];
 			var compareFn = getSortFunctionForColumn(index);
 			var sortDirction = utils.contains(maxMin, "--MAX--_") ? 1 : -1;
-			var matched = utils.contains(maxMinValue, "No M") ? true : compareFn(maxMinValue, value, sortDirction) >= 0;
+			var matched = (maxMinValue == "Show All") ? true : compareFn(maxMinValue, value, sortDirction) >= 0;
 			return matched;
 		}
 
@@ -518,8 +532,8 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		function wrapInFilterGroup(group, element, prepend) {
-			var filterDiv = $(document.createElement("div")).attr({"class": "filterSet"})
-			filterDiv.append($(document.createElement("a")).attr({"class": "filterSelect"}).text(group));
+			var filterDiv = $("<div/>").attr({"class": "filterSet"})
+			filterDiv.append($("<a/>").attr({"class": "filterSelect"}).text(group));
 			filterDiv.append(addFilterAttrs(element));	
 			
 			if (prepend) {
@@ -564,10 +578,10 @@ if (!window.console) console = { log: function(string){ } };
 		function createRangeBanding(items, index) {
 			var bandedItems = getBandedItems(items);
 			var rangeItems = [];
-			for (i=0; i<bandedItems.length; i++) {
+			for (var i=0; i<bandedItems.length; i++) {
 
 				if (i==0) {
-					if (bandedItems[i] == "Free") {
+					if (bandedItems[i].toLowerCase() == "free") {
 						rangeItems.push(bandedItems[i]);	
 					} else {
 						rangeItems.push("up to " + bandedItems[i]);
@@ -592,7 +606,7 @@ if (!window.console) console = { log: function(string){ } };
 			var combinedRangeItems = [];
 			var currentRange = rangeItems[0];
 
-			for (i=0; i<rangeItems.length; i++) {
+			for (var i=0; i<rangeItems.length; i++) {
 				
 				if (rangeFirstIndexMacth(index, rangeItems[i], items) == -1) {
 					if (i<rangeItems.length-1) {
@@ -618,7 +632,7 @@ if (!window.console) console = { log: function(string){ } };
 		function rangeFirstIndexMacth(index, range, items) {
 			if (state.elementType == "TABLE") index = parseInt(index)-1;
 
-			for (j=0; j<items.length; j++) {
+			for (var j=0; j<items.length; j++) {
 				if (matchesRange(index, items[j], range)) {
 					return j;
 				}
@@ -649,18 +663,18 @@ if (!window.console) console = { log: function(string){ } };
 				startFrom = startFrom + step;
 			} 
 
-			for (i=0; i< noItems; i++) {
+			for (var i=0; i< noItems; i++) {
 				bandedItems.push("£" + (startFrom + i*step));
 			}
 			return bandedItems;			
 		}
 
 		function createMinMax(items, id) {
-			var ul = $(document.createElement("ul")).attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
+			var ul = $("<ul/>").attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
 			ul.append(wrapSelectInLi(createSelectlabel(id,"Min","From: ").addClass("forSlider"),  createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider")));
 			ul.append(wrapSelectInLi(createSelectlabel(id,"Max","Up to: ").addClass("forSlider"), createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider")));
 			
-			var containerDiv = $(document.createElement("div"));
+			var containerDiv = $("<div/>");
 			createSlider(containerDiv, items, id, "MaxMin");
 			containerDiv.append(ul);
 			
@@ -668,7 +682,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function wrapSelectInLi(label, select) {
-			return $(document.createElement("li")).append(label).append(select);
+			return $("<li/>").append(label).append(select);
 		}			
 
 		function createMax(items, index) {
@@ -681,7 +695,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
-			var containerDiv = $(document.createElement("div"));
+			var containerDiv = $("<div/>");
 			createSlider(containerDiv, items, id, type);
 			containerDiv.append(createSelectlabel(id, type, labelForSelect).addClass("forSlider"));
 			containerDiv.append(createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider"));
@@ -697,33 +711,44 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createMultiSelect(items, id) {
 
-			function addOption(select) {
+			function onChangeFn(select) {
 				if (select.value != settings.multiSelectLabel) {
-					var multiSelect = '#MultiSelectItems_'+id;
-					$(multiSelect).append($(document.createElement('p')).text(select.value).prop("class", select.selectedIndex).click(function() {
+					var multiSelect = $(select).parent().find('.multiSelect');
+					var selectedP = $('<p/>').text(select.value).prop("class", select.selectedIndex);
+
+					$(multiSelect).append(selectedP.click(function() {
 						var text = $(this).text();
-						$(select).append($(document.createElement("option")).prop("value", text).text(text));
+						$(select).append($("<option/>").prop("value", text).text(text));
 						sortSelect($(select));
 						$(this).remove();
 						filterAfterChange();
 					}));
+
 					$(select).find("option:selected").remove();
 				}
 			}
 
-			var containerDiv = $(document.createElement("div"));
+			var containerDiv = $("<div/>");
 			containerDiv.append(createSelectlabel(id, "MultiSelect", ""));
-			containerDiv.append(createSelect(items, id, "MultiSelect", addOption));
-			containerDiv.append($(document.createElement("div")).attr({"id": "MultiSelectItems_"+id, "class": "multiSelect" }));
+			
+			var select = createSelect(items, id, "MultiSelect", onChangeFn)
+			containerDiv.append(select);
+
+			var selectedItems = $("<div/>").attr({"id": "MultiSelectItems_"+id, "class": "multiSelect" })
+			containerDiv.append(selectedItems);
+
+			preSelectMultiSelect(select, id);
 
 			return containerDiv;
 		}
 
-		function getSelectWidth(select) {
-		    if (state[select.prop("id")] == undefined) {
-		    	state[select.prop("id")] = select.width();
-		    } 
-		    return state[select.prop("id")];
+		function preSelectMultiSelect(select, id) {
+			$.each(select.children(), function() {
+				if (urlContainsParam(id, $(this).prop("value"))) {
+					$(this).prop('selected', 'selected');
+					select.change();
+				}
+			});			
 		}
 
 		function sortSelect(select) {
@@ -737,24 +762,31 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function createSelectStandalone(items, id) {
-			var containerDiv = $(document.createElement("div"));
+			var containerDiv = $("<div/>");
 			containerDiv.append(createSelectlabel(id, "Select", ""));
 			containerDiv.append(createSelect(items, id, "Select"));
 			return containerDiv;
 		}
 
-		function createSelect(items, id, type, changeFunction) {
+		function createSelect(items, index, type, changeFunction) {
 			if (type == undefined) type = "Select";
 
-			id = type+'_'+id;
-			var select = $(document.createElement("select")).attr({"id": id, "data-role": "filterSetSelector"});
+			var id = type+'_'+index;
+			var select = $("<select/>").attr({"id": id, "data-role": "filterSetSelector"});
 			
-			if (type == "Min")         select.append($(document.createElement("option")).text("No Min"));
-			if (type == "Select")      select.append($(document.createElement("option")).text("All").prop("value", ""));
-			if (type == "MultiSelect") select.append($(document.createElement("option")).text(settings.multiSelectLabel).prop("value", ""));
+			if (type == "Min")         select.append($("<option/>").text("Show All"));
+			if (type == "Select")      select.append($("<option/>").text("All").prop("value", ""));
+			if (type == "MultiSelect") select.append($("<option/>").text(settings.multiSelectLabel).prop("value", ""));
 
+			var optionSelected = false;
 			$.each(items, function(iteration, item) {
-			    select.append($(document.createElement("option")).prop("value", item).text(item));
+			    var option = $("<option/>").prop("value", item).text(item);
+			    select.append(option);
+			    
+			    if (urlContainsParam(index, item)) {
+			    	option.prop("selected", "selected"); 
+			    	optionSelected = true;
+			    }
 			});
 
 			select.change(function(event) {
@@ -762,13 +794,13 @@ if (!window.console) console = { log: function(string){ } };
 		        filterAfterChange();
 		    })	
 
-			if (type == "Max") select.append($(document.createElement("option")).attr({"selected": true}).text("No Max"));
+			if (type == "Max") select.append($("<option/>").attr({"selected": !optionSelected}).text("Show All"));
 
 		    return select;
 		}
 
 		function createSelectlabel(id, type, labelForSelect) {
-			return $(document.createElement("label")).attr({"id": "selectLabel_"+type+"_"+id, "class": "selectLabel"}).text(labelForSelect)
+			return $("<label/>").attr({"id": "selectLabel_"+type+"_"+id, "class": "selectLabel"}).text(labelForSelect)
 		}
 
 		function createSlider(containerDiv, items, id, type) {
@@ -776,7 +808,7 @@ if (!window.console) console = { log: function(string){ } };
 
 			id = type+'_'+id;
 			var handles = (type == "MaxMin") ? 2 : 1;
-			var sliderDiv = $(document.createElement("div")).attr({"id": "slider_"+id, "class": "noUiSlider"});
+			var sliderDiv = $("<div/>").attr({"id": "slider_"+id, "class": "noUiSlider"});
 			sliderDiv.noUiSlider('init', {
 			  handles: handles,  
 			  scale: [0, items.length],
@@ -790,7 +822,7 @@ if (!window.console) console = { log: function(string){ } };
 			  end: function(){ filterAfterChange(); }
 			}); 
 
-			var labelDiv = $(document.createElement("div")).attr({"id": "sliderLabel_"+id, "class": "noUiSliderLabel"}).text("-");
+			var labelDiv = $("<div/>").attr({"id": "sliderLabel_"+id, "class": "noUiSliderLabel"}).text("-");
 			containerDiv.append(labelDiv);
 			containerDiv.append(sliderDiv);
 
@@ -822,21 +854,21 @@ if (!window.console) console = { log: function(string){ } };
 
 			} else {
 				var value = $('select#'+id+' option:eq('+indexArray[1]+')').text();
-				var from = (utils.contains(id, "Max")) ? "No Min" : value;
-				var to =   (utils.contains(id, "Min")) ? "No Max" : value; 
+				var from = (utils.contains(id, "Max")) ? "Show All" : value;
+				var to =   (utils.contains(id, "Min")) ? "Show All" : value; 
 
 				return getMinMaxLabel(from, to);
 			}
 		}
 
 		function getMinMaxLabel(from, to) {
-			if (from == "No Min" && to == "No Max") {
+			if (from == "Show All" && to == "Show All") {
 				return "Show All";
 			
-			} else if (to == "No Max") {
+			} else if (to == "Show All") {
 				return "From " + from;
 			
-			} else if (from == "No Min") {
+			} else if (from == "Show All") {
 				return "Up to " + to;
 
 			} else {
@@ -867,37 +899,58 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createCheckboxes(items, index, type) {
 			var id = (type) ? 'Checkboxes'+type+'_'+index : 'Checkboxes_'+index;
-			var ul = $(document.createElement("ul")).attr({"id": id, "data-role": "filterSetSelector"});
+			var ul = $("<ul/>").attr({"id": id, "data-role": "filterSetSelector"});
 			
-			// add all checkbox
-			ul.append(createCheckboxLi("All", index, true, function() { 
-				$.each($('ul#'+id+' input[type="checkbox"]'), function(i, item) {
-					checkAll(id, true);
-					if (i > 0) $(item).prop("checked", false);
-				});
-				filterAfterChange();
-			}));
-
+			var atLeastOnChecked = false;
 			$.each(items, function(iteration, item) {
-			    ul.append(createCheckboxLi(item, id, false, function(event) { 
+
+				var checked = urlContainsParam(index, item);
+				atLeastOnChecked = atLeastOnChecked || checked;
+
+			    ul.append(createCheckboxLi(item, id, checked, function(event) { 
 			    	checkAll(id, false);
 			    	filterAfterChange() 
 			    }));
 			});
+
+			// add all checkbox
+			ul.prepend(createCheckboxLi("All", index, !atLeastOnChecked, function() { 
+				$.each($('ul#'+id+' input[type="checkbox"]'), function(i, item) {
+					checkAll(id, true);
+					if (i > 0) $(item).prop("checked", false); 
+				});
+				filterAfterChange();
+			}));
+
 			return ul;	
 		}
 
+		function urlContainsParam(index, item) {
+			if (index && item) {
+				if (state.aliases[index]) index = state.aliases[index];
+				var href = encodeURIComponent(utils.replaceAll(window.location.href, '\\+', ' '));
+				var param = encodeURIComponent(index+'='+item);
+				var contains = utils.contains(href, param);
+				return contains;
+			} else {
+				return false;
+			}
+		}		
+
 		function checkAll(id, checked) {
+			if ($('ul#'+id+' input[type="checkbox"]:checked').length == 0) {
+				checked = true;
+			}
 			$('ul#'+id+' input[type="checkbox"]').eq(0).prop("checked", checked);			
 		}
 
 		function createCheckboxLi(item, index, checked, clickFn) {
-			return $(document.createElement("li")).attr({"class": "checkboxLi"})
+			return $("<li/>").attr({"class": "checkboxLi"})
 			   		.append(createCheckboxLabel(item).prepend(createCheckbox(item, index, checked, clickFn)))			
 		}
 
 		function createCheckbox(item, index, checked, clickFn) {
-		    return $(document.createElement("input")).attr({
+		    return $("<input/>").attr({
 		        "id":    index + '_' + item
 		       ,"class": "filterCheckbox" 
 		       ,"name":  item
@@ -911,7 +964,7 @@ if (!window.console) console = { log: function(string){ } };
 		function createCheckboxLabel(item) {
 			// remove tilda used for non-exact word searching for display
 			item = utils.startsWith(item, '~') ? item.substring(1) : item;
-		    return $(document.createElement('label')).text(item);
+		    return $("<label/>").text(item);
 		}
 
 		function createPagination() {
@@ -934,7 +987,7 @@ if (!window.console) console = { log: function(string){ } };
 			var to = ((state.paging.currentPage) * state.paging.itemsPerPage);
 			if (to > state.paging.numMatchedItems) to = state.paging.numMatchedItems;
 
-			var ul = $(document.createElement("ul")).attr({"class": "pagination"});
+			var ul = $("<ul/>").attr({"class": "pagination"});
 			var showing = "Showing ";
 
 			if (settings.pageSize > 0) {
@@ -947,7 +1000,7 @@ if (!window.console) console = { log: function(string){ } };
 				showing += "<span class='totalItems'> (filtered from " + state.paging.totalItems + ")</span>";
 			}
 			
-			return ul.append($(document.createElement("li")).attr({"class": "showing"}).html(showing));
+			return ul.append($("<li/>").attr({"class": "showing"}).html(showing));
 		}
 
 		function addShowAllLess(ul) {
@@ -968,11 +1021,11 @@ if (!window.console) console = { log: function(string){ } };
 			pagingNextPrevLi(ul, "&laquo;", "Skip to first page", 1);
 			pagingNextPrevLi(ul, "&lsaquo;", "Skip to previous page", prev);
 
-			for (i=1; i<=numPages; i++) {
-				var li = $(document.createElement("li")).addClass("pageNumber");
+			for (var i=1; i<=numPages; i++) {
+				var li = $("<li/>").addClass("pageNumber");
 				if (i == state.paging.currentPage) li.addClass("active");
 				
-				ul.append(li.append($(document.createElement("a")).text(i).click(function(event) {
+				ul.append(li.append($("<a/>").text(i).click(function(event) {
 					doPaging($(this).text());
 					doScrollToResults();
 				})));		
@@ -983,14 +1036,14 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function pagingShowAllLi(ul, text, currentPageParam, itemsPerPageParam) {
-			ul.append($(document.createElement("li")).append($(document.createElement("a")).addClass("pagingShow").text(text).click(function(event) {
+			ul.append($("<li/>").append($("<a/>").addClass("pagingShow").text(text).click(function(event) {
 				doPaging(currentPageParam, itemsPerPageParam);
 				doScrollToResults();				
 			})));		
 		}
 
 		function pagingNextPrevLi(ul, pagingSymbol, altText, currentPageParam) {
-			ul.append($(document.createElement("li")).prop("class", "pageNumber").append($(document.createElement("a")).click(function(event) {
+			ul.append($("<li/>").prop("class", "pageNumber").append($("<a/>").click(function(event) {
 				doPaging(currentPageParam);
 				doScrollToResults();
 			}).html(pagingSymbol)));		
@@ -1002,15 +1055,15 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function createSortingDropDown(items) {
-			var select = $(document.createElement("select")).attr({"id": "sortBySelect"});
-			select.append($(document.createElement("option")).prop("value", "sortBy").text("Sort by"));
+			var select = $("<select/>").attr({"id": "sortBySelect"});
+			select.append($("<option/>").prop("value", "sortBy").text("Sort by"));
 			
-			for(sortConfigIndex=0; sortConfigIndex<items.length; sortConfigIndex++) {
+			for(var sortConfigIndex=0; sortConfigIndex<items.length; sortConfigIndex++) {
 				var sortConfig = items[sortConfigIndex];
 
 				if (state.sort[sortConfig.id] != undefined) {
 					var value = sortConfig.id + "_" + sortConfig.direction;
-				    select.append($(document.createElement("option")).prop("value", value).text(sortConfig.heading));
+				    select.append($("<option/>").prop("value", value).text(sortConfig.heading));
 
 				} else {
 					utils.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + sortConfig.heading + "' to sorting dropdown")
@@ -1047,7 +1100,7 @@ if (!window.console) console = { log: function(string){ } };
 
 		function applySortToColum(th, column) {
 			// don't add twice
-			if (!utils.contains(th.attr("class"), "sorting") || utils.contains(th.attr("class"), "sortable") ) return;
+			if (utils.contains(th.attr("class"), "noSorting") || utils.contains(th.attr("class"), "sortable") ) return;
 
 			th.addClass('sortable')
 			.click(function(){
@@ -1136,7 +1189,7 @@ if (!window.console) console = { log: function(string){ } };
 				if (string.indexOf('£') != -1) {
 					return utils.replaceAll(trimmedString, '£', '');
 				
-				} else if (trimmedString == "Free" || trimmedString == "") {
+				} else if (trimmedString.toLowerCase() == "free" || trimmedString == "") {
 					return "0";
 
 				} else {
@@ -1145,12 +1198,17 @@ if (!window.console) console = { log: function(string){ } };
 			},
 
 			substringAfterLast: function(string, delimiter) {
-				return(string.indexOf(delimiter) > -1) ? string.substring(string.lastIndexOf(delimiter)+1) : "";
+				return(string.indexOf(delimiter) > -1) ? string.substring(string.lastIndexOf(delimiter)+delimiter.length) : "";
 			},	
 
 			contains: function(value, text) {
-				return (value) && value.indexOf(text) != -1;
+				if (value == undefined || text == undefined) return false;
+				return value.toLowerCase().indexOf(text.toLowerCase()) != -1;
 			},
+
+			containsNumber: function(txt) {
+				return /\d/.test(txt);
+			},			
 
 			exists: function(element) {
 				return $(element).length > 0;
@@ -1172,10 +1230,6 @@ if (!window.console) console = { log: function(string){ } };
 				return txt.indexOf(fragment) == 0;
 			},
 
-			containsNumber: function(txt) {
-				return /\d/.test(txt);
-			},
-
 			isAlphaNumeric: function(txt) {
 				return (txt.match(/^[0-9a-zA-Z ]+$/)) ? true : false;
 			},
@@ -1189,6 +1243,10 @@ if (!window.console) console = { log: function(string){ } };
 				settings.logFn(string);
 			},
 
+			equalsIgnoreCase: function(a,b) {
+				return (a == undefined || b == undefined) ? false : a.toLowerCase() == b.toLowerCase();
+			},			
+
 			wrapFunctionWithLoading: function(functionToWrap, shouldWrap) {
 				if (shouldWrap) {
 					showLoading();
@@ -1200,8 +1258,9 @@ if (!window.console) console = { log: function(string){ } };
 							functionToWrap(); 
 						} catch(e) {
 							hideLoading();
-							utils.log(e.message);
-							utils.log(e.stack);
+							utils.log("Error in wrapped function (message): " + e.message);
+							utils.log("Error in wrapped function (stack): " + e.stack);
+							throw e;
 						}
 						
 						var timeTaken = utils.now() - start;

@@ -15,10 +15,9 @@ function initFilters() {
     pageSize: 20,
     enableFreeTextSearch: true,
     useLoadingOverlayOnFilterIfSlow: true,
-    useLoadingOverlayOnStartUp: true,
+    useLoadingOverlayOnFilter: true,
+    useLoadingOverlayOnStartUp: true,    
     disableFreeTextIfSlow: true,  
-    loadingMinTime: 500,
-    //defaultTableSort: { "id": 1, "direction": "1"},
     onSuccess: onSuccessFn,
     scrollToEnabled: true       
   });        

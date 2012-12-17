@@ -40,3 +40,9 @@ test("substringBeforeFirst should do what is says on the tin", function() {
  	equal($('qunit').DataFilter('substringBeforeFirst', "hello.123.456", "."), "hello");	
  	equal($('qunit').DataFilter('substringBeforeFirst', "hello", "."), "hello");
 });
+
+test("equalsIgnoreCase should do what is says on the tin", function() {
+ 	equal($('qunit').DataFilter('equalsIgnoreCase', "hello", "hello"), true);
+ 	equal($('qunit').DataFilter('equalsIgnoreCase', "HELLO", "hello"), true);
+ 	equal($('qunit').DataFilter('equalsIgnoreCase', "hello", "world"), false);
+ });

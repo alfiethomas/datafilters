@@ -30,6 +30,10 @@
       } else if (getParameter("freeText")) {
         setUpTable();
         initDataFilterForTableWithTextSearch();
+
+      } else if (getParameter("defaultSort")) {
+        setUpTable();
+        initDataFilterForTableWithDefaultSort();        
         
       } else {
         setUpTable();

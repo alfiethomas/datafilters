@@ -14,10 +14,10 @@ function filterGroups(numberToShow, updating) {
   
     $(".filterContent").each(function(index) { 
         if(index < numberToShow) {
-            $(this).show();
+            $(this).show(300);
             $(this).siblings(".filterSelect").addClass("opened");
         } else {
-            $(this).hide();
+            $(this).hide(300);
             $(this).siblings(".filterSelect").removeClass("opened");
         }
     });
@@ -64,6 +64,8 @@ function onSuccessFn(){
     .append($(document.createElement('a')).text("clear filters").prepend($(document.createElement('img')).prop("src", "styles/refresh.jpg")).click(function(){ 
       initFilters(); 
     }))); 
+
+    filterGroups(4);
 } 
 
 /*! A fix for the iOS orientationchange zoom bug.

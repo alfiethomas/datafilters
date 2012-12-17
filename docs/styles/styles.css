@@ -536,7 +536,7 @@ a.filterSelect.opened {
    with position:fixed. Width, height, top and left speak
    speak for themselves. Background we set to 80% white with
    our animation centered, and no-repeating */
-.modal {
+#dataFiltersModal {
     display:    none;
     position:   fixed;
     z-index:    1000;
@@ -544,10 +544,10 @@ a.filterSelect.opened {
     left:       0;
     height:     100%;
     width:      100%;
-    background: rgba( 255, 255, 255, .85 ) 
-                url('loading.gif') 
-                50% 50% 
-                no-repeat;
+    opacity: 	0.85;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=85)";
+	filter:     alpha(opacity=85);    
+    background:  url('loading.gif') white 50% 50% no-repeat;
 }
 
 /* When the body has the loading class, we turn
@@ -558,7 +558,7 @@ body.loading {
 
 /* Anytime the body has the loading class, our
    modal element will be visible */
-body.loading .modal {
+body.loading #dataFiltersModal {
     display: block;
 }​
 

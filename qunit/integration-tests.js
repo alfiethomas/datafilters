@@ -1,25 +1,208 @@
+window.location.hash = "";
+
 test("Test logging", function() {
 	var logs = [];
 	remove();
 	setUpList();
 	$('#filters').empty().remove();	
+	$('.paginationHolder').empty().remove();
+
 	$('#tariffList').DataFilter('init', { 
-        "filters": [
-            { "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" },
-        ],
-        logFn: function(string) { logs.push(string) }
+        logFn: function(string) { logs.push(string); console.log(string); }
 	});
 
+	assertLogMessage("No element with id 'filters'", logs, 0);
+	assertLogMessage("No .paginationHolder class elements for paging - paging will be disabled", logs, 1);
+	assertLogMessage("Invalid use of DataFilter - check above log messages", logs, 2);
+
+	logs = [];
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [
+            { "heading": "Wibbly", "id": "wibble",   "dataType": "default",  "filterType": "checkboxes" }, // no items found
+            {                      "id": "wibble1",  "dataType": "default",  "filterType": "checkboxes" }, // no heading
+            { "heading": "Wibbly3",                  "dataType": "default",  "filterType": "checkboxes" }, // no id
+            { "heading": "Wibbly4", "id": "wibble4",                         "filterType": "checkboxes" }, // no dataType
+            { "heading": "Wibbly5", "id": "wibble5", "dataType": "default"                              }  // no filterType 
+
+        ],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        logTiming: true,
+        sortingDropDown: [{"heading": "Wibbly4", "id": "wibble4", "direction": "1"}]
+	});
+
+	assertLogMessage("No items found for id 'wibble' so 'Wibbly' not added as a filter", logs);
+	assertLogMessage(getCanNotCreateFilterMessage("undefined", "wibble1",   "default",   "checkboxes"), logs);
+	assertLogMessage(getCanNotCreateFilterMessage("Wibbly3",   "undefined", "default",   "checkboxes"), logs);
+	assertLogMessage(getCanNotCreateFilterMessage("Wibbly4",   "wibble4",   "undefined", "checkboxes"), logs);
+	assertLogMessage(getCanNotCreateFilterMessage("Wibbly5",    "wibble5",  "default",   "undefined"),  logs);
+	assertLogMessage("Sort function not defined for id 'wibble4' so not adding 'Wibbly4' to sorting dropdown", logs);
+	assertLastLogStartsWith(logs, 'filter:');
+
+	// ensure default logger ok
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Wibbly", "id": "wibble",   "dataType": "default",  "filterType": "checkboxes" }]  // no items found
+	});	
 });
 
-test("Test List", function(sortBy) { 
+function assertLogMessage(message, logs) {
+	equal($.inArray(message, logs) >= 0, true, "Should have log message: " + message);
+}
+
+function assertLastLogStartsWith(logs, message) {
+	equal(logs[logs.length-1].indexOf(message), 0, "Last log should start with '"+message+"'");	
+}
+
+function getCanNotCreateFilterMessage(heading, id, dataType, filterType) {
+	return "Can not create filter for id '" + id + "' so '" + heading + "' with filterType '" + filterType + 
+					"' and dataType '" + dataType + "' not added as a filter";
+}
+
+test("Test slow loading", function() {
+	var logs = [];
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        disableIfSlow: true,
+        slowTimeMs: 1
+	});	
+	assertLastLogStartsWith(logs, "Too slow to create filters");
+
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        disableIfSlow: true,
+        slowTimeMs: 1,
+        onSlow: function(time) { logs.push("Custom on slow test") }
+	});		
+	assertLastLogStartsWith(logs, "Custom on slow test");
+
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        enableFreeTextSearch: true,
+        disableIfSlow: false,
+        disableFreeTextIfSlow: true,
+        slowTimeMs: 1
+	});		
+	equal($('freeTextSearch').length == 0, true, "Should not add free text search if slow");
+});
+
+test("Test apply and show results buttons", function() {
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        useApplyButton: true,
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 10, "10 elements should be visible");
+	equal(selectCheckbox("#tariffList", 1, 2), "row1-col1", "Select and check first checkbox is row1-col1");
+	equal($(selector+':visible').length, 10, "Should still be 10 elements visible as apply not yet clicked");
+
+	$('#applyFilter').click();
+	equal($(selector+":visible").length, 1, "Should be 1 row when 1 checkbox selected and apply button clicked");
+
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        useShowResultsButton: true,
+        scrollToAnimationEnabled: false
+	});			
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 10, "10 elements should be visible");
+	equal(selectCheckbox("#tariffList", 1, 2), "row1-col1", "Select and check first checkbox is row1-col1");
+	equal($(selector+":visible").length, 1, "Should be 1 row when 1 checkbox selected and apply button clicked");	
+
+	equal(getPageOffset()<=2, true, "Page should not be scrolled");
+	$('#showResults').click();
+	equal(getPageOffset()> 0, true, "Page should be scrolled to paginationHolder");
+});
+
+function getPageOffset() {
+	return (-$('html, body').offset().top > $('html, body').scrollTop()) ? -$('html, body').offset().top : $('html, body').scrollTop();
+}
+
+test("Test pre-select", function() {
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
+	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "row1-col1", "Checkbox should be row1-col1");
+
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "select" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('option:selected').length, 1, "One select option should be selected");
+	equal($('option:selected').eq(0).text(), "row1-col1", "Select option should be row1-col1");	
+
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "multiSelect" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('.multiSelect p').length, 1, "One multi select option should be selected");
+	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
+});
+
+test("Test loading overlay", function() {
+	var logs = [];
+	remove();
+	setUpList();
+
+		equal($('body').prop("class"), "", "Body should not have loading class");
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false,
+        useLoadingOverlayOnStartUp: true,
+        useLoadingOverlayOnFilter: true,
+        loadingMinTime: 1,
+        afterFilter: function() { equal($('body').prop("class"), "loading", "Should have loading div during start up") }
+	});			
+});
+
+test("Test List", function() { 
 	remove();
 	setUpList();
 	initDataFilterForList();
 	commonTests('#tariffList', '#tariffList li'); 
 });
 
-test("Test List with sortBy", function(sortBy) { 
+test("Test List with sortBy", function() { 
 	remove();
 	setUpList();
 	initDataFilterForList(getSortingDropdownItems());
@@ -72,6 +255,27 @@ test("Test custom text extract", function() {
 	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));
 });
 
+test("Test Table default sort", function() {
+	var none = ["row1-col1","row2-col1","row3-col1","row4-col1"];
+	var asc =  ["row1-col1","row10-col1","row2-col1","row3-col1"];
+	var dsc =  ["row9-col1","row8-col1","row7-col1","row6-col1"];	
+
+	remove();
+	setUpTable();
+	initDataFilterForTable();	
+	assertSortOrder("#tariffTable", 1, none);
+
+	remove();
+	setUpTable();
+	initDataFilterForTableWithDefaultSort("1");	
+	assertSortOrder("#tariffTable", 1, asc);	
+
+	remove();
+	setUpTable();
+	initDataFilterForTableWithDefaultSort("-1");	
+	assertSortOrder("#tariffTable", 1, dsc);	
+});
+
 test("Test Table", function() {
 	remove();
 	setUpTable();
@@ -108,6 +312,7 @@ function commonTests(element, selector) {
 	dropdownTests(element, selector);
 	checkboxTests(element, selector);
 	rangeBandingTests(element, selector);
+	freeTextSearchTests(element, selector);
 }
 
 function pagingTests(selector) {
@@ -234,6 +439,20 @@ function rangeBandingTests(element, selector) {
 	clearAllCheckboxes(element,3);
 }
 
+function freeTextSearchTests(element, selector) {
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible before starting free text tests");
+
+	$('[id*="freeTextSearch"]').val("row2");
+	var event = jQuery.Event("keyup");
+	$('[id*="freeTextSearch"]').trigger(event);
+	equal($(selector+":visible").length, 1, "Should be 1 row visible after search");
+
+	$('#[id*="freeTextSearch"]').val("");
+	var event = jQuery.Event("keyup");
+	$('[id*="freeTextSearch"]').trigger(event);
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible after clearing search");	
+}
+
 function minWithSliderTest(element) {
 	sliderTest(element, 2, "Min", "From", "row7-col2", 8, 0);
 	checkDropdownMovesSlider(element, 2, "Min", 8, 0, "144px", "0px");
@@ -263,7 +482,7 @@ function sliderTest(element, filterNum, type, label, selectText, toNum, resetNum
 	var filter = $(".filterSet").eq(filterNum);
 	equal(filter.find("a").text(), "Test"+filterNum, "Filter "+(filterNum+1)+" should be for Test"+filterNum);
 	equal(filter.find("#sliderLabel_"+sliderId).text(), "Show All", "Slider label should be defaulted to 'Show All'");
-	equal($('#'+id+' option:selected').text(), "No "+type, "Associated dropdown should be set to 'No "+type+"'");
+	equal($('#'+id+' option:selected').text(), "Show All", "Associated dropdown should be set to 'Show All'");
 	equal($('#selectLabel_'+id).text(), label+": ", "Associated dropdown label should be '"+label+": '");
 
 	// move slider
@@ -275,7 +494,7 @@ function sliderTest(element, filterNum, type, label, selectText, toNum, resetNum
 	// reset slider
 	$('#slider_'+sliderId).noUiSlider('move', { knob: knob, to: resetNum });	
 	equal($(element+" tbody tr:visible").length, 10, "Should 10 visible rows");
-	equal($('#'+id+' option:selected').text(), "No "+type, "Associated dropdown should be set to 'No "+type+"'");	
+	equal($('#'+id+' option:selected').text(), "Show All", "Associated dropdown should be set to 'Show All'");	
 }
 
 function checkDropdownMovesSlider(element, filterNum, type, toNum, resetNum, toPx, resetPx) {
@@ -405,5 +624,5 @@ function clearAllCheckboxes(element,ulNum) {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10);
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11";
 }

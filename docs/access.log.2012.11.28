@@ -1,3 +1,0 @@
-82.132.248.218 - - [28/Nov/2012:07:41:18 +0000] "GET / HTTP/1.1" 500 624 "-" "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8G4 Safari/6533.18.5" ":www.datafilters.info:"
-46.233.64.129 - - [28/Nov/2012:08:07:54 +0000] "GET / HTTP/1.0" 500 624 "-" "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8G4 Safari/6533.18.5" ":www.datafilters.info:"
-158.230.100.10 - - [28/Nov/2012:08:16:52 +0000] "GET / HTTP/1.1" 500 624 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11" ":www.datafilters.info:"

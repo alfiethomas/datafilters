@@ -20,7 +20,7 @@
   </p>
 
 <pre class="prettyprint"> 
-<?php include("php/configExampletable.php"); ?></pre>
+<?php include("php/configExampleTable.php"); ?></pre>
 
 <div>
   <div id="filters"></div>
@@ -67,7 +67,7 @@
 </div>
 
   <script type="text/javascript">
-<?php include("php/configExampletable.php"); ?>  
+<?php include("php/configExampleTable.php"); ?>  
   </script>  
 
   <h3>&lt;ul&gt;</h2>
