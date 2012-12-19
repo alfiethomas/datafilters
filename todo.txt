@@ -1,5 +1,9 @@
+* paging numbers
+* hideWhenSingleItem tests
+* applySorting tests
+* minMaxWithBanding test
+* refactor to make banding a parameter to any?
 * Free tests
-* Only sliders if touch supported
 * Refactor default sort
 * DoCallback try/catch
 * afterSort

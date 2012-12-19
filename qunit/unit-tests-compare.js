@@ -33,3 +33,12 @@ test("test comparePeriod", function() {
 function getTestPeriodList() {
 	return ["12 Months", "30 Days", "24 Months", "18 Months"];
 }
+
+test("test compareStock", function() {
+	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock"), ["In Stock", "Delivered in 2 days", "Out of Stock"]);
+	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock", "-1"), ["Out of Stock", "Delivered in 2 days", "In Stock"]);	
+});
+
+function getTestStockList() {
+	return ["Out of Stock", "In Stock", "Delivered in 2 days"];
+}

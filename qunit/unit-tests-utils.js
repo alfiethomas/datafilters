@@ -6,6 +6,8 @@ test("extractCurrencyValue should trim and remove £", function() {
 
 test("extractCurrencyValue should return 0 for Free", function() {
   equal($('qunit').DataFilter('extractCurrencyValue', "Free"), "0");
+  equal($('qunit').DataFilter('extractCurrencyValue', "FREE"), "0");
+  equal($('qunit').DataFilter('extractCurrencyValue', "free"), "0");
 });
 
 test("substringAfterLastIndex should do what it says on the tin", function() {
@@ -46,3 +48,32 @@ test("equalsIgnoreCase should do what is says on the tin", function() {
  	equal($('qunit').DataFilter('equalsIgnoreCase', "HELLO", "hello"), true);
  	equal($('qunit').DataFilter('equalsIgnoreCase', "hello", "world"), false);
  });
+
+test("locationHashContainsParam should do what is says on the tin", function() {
+	window.location.hash = "name=bob";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob"), true);
+
+	window.location.hash = "name=BOB";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob"), true);	
+
+	window.location.hash = "name=will";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob"), false);
+
+	window.location.hash = "name=bob&name=will";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob"), true);	
+
+	window.location.hash = "name=will&name=bob";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob"), true);	
+
+	window.location.hash = "name=bob bobbo";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), true);	
+
+	window.location.hash = "name=bob+bobbo";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), true);
+
+	window.location.hash = "name=bob%20bobbo";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), true);
+
+	window.location.hash = "name=bob-bobbo";
+	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), false);				
+});

@@ -16,15 +16,18 @@ if (!window.console) console = { log: function(string){ } };
 		 */
 
 		var settings = $.extend( {
-			enableFreeTextSearch: false,
+			useFreeTextSearch: false,
+			freeTextSearchLabel: "Search",
 			scrollToEnabled: false,
 			scrollToAnimationEnabled: true,
 			animationEnabled: false,
 			useShowResultsButton: false,
 			useApplyButton: false,
 			pageSize: -1,
+			maxPagingNumbers: 10,
 			filters: {},
 			sortingDropDown: undefined,
+			applyTableSorting: true,
 			defaultTableSort: undefined,
 			slidersEnabled: true,
 			multiSelectLabel: "Select to add",
@@ -36,10 +39,13 @@ if (!window.console) console = { log: function(string){ } };
 			disableIfSlow: false,
 			slowTimeMs: 1000,
 			useLoadingOverlayOnFilter: false,
+			loadingOverlayLoadingImage: undefined,
+			loadingOverlayLoadingText: "Loading...",
 			loadingMinTime: 300,
 			useLoadingOverlayOnFilterIfSlow: true,
 			disableFreeTextIfSlow: false,
 			useLoadingOverlayOnStartUp: false,
+			hideSingleItem: false,
 			extractTextFn: function(element) { return element.text() },
 			freeTextSearchExtractTextFn: function(element) { return element.text() },
 			onSuccess: function() {},
@@ -101,7 +107,7 @@ if (!window.console) console = { log: function(string){ } };
 		function doInit() {
 			var start = utils.now();
 			
-			if (settings.enableFreeTextSearch) addFreeTextSearch();
+			if (settings.useFreeTextSearch) addFreeTextSearch();
 
 			for (var filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
 				var filter = settings.filters[filtersIndex];
@@ -142,7 +148,39 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function addModalDiv() {
-			if (!utils.exists($('#dataFiltersModal'))) $('body').append($('<div/>').prop('id', 'dataFiltersModal'));
+			if (!utils.exists($('#dataFiltersModal'))) {
+				var modalDiv = $('<div/>').attr({'id': 'dataFiltersModal', 'class': 'overlay'});
+				if (!settings.loadingOverlayLoadingImage) modalDiv.append($('<p/>').prop('class', 'overlay').text(settings.loadingOverlayLoadingText));
+				$('body').append(modalDiv);
+
+				$("<style type='text/css'> " +
+					"#dataFiltersModal, #dataFiltersModal p {" +
+					"    display:    none;" +
+					"    position:   fixed;" +
+					"    z-index:    1000;" +
+					"    top:        0;" +
+					"    left:       0;" +
+					"    height:     100%;" +
+					"    width:      100%;" +
+					"    opacity: 	 0.85;" +
+					"	 -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=85)';" +
+					"	 filter:     alpha(opacity=85);" + 
+					"    background:  white 50% 50% no-repeat;" +
+					((settings.loadingOverlayLoadingImage) ? "background-image: url("+settings.loadingOverlayLoadingImage+")" : "") +
+					"}" +
+					"#dataFiltersModal p {" +
+					"    position: relative;" +
+					"    color: black;" +
+					"    top: 45%;" +
+                    "    text-align: center;" +
+					"}" +
+					"body.loading {" +
+					"    overflow: hidden;" +
+					"}" +
+					"body.loading #dataFiltersModal, #dataFiltersModal p {" +
+					"    display: block;" +
+					"}​ </style>").appendTo("head");
+			}
 		}
 
 		function applyToFiltersElement() {
@@ -151,7 +189,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function applySorting() {
-			if (state.elementType == "TABLE") applySort();	
+			if (state.elementType == "TABLE" && settings.applyTableSorting) applyTableSorting();	
 			if (settings.sortingDropDown != undefined) selectDefaultSortingDropdownItem(settings.sortingDropDown); 			
 		}
 
@@ -170,10 +208,8 @@ if (!window.console) console = { log: function(string){ } };
 					items = extractUniqueValues(data, sortFn);
 				}
 
-				if (items.length > 0) {
-					createFilterGroup(config.id, config.heading, factoryFn, items);
-				} else {
-					utils.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
+				if (shouldShowElement(items, config)) {
+					createFilterGroup(config.id, config.heading, factoryFn, items);	
 				}
 			
 			} else {
@@ -181,6 +217,23 @@ if (!window.console) console = { log: function(string){ } };
 					"' and dataType '" + config.dataType + "' not added as a filter");
 			}
 		};
+
+		function shouldShowElement(items, config) {
+			if (items.length == 0) {
+				utils.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
+				return false;
+			}
+
+			if (items.length == 1) {
+				var shouldShow = (config.hideSingleItem != undefined) ? !config.hideSingleItem : !settings.hideSingleItem;
+				if (!shouldShow) {
+					utils.log("Only 1 item found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");	
+					return false;
+				}
+			}
+
+			return true;
+		}
 
 		function ready(itemsPerPageValue) {
 			state.filtersInitialised = true;
@@ -303,7 +356,7 @@ if (!window.console) console = { log: function(string){ } };
 
 		function showLoading() { 
 		    $('body').addClass("loading");
-		    if(navigator.userAgent.match(/(iPhone|iPod|MSIE)/i)) $('.modal').css('postion', 'absolute').css('top', ((-($('html').offset().top))+25)+'px') 
+		    if(navigator.userAgent.match(/(iPhone|iPod|MSIE)/i)) $('#dataFiltersModal').css('postion', 'absolute').css('top', ((-($('html').offset().top))+25)+'px') 
 		}
 
 		function hideLoading() { 
@@ -400,7 +453,7 @@ if (!window.console) console = { log: function(string){ } };
 				if (!matched) return false;
 			});
 
-			if (settings.enableFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
+			if (settings.useFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
 				matched = matchesRegex(settings.freeTextSearchExtractTextFn($(row)), getAndRegex($('#freeTextSearch').val().trim()));
 			}
 
@@ -548,7 +601,7 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		function addFreeTextSearch() {
-			wrapInFilterGroup("Search", $('<div>').append(getFreeTextSearch()));
+			wrapInFilterGroup(settings.freeTextSearchLabel, $('<div>').append(getFreeTextSearch()));
 		}
 
 		function getFreeTextSearch(id) {
@@ -653,7 +706,7 @@ if (!window.console) console = { log: function(string){ } };
 			if (range >  75)  { step = 25  } else 
 			if (range >  60)  { step = 20  }
 
-			var noItems = parseInt(range / step) + 1;
+			var noItems = ((items.length == 1) ? 1 : parseInt(range / step) + 1);
 			var startFrom = (low - (low%step)) + step;
 			if ((noItems-1)*step + startFrom < high) noItems++;
 
@@ -663,10 +716,16 @@ if (!window.console) console = { log: function(string){ } };
 				startFrom = startFrom + step;
 			} 
 
-			for (var i=0; i< noItems; i++) {
-				bandedItems.push("£" + (startFrom + i*step));
+			if (noItems > 1 || bandedItems.length == 0) {
+				for (var i=0; i< noItems; i++) {
+					bandedItems.push("£" + (startFrom + i*step));
+				}
 			}
 			return bandedItems;			
+		}
+
+		function createMinMaxWithBanding(items, id) {
+			return createMinMax(getBandedItems(items), id);
 		}
 
 		function createMinMax(items, id) {
@@ -744,7 +803,7 @@ if (!window.console) console = { log: function(string){ } };
 
 		function preSelectMultiSelect(select, id) {
 			$.each(select.children(), function() {
-				if (urlContainsParam(id, $(this).prop("value"))) {
+				if (utils.locationHashContainsParam(id, $(this).prop("value"))) {
 					$(this).prop('selected', 'selected');
 					select.change();
 				}
@@ -783,7 +842,7 @@ if (!window.console) console = { log: function(string){ } };
 			    var option = $("<option/>").prop("value", item).text(item);
 			    select.append(option);
 			    
-			    if (urlContainsParam(index, item)) {
+			    if (utils.locationHashContainsParam(index, item)) {
 			    	option.prop("selected", "selected"); 
 			    	optionSelected = true;
 			    }
@@ -904,7 +963,7 @@ if (!window.console) console = { log: function(string){ } };
 			var atLeastOnChecked = false;
 			$.each(items, function(iteration, item) {
 
-				var checked = urlContainsParam(index, item);
+				var checked = utils.locationHashContainsParam(index, item);
 				atLeastOnChecked = atLeastOnChecked || checked;
 
 			    ul.append(createCheckboxLi(item, id, checked, function(event) { 
@@ -923,19 +982,7 @@ if (!window.console) console = { log: function(string){ } };
 			}));
 
 			return ul;	
-		}
-
-		function urlContainsParam(index, item) {
-			if (index && item) {
-				if (state.aliases[index]) index = state.aliases[index];
-				var href = encodeURIComponent(utils.replaceAll(window.location.href, '\\+', ' '));
-				var param = encodeURIComponent(index+'='+item);
-				var contains = utils.contains(href, param);
-				return contains;
-			} else {
-				return false;
-			}
-		}		
+		}	
 
 		function checkAll(id, checked) {
 			if ($('ul#'+id+' input[type="checkbox"]:checked').length == 0) {
@@ -1021,7 +1068,15 @@ if (!window.console) console = { log: function(string){ } };
 			pagingNextPrevLi(ul, "&laquo;", "Skip to first page", 1);
 			pagingNextPrevLi(ul, "&lsaquo;", "Skip to previous page", prev);
 
-			for (var i=1; i<=numPages; i++) {
+			var numPagesMidPoint = Math.floor(settings.maxPagingNumbers/2)
+			var pagingStartsFrom = (numPages > settings.maxPagingNumbers && state.paging.currentPage > numPagesMidPoint) ? state.paging.currentPage - numPagesMidPoint : 1;
+			var pagingEndsAt     = (numPages > settings.maxPagingNumbers) ? Math.min(settings.maxPagingNumbers-1 + pagingStartsFrom, numPages) : numPages;
+
+			if (pagingEndsAt - pagingStartsFrom < settings.maxPagingNumbers && pagingStartsFrom > 1) {
+				pagingStartsFrom = Math.max(pagingEndsAt - settings.maxPagingNumbers, 1);
+			}
+
+			for (var i=pagingStartsFrom; i<=pagingEndsAt; i++) {
 				var li = $("<li/>").addClass("pageNumber");
 				if (i == state.paging.currentPage) li.addClass("active");
 				
@@ -1090,7 +1145,7 @@ if (!window.console) console = { log: function(string){ } };
 			});
 		}
 
-		function applySort() {
+		function applyTableSorting() {
 			$('#tariffTable thead th').each(function(column) {
 				if (getSortFunctionForColumn(column)) {
 					applySortToColum($(this), column);
@@ -1151,8 +1206,9 @@ if (!window.console) console = { log: function(string){ } };
 				return items;
 			},
 
-			compareAmount:   function(a,b,direction) { return compare.compare(compare.convertAmount(a), compare.convertAmount(b),   direction) },
+			compareAmount:   function(a,b,direction) { return compare.compare(compare.convertAmount(a), compare.convertAmount(b), direction) },
 			comparePeriod:   function(a,b,direction) { return compare.compare(compare.convertPeriod(a), compare.convertPeriod(b), direction) },
+			compareStock:    function(a,b,direction) { return compare.compare(compare.convertStock(a),  compare.convertStock(b),  direction) },
 			compareCurrency: function(a,b,direction) { return compare.compare(parseFloat(utils.extractCurrencyValue(a)), parseFloat(utils.extractCurrencyValue(b)), direction) },
 
 			compare: function(a,b,direction) {
@@ -1165,6 +1221,12 @@ if (!window.console) console = { log: function(string){ } };
 				if (!s) { s = '0'; }
 				while (o.length < l) { o = s + o; }
 				return o;
+			},
+
+			convertStock: function(stock) {
+				if (utils.startsWith(stock.toLowerCase(), "in stock")) return "aaaa";
+				if (utils.startsWith(stock.toLowerCase(), "out of stock")) return "zzz";
+				return stock.toLowerCase();
 			},
 
 			convertAmount: function(data) {
@@ -1180,6 +1242,26 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		utils = {
+
+			locationHashContainsParam: function(index, item) {
+				var locationHash = window.location.hash;
+
+				if (index && item) {
+					locationHash = utils.replaceAll(locationHash, '%20', ' ');
+					locationHash = utils.replaceAll(locationHash, '\\+', ' ');
+					locationHash = encodeURIComponent(locationHash);
+
+					if (state.aliases[index]) index = state.aliases[index];
+					
+					var param = encodeURIComponent(index+'='+item);
+					var contains = utils.contains(locationHash.toLowerCase(), param.toLowerCase());
+					
+					return contains;
+				
+				} else {
+					return false;
+				}
+			},							
 
 			extractCurrencyValue: function(string) {
 				if (string == undefined) return "";
@@ -1282,20 +1364,22 @@ if (!window.console) console = { log: function(string){ } };
 	    	"default"  : compare.compare,
 	    	"amount"   : compare.compareAmount,
 	    	"currency" : compare.compareCurrency,
-	    	"period"   : compare.comparePeriod
+	    	"period"   : compare.comparePeriod,
+	    	"stock"    : compare.compareStock,
 	    }	
 
 	    var factoryFunctionForFilterType = {
-	    	"select"         : createSelectStandalone,
-	    	"multiSelect"    : createMultiSelect,
-	    	"checkboxes"     : createCheckboxes,
-	    	"min"            : createMin,
-	    	"max"            : createMax,
-	    	"minMax"         : createMinMax,
-	    	"minWithBanding" : createMinWithBanding,
-	    	"maxWithBanding" : createMaxWithBanding,
-	    	"rangeBanding"   : createRangeBanding,
-	    	"search"         : createFreeTextSearch
+	    	"select"            : createSelectStandalone,
+	    	"multiSelect"       : createMultiSelect,
+	    	"checkboxes"        : createCheckboxes,
+	    	"min"               : createMin,
+	    	"max"               : createMax,
+	    	"minMax"            : createMinMax,
+	    	"minMaxWithBanding" : createMinMaxWithBanding,
+	    	"minWithBanding"    : createMinWithBanding,
+	    	"maxWithBanding"    : createMaxWithBanding,
+	    	"rangeBanding"      : createRangeBanding,
+	    	"search"            : createFreeTextSearch
 	    }
 
 	    var functionsForElementType = {

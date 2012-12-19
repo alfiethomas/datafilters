@@ -84,7 +84,7 @@ function initDataFilterForTableWithTextSearch() {
             { "heading": "Test1", "id": 1, "dataType": "default",  "filterType": "checkboxes" }
         ],
         "scrollToAnimationLength": 1,
-        "enableFreeTextSearch": true
+        "useFreeTextSearch": true
    	});	
 }
 

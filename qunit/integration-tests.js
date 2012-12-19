@@ -178,23 +178,6 @@ test("Test pre-select", function() {
 	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
 });
 
-test("Test loading overlay", function() {
-	var logs = [];
-	remove();
-	setUpList();
-
-		equal($('body').prop("class"), "", "Body should not have loading class");
-
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-        scrollToAnimationEnabled: false,
-        useLoadingOverlayOnStartUp: true,
-        useLoadingOverlayOnFilter: true,
-        loadingMinTime: 1,
-        afterFilter: function() { equal($('body').prop("class"), "loading", "Should have loading div during start up") }
-	});			
-});
-
 test("Test List", function() { 
 	remove();
 	setUpList();
@@ -292,16 +275,42 @@ test("Test Table", function() {
 	sortingTestsForTable('#tariffTable');
 	equal($('#success').text(), "filtered", "Should updated success label after filter using callback")
 
-	setTimeout(function() { 
-		test("Test Table Delayed slider test", function() { 
-			toggleShowAllLess();
-			minWithSliderTest('#tariffTable'); 
-			maxWithSliderTest('#tariffTable');
-			maxMinWithSliderTest('#tariffTable');
-			remove();
-		}); 
-	}, 100);	
+	setTimeout(doSliderTests, 1);	
+	setTimeout(doOverlayTest, 1);
 });
+
+function doSliderTests() {
+	test("Test Table Delayed slider test", function() { 
+		toggleShowAllLess();
+		minWithSliderTest('#tariffTable'); 
+		maxWithSliderTest('#tariffTable');
+		maxMinWithSliderTest('#tariffTable');
+		remove();
+	}); 	
+}
+
+function doOverlayTest() {
+	test("Test loading overlay", function() {
+		var logs = [];
+		remove();
+		setUpList();
+
+		equal($('body').prop("class"), "", "Body should not have loading class");
+
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+	        scrollToAnimationEnabled: false,
+	        useLoadingOverlayOnStartUp: true,
+	        useLoadingOverlayOnFilter: true,
+	        loadingMinTime: 1,
+	        afterFilter: function() { 
+	        	test("Test loading overlay - assert", function() { 
+	        		equal($('body').prop("class"), "loading", "Should have loading div during start up") }); 
+	        	remove(); 
+	        }
+		});			
+	});
+}
 
 function commonTests(element, selector) {
 	equal($(selector).length, 10, "Should be a total of 10 elements"); ;
