@@ -15,28 +15,31 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
+      var useZero = getParameter("zero") != undefined;
+      var useFree = getParameter("free") != undefined;
+
       if (getParameter("list")) {
-        setUpList();
+        setUpList(useZero, useFree);
         initDataFilterForList(getSortingDropdownItems());
 
       } else if (getParameter("custom")) {
-        setUpTable();
+        setUpTable(useZero, useFree);
         initDataFilterForTableWithCustomTextExtract(getSortingDropdownItems());
         
       } else if (getParameter("noPaging")) {
-        setUpTable();
+        setUpTable(useZero, useFree);
         initDataFilterForTableWithNoPaging();
         
       } else if (getParameter("freeText")) {
-        setUpTable();
+        setUpTable(useZero, useFree);
         initDataFilterForTableWithTextSearch();
 
       } else if (getParameter("defaultSort")) {
-        setUpTable();
+        setUpTable(useZero, useFree);
         initDataFilterForTableWithDefaultSort();        
         
       } else {
-        setUpTable();
+        setUpTable(useZero, useFree);
         initDataFilterForTable(
           function() { 
             $('#filters').prepend($(document.createElement('label')).prop("id", "success").text(" - callback success"));

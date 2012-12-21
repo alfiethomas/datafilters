@@ -1,14 +1,11 @@
-* paging numbers
-* hideWhenSingleItem tests
+* paging numbers tests
 * applySorting tests
 * minMaxWithBanding test
 * refactor to make banding a parameter to any?
-* Free tests
 * Refactor default sort
 * DoCallback try/catch
 * afterSort
-* setTimeout for start up if slow enabled
 * Free text absolute positioning
-* cross browser overlay
 * navigation with #'s (refactor to selected items)
 * allow input types to be passed in
+* add extract text per filter

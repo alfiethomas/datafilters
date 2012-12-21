@@ -11,7 +11,9 @@ function initDataFilterForList(sortBy) {
             { "heading": "Test7",  "id": "testClass7",  "dataType": "default",  "filterType": "select"         },
             { "heading": "Test8",  "id": "testClass8",  "dataType": "default",  "filterType": "multiSelect"    },
             { "heading": "Test10", "id": "testClass10", "dataType": "currency", "filterType": "rangeBanding"   },
-            { "heading": "Test11", "id": "testClass11", "dataType": "default",  "filterType": "search"         }
+            { "heading": "Test11", "id": "testClass11", "dataType": "default",  "filterType": "search"         },
+            { "heading": "Test12", "id": "testClass12", "dataType": "default",  "filterType": "checkboxes"     }
+
         ],
         "pageSize": 4,
         "sortingDropDown": sortBy,
@@ -45,7 +47,8 @@ function initDataFilterForTable(successFn, afterFilterFn) {
             { "heading": "Test7",  "id": 7,  "dataType": "default",  "filterType": "select"         },
             { "heading": "Test8",  "id": 8,  "dataType": "default",  "filterType": "multiSelect"    },
             { "heading": "Test10", "id": 10, "dataType": "currency", "filterType": "rangeBanding"   },
-            { "heading": "Test11", "id": 11, "dataType": "default",  "filterType": "search"         }            
+            { "heading": "Test11", "id": 11, "dataType": "default",  "filterType": "search"         },
+            { "heading": "Test12", "id": 12, "dataType": "default",  "filterType": "checkboxes"     }             
         ],
         "pageSize": 4,
         "onSuccess": successFn,
@@ -94,14 +97,14 @@ function initDataFilterForTableWithDefaultSort(direction) {
             { "heading": "Test1", "id": 1, "dataType": "default",  "filterType": "checkboxes" }
         ],
         "scrollToAnimationLength": 1,
-        "defaultTableSort": { "id": 1, "direction": direction},
+        "defaultTableSort": { "id": 1, "direction": direction}
     }); 
 }
 
-function setUpTable() {
+function setUpTable(useZero, useFree) {
 	var table = $(document.createElement("table")).attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
 	var tr = $(document.createElement("tr"));
-	for (i=1; i<=11; i++) {
+	for (i=1; i<=12; i++) {
 		tr.append($(document.createElement("th")).prop("class", "sorting").text("Test"+i));
 	}
 	table.append($(document.createElement('thead')).append(tr));
@@ -113,12 +116,13 @@ function setUpTable() {
 		tr.append($(document.createElement("td")).text("row"+i+"-col3"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col4"));
 		tr.append($(document.createElement("td")).text("£"+(i%4)));
-		tr.append($(document.createElement("td")).text("£"+(i*10)));
+		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
 		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col8"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col9"));
-		tr.append($(document.createElement("td")).text("£"+(i*10)));
+		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
         tr.append($(document.createElement("td")).text("row"+i+"-col11"));
+        tr.append($(document.createElement("td")).text("col12"));
 		table.append(tr);
 	}
 	
@@ -126,7 +130,17 @@ function setUpTable() {
 	$('#qunit').append(table);
 }
 
-function setUpList() {
+function getCurreny(i, useZero, useFree) {
+    if (useFree) {
+        return ("£"+((i-1)*10)).replace("£0", "Free");
+    } else if (useZero) {
+        return ("£"+((i-1)*10));
+    } else {
+        return "£"+(i*10);
+    }
+}
+
+function setUpList(useZero, useFree) {
 	var list = $(document.createElement("ul")).attr({id: "tariffList"});
 	for (i=1; i<=10; i++) {
 		var li = $(document.createElement("li"));
@@ -135,12 +149,13 @@ function setUpList() {
 		li.append($(document.createElement("p")).attr({"class": "testClass3"}).text("row"+i+"-col3")); 
 		li.append($(document.createElement("p")).attr({"class": "testClass4"}).text("row"+i+"-col4")); 
 		li.append($(document.createElement("p")).attr({"class": "testClass5"}).text("£"+(i%4))); 
-		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text("£"+(i*10))); 
+		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text(getCurreny(i, useZero, useFree))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
 		li.append($(document.createElement("p")).attr({"class": "testClass8"}).text("row"+i+"-col8"));
 		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row"+i+"-col9"));
-		li.append($(document.createElement("p")).attr({"class": "testClass10"}).text("£"+(i*10))); 
+		li.append($(document.createElement("p")).attr({"class": "testClass10"}).text(getCurreny(i, useZero, useFree))); 
         li.append($(document.createElement("p")).attr({"class": "testClass11"}).text("row"+i+"-col11"));
+        li.append($(document.createElement("p")).attr({"class": "testClass12"}).text("col12"));
 		list.append(li);
 	}
 
@@ -158,6 +173,7 @@ function remove() {
 	$('#tariffTable').empty().remove();
 	$('#filters').empty().remove();
 	$('#paginationHolder').empty().remove();
+    $('body').removeClass("loading");
     window.location.hash = "#";
 }
 

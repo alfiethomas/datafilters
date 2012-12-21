@@ -20,7 +20,6 @@ if (!window.console) console = { log: function(string){ } };
 			freeTextSearchLabel: "Search",
 			scrollToEnabled: false,
 			scrollToAnimationEnabled: true,
-			animationEnabled: false,
 			useShowResultsButton: false,
 			useApplyButton: false,
 			pageSize: -1,
@@ -69,7 +68,8 @@ if (!window.console) console = { log: function(string){ } };
 				totalItems: 0,
 				numMatchedItems: 0
 			},
-			wrapper: $(document.createElement('div')).attr("class", "filterWrapper")
+			wrapper: $(document.createElement('div')).attr("class", "filterWrapper"),
+			noResultsVisible: false
 		}
 
 		methods = {		
@@ -116,28 +116,49 @@ if (!window.console) console = { log: function(string){ } };
 
 			if (settings.sortingDropDown != undefined) createSortingDropDown(settings.sortingDropDown);
 			
-			var filterCreationTime = utils.now() - start;
-			if (settings.disableIfSlow && filterCreationTime > settings.slowTimeMs) {
-				handleSlowness();
+			var filterCreationTime = logTiming("doInt>created", start);
+			var isSlow = filterCreationTime > settings.slowTimeMs;
+
+			if (settings.disableIfSlow && isSlow) {
 				settings.onSlow(filterCreationTime);
 			
 			} else {
+				if (isSlow) handleSlowness();
 				applyToFiltersElement();
-				applySorting();
-				addNoResultsHolder();
-				addModalDiv();
+				logTiming("doInt>applied", start);
 
-				ready(settings.pageSize);			
+				applySorting();
+				logTiming("doInt>sorting", start);
+
+				addNoResultsHolder();
+				logTiming("doInt>no results", start);
+
+				addModalDiv();
+				logTiming("doInt>modal div", start);
+
+				ready(settings.pageSize);
+				logTiming("doInt>ready", start);			
 				
 				settings.onSuccess();
+				logTiming("doInt>success", start);
 			}
+
+			logTiming("doInt>initialised", start);
 		}
+
+		function logTiming(msg, start) {
+			var time = utils.now() - start;
+			if (settings.logTiming) utils.log(msg+":" + time);
+			return time;
+		}
+
 
 		function handleSlowness() {
 			if (settings.useLoadingOverlayOnFilterIfSlow) {
-				settings.useLoadingOverlay = true;
+				settings.useLoadingOverlayOnFilter = true;
 				settings.animationEnabled = false;
 			}
+
 			if (settings.disableFreeTextIfSlow) $('freeTextSearch').remove();
 		}
 
@@ -148,7 +169,9 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function addModalDiv() {
-			if (!utils.exists($('#dataFiltersModal'))) {
+			if ((settings.useLoadingOverlayOnFilter || settings.useLoadingOverlayOnStartUp || settings.useLoadingOverlayOnFilterIfSlow) &&
+					!utils.exists($('#dataFiltersModal'))) {
+
 				var modalDiv = $('<div/>').attr({'id': 'dataFiltersModal', 'class': 'overlay'});
 				if (!settings.loadingOverlayLoadingImage) modalDiv.append($('<p/>').prop('class', 'overlay').text(settings.loadingOverlayLoadingText));
 				$('body').append(modalDiv);
@@ -197,6 +220,9 @@ if (!window.console) console = { log: function(string){ } };
 			state.filtersInitialised = false;
 			sortFn = compareFunctionForDataType[config.dataType]
 			state.sort[config.id] = sortFn;
+
+			if (config.filterType == "sortOnly") return;
+
 			state.aliases[config.id] = config.alias;
 			factoryFn = factoryFunctionForFilterType[config.filterType];
 
@@ -260,7 +286,12 @@ if (!window.console) console = { log: function(string){ } };
 			var btn = $("<button/>").attr({"type": "button", "id": id, "class": "btn-style"}).click(function() { 
 				clickFn(); 
 			}).text(text);
-			state.wrapper.append($("<div/>").append(btn));			
+
+			if(id == "applyFilter") {
+				state.wrapper.append($("<div/>").attr({"class": "applyBtnDiv"}).append(btn));
+			} else {
+				state.wrapper.append($("<div/>").append(btn));
+			}
 		}
 
 		function extractUniqueValues(data, sortFn) {
@@ -320,7 +351,7 @@ if (!window.console) console = { log: function(string){ } };
 		function showRows() {
 			utils.wrapFunctionWithLoading(function() {
 				doShowRows();
-			}, settings.useLoadingOverlayOnFilter && state.initialised);
+			}, settings.useLoadingOverlayOnFilter && state.filtersInitialised);
 		}
 
 		function doShowRows() {
@@ -344,14 +375,22 @@ if (!window.console) console = { log: function(string){ } };
 					case "freeTextSearch"   : addToSearches(searches, index, getSearchStringForSearch(this.id)); break;
 				}
 			});
+			logTiming("doShowRows>searches", start);
 
 			filterRows(matches, searches);
+			logTiming("doShowRows>filterRows", start);
+
 			createPagination();
+			logTiming("doShowRows>pagination", start);
+
 			scrollToResults();
+			logTiming("doShowRows>scrollToResults", start);
+
 			checkForNoResults();
-			if (settings.logTiming) utils.log("filter:" + (utils.now() - start));
+			logTiming("doShowRows>no results", start);
 
 			settings.afterFilter();
+			logTiming("doShowRows>afterFilter", start);
 		}
 
 		function showLoading() { 
@@ -393,6 +432,7 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
+		/* Note: minimise calls to show() & hide() as it causes a reflow, so set temp attribute and change at end in one go */
 		function filterRows(matches, searches) {
 			var visibleItems = 0;
 			state.paging.totalItems = 0;
@@ -406,35 +446,40 @@ if (!window.console) console = { log: function(string){ } };
 			    if (matched) {
 
 			    	if (shouldShowItem(visibleItems)) {
-			    		settings.animationEnabled ? $(this).show('slow') : $(this).show();
+			    		$(this).attr("showHide", "show");
 			    		visibleItems++; 
 			    	} else {
-			    		settings.animationEnabled ? $(this).hide('slow') : $(this).hide();
+			    		$(this).attr("showHide", "hide");
 			    	}
 
 			    	state.paging.numMatchedItems++;	
 
 			    } else {                  
-			    	settings.animationEnabled ? $(this).hide('slow') : $(this).hide();
+			    	$(this).attr("showHide", "hide");
 			    }
 			});	
 
-			setTimeout(function(){ hideThenShowToFixLayoutIssues(data) }, settings.animationEnabled ? 330 : 1);
+			$(state.element).find('[showHide="hide"]').hide();
+			$(state.element).find('[showHide="show"]').show();
+
+			setTimeout(function(){ hideThenShowToFixLayoutIssues() }, 1);
 		}
 
-		function hideThenShowToFixLayoutIssues(data) {
-			data.each(function() { 
-				if ($(this).css('display') != 'none') $(this).hide().show();
-			} );
+		function hideThenShowToFixLayoutIssues() {
+			$(state.element).find('[showHide="show"]').hide().show();
 		}
 
+		/* optimised to only redraw if required */
 		function checkForNoResults() {
-			if (state.paging.numMatchedItems == 0) {
+			if (state.paging.numMatchedItems == 0 && !state.noResultsVisible) {
 				$('#noFilterResults').show();
 				$('.paginationHolder').hide();
-			} else {
+				state.noResultsVisible = true;
+			
+			} else if (state.paging.numMatchedItems > 0 && state.noResultsVisible) {
 				$('#noFilterResults').hide();
 				$('.paginationHolder').show();
+				state.noResultsVisible = false;
 			}
 		}
 
@@ -713,7 +758,6 @@ if (!window.console) console = { log: function(string){ } };
 			var bandedItems = [];
 			if (low == 0) {
 				bandedItems.push("Free");	
-				startFrom = startFrom + step;
 			} 
 
 			if (noItems > 1 || bandedItems.length == 0) {
@@ -1131,7 +1175,8 @@ if (!window.console) console = { log: function(string){ } };
 				if (key != "sortBy") sortData(state.element, functionsForElementType[state.elementType].getAllDataFn(), key.split('_')[0], key.split('_')[1]);
 		    });
 			
-			wrapInFilterGroup("Sort by", select, true);   
+			var sortDiv = $("<div/>").append(select);
+			wrapInFilterGroup("Sort by", sortDiv, true);   
 		}
 
 		function selectDefaultSortingDropdownItem(items) {
@@ -1365,7 +1410,7 @@ if (!window.console) console = { log: function(string){ } };
 	    	"amount"   : compare.compareAmount,
 	    	"currency" : compare.compareCurrency,
 	    	"period"   : compare.comparePeriod,
-	    	"stock"    : compare.compareStock,
+	    	"stock"    : compare.compareStock
 	    }	
 
 	    var factoryFunctionForFilterType = {

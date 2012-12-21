@@ -1,5 +1,42 @@
 window.location.hash = "";
 
+test("Hide Single Item Tests", function() {
+	var logs = [];
+	remove();
+	setUpTable();
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [{ "heading": "Test12", "id": "12",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false
+	});		
+	equal($('ul#Checkboxes_12').length, 1, "Checkbox filter should exist for test 12");
+
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [{ "heading": "Test12", "id": "12",  "dataType": "default",  "filterType": "checkboxes", "hideSingleItem": true }],
+        scrollToAnimationEnabled: false,
+        logFn: function(string) { logs.push(string); console.log(string); }
+	});		
+	equal($('ul#Checkboxes_12').length, 0, "Checkbox filter should not exist for test 12 as configured to hide at filter level");
+	assertLogMessage("Only 1 item found for id '12' so 'Test12' not added as a filter", logs);
+
+
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [{ "heading": "Test12", "id": "12",  "dataType": "default",  "filterType": "checkboxes"}],
+        scrollToAnimationEnabled: false,
+        "hideSingleItem": true,
+        logFn: function(string) { logs.push(string); console.log(string); }
+	});		
+	equal($('ul#Checkboxes_12').length, 0, "Checkbox filter should not exist for test 12 as configured to hide at top level");
+	assertLogMessage("Only 1 item found for id '12' so 'Test12' not added as a filter", logs);	
+
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [{ "heading": "Test12", "id": "12",  "dataType": "default",  "filterType": "checkboxes", "hideSingleItem": false }],
+        scrollToAnimationEnabled: false,
+        "hideSingleItem": true,
+        logFn: function(string) { logs.push(string); console.log(string); }
+	});		
+	equal($('ul#Checkboxes_12').length, 1, "Checkbox filter should exist for test 12 as overridden at filter level");	
+});
+
 test("Test logging", function() {
 	var logs = [];
 	remove();
@@ -38,7 +75,7 @@ test("Test logging", function() {
 	assertLogMessage(getCanNotCreateFilterMessage("Wibbly4",   "wibble4",   "undefined", "checkboxes"), logs);
 	assertLogMessage(getCanNotCreateFilterMessage("Wibbly5",    "wibble5",  "default",   "undefined"),  logs);
 	assertLogMessage("Sort function not defined for id 'wibble4' so not adding 'Wibbly4' to sorting dropdown", logs);
-	assertLastLogStartsWith(logs, 'filter:');
+	assertLastLogStartsWith(logs, 'doInt>initialised:');
 
 	// ensure default logger ok
 	$('#tariffList').DataFilter('init', { 
@@ -51,49 +88,13 @@ function assertLogMessage(message, logs) {
 }
 
 function assertLastLogStartsWith(logs, message) {
-	equal(logs[logs.length-1].indexOf(message), 0, "Last log should start with '"+message+"'");	
+	equal(logs[logs.length-1].indexOf(message), 0, "Last log should start with '"+message+"' - actual was '" + logs[logs.length-1] +"'");	
 }
 
 function getCanNotCreateFilterMessage(heading, id, dataType, filterType) {
 	return "Can not create filter for id '" + id + "' so '" + heading + "' with filterType '" + filterType + 
 					"' and dataType '" + dataType + "' not added as a filter";
 }
-
-test("Test slow loading", function() {
-	var logs = [];
-	remove();
-	setUpList();
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-        logFn: function(string) { logs.push(string); console.log(string); },
-        disableIfSlow: true,
-        slowTimeMs: 1
-	});	
-	assertLastLogStartsWith(logs, "Too slow to create filters");
-
-	remove();
-	setUpList();
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-        logFn: function(string) { logs.push(string); console.log(string); },
-        disableIfSlow: true,
-        slowTimeMs: 1,
-        onSlow: function(time) { logs.push("Custom on slow test") }
-	});		
-	assertLastLogStartsWith(logs, "Custom on slow test");
-
-	remove();
-	setUpList();
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-        logFn: function(string) { logs.push(string); console.log(string); },
-        enableFreeTextSearch: true,
-        disableIfSlow: false,
-        disableFreeTextIfSlow: true,
-        slowTimeMs: 1
-	});		
-	equal($('freeTextSearch').length == 0, true, "Should not add free text search if slow");
-});
 
 test("Test apply and show results buttons", function() {
 	remove();
@@ -177,6 +178,49 @@ test("Test pre-select", function() {
 	equal($('.multiSelect p').length, 1, "One multi select option should be selected");
 	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
 });
+
+test("Test zeros", function() {
+	remove();
+	setUpTable(true);
+	doZeroAndFreeAsserts("£0");
+});
+
+test("Test free", function() {
+	remove();
+	setUpTable(false, true);
+	doZeroAndFreeAsserts("Free");
+});
+
+function doZeroAndFreeAsserts(zeroOrFree) {
+	initDataFilterForTable();
+	toggleShowAllLess();
+
+	equal($('#tariffTable>tbody>tr').eq(0).find('td').eq(9).text(), zeroOrFree, "Ensure "+zeroOrFree+"is first value in table in col 10");	
+
+	equal($('#Min_6 option').text(), "Show AllFree£25£50£75", "Should be select options - Show All,Free,£25,£50,£75"); 
+	equal($('#CheckboxesRange_10 li').text(), "AllFreeup to  £25£25 - £50£50 - £75£75 - £100", "Should be checkboxes - All,Free,up to  £25, £25 - £50, £50 - £75, £75 - £100");
+
+	var table = $('#tariffTable');
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(1));
+	equal($('#CheckboxesRange_10 li input:checked').parent().text(), "Free", "Free checkbox should be selected");	
+	equal(table.find('tbody tr:visible').length, 1, "1 element should be visible when Free selected");
+
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(0));
+	equal(table.find('tbody tr:visible').length, 10, "10 elements should be visible when All selected");
+
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(2));
+	equal($('#CheckboxesRange_10 li input:checked').parent().text(), "up to  £25", "up to £25 checkbox should be selected");
+	equal(table.find('tbody tr:visible').length, 3, "3 elements should be visible when up to £25 selected");
+
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(3));
+	equal($('#CheckboxesRange_10 li input:checked').parent().text(), "up to  £25£25 - £50", "up to  £25, £25 - £50 checkboxes should be selected");
+	equal(table.find('tbody tr:visible').length, 6, "3 elements should be visible when up to £25 & £25 - £50 checkboxes selected");	
+
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(4));
+	doSelectCheckbox($('#CheckboxesRange_10 li input').eq(5));	
+	equal($('#CheckboxesRange_10 li input:checked').parent().text(), "up to  £25£25 - £50£50 - £75£75 - £100", "up to  £25, £25 - £50, £50 - £75, £75 - £100 checkboxes should be selected");
+	equal(table.find('tbody tr:visible').length, 10, "10 elements should be visible when all individually selected");		
+}
 
 test("Test List", function() { 
 	remove();
@@ -275,8 +319,9 @@ test("Test Table", function() {
 	sortingTestsForTable('#tariffTable');
 	equal($('#success').text(), "filtered", "Should updated success label after filter using callback")
 
-	setTimeout(doSliderTests, 1);	
-	setTimeout(doOverlayTest, 1);
+	setTimeout(doSliderTests, 10);
+	setTimeout(doSlowLoadingTests, 10);
+	setTimeout(doOverlayTest, 10);
 });
 
 function doSliderTests() {
@@ -287,6 +332,45 @@ function doSliderTests() {
 		maxMinWithSliderTest('#tariffTable');
 		remove();
 	}); 	
+}
+
+
+function doSlowLoadingTests(){
+	test("Slow Loading Tests", function() { 
+		var logs = [];
+		remove();
+		setUpList();
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+	        logFn: function(string) { logs.push(string); console.log(string); },
+	        disableIfSlow: true,
+	        slowTimeMs: 1
+		});	
+		assertLastLogStartsWith(logs, "Too slow to create filters");
+
+		remove();
+		setUpList();
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+	        logFn: function(string) { logs.push(string); console.log(string); },
+	        disableIfSlow: true,
+	        slowTimeMs: 1,
+	        onSlow: function(time) { logs.push("Custom on slow test") }
+		});		
+		assertLastLogStartsWith(logs, "Custom on slow test");
+
+		remove();
+		setUpList();
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+	        logFn: function(string) { logs.push(string); console.log(string); },
+	        enableFreeTextSearch: true,
+	        disableIfSlow: false,
+	        disableFreeTextIfSlow: true,
+	        slowTimeMs: 1
+		});		
+		equal($('freeTextSearch').length == 0, true, "Should not add free text search if slow");
+	});
 }
 
 function doOverlayTest() {
@@ -302,7 +386,7 @@ function doOverlayTest() {
 	        scrollToAnimationEnabled: false,
 	        useLoadingOverlayOnStartUp: true,
 	        useLoadingOverlayOnFilter: true,
-	        loadingMinTime: 1,
+	        loadingMinTime: 50,
 	        afterFilter: function() { 
 	        	test("Test loading overlay - assert", function() { 
 	        		equal($('body').prop("class"), "loading", "Should have loading div during start up") }); 
@@ -321,7 +405,7 @@ function commonTests(element, selector) {
 	dropdownTests(element, selector);
 	checkboxTests(element, selector);
 	rangeBandingTests(element, selector);
-	freeTextSearchTests(element, selector);
+	freeTextSearchTestsAndNoResultsTests(element, selector);
 }
 
 function pagingTests(selector) {
@@ -448,7 +532,7 @@ function rangeBandingTests(element, selector) {
 	clearAllCheckboxes(element,3);
 }
 
-function freeTextSearchTests(element, selector) {
+function freeTextSearchTestsAndNoResultsTests(element, selector) {
 	equal($(selector+":visible").length, 10, "Should be 10 rows visible before starting free text tests");
 
 	$('[id*="freeTextSearch"]').val("row2");
@@ -456,10 +540,26 @@ function freeTextSearchTests(element, selector) {
 	$('[id*="freeTextSearch"]').trigger(event);
 	equal($(selector+":visible").length, 1, "Should be 1 row visible after search");
 
+	assertNoResultsVisible(false);
+
+	$('[id*="freeTextSearch"]').val("wibble");
+	var event = jQuery.Event("keyup");
+	$('[id*="freeTextSearch"]').trigger(event);
+	equal($(selector+":visible").length, 0, "Should be 0 row visible after search");	
+
+	assertNoResultsVisible(true);
+
 	$('#[id*="freeTextSearch"]').val("");
 	var event = jQuery.Event("keyup");
 	$('[id*="freeTextSearch"]').trigger(event);
-	equal($(selector+":visible").length, 10, "Should be 10 rows visible after clearing search");	
+	equal($(selector+":visible").length, 10, "Should be 10 rows visible after clearing search");
+
+	assertNoResultsVisible(false);	
+}
+
+function assertNoResultsVisible(visible) {
+	equal($('#noFilterResults').is(":visible"),   visible, "No results div should not be visible");
+	equal($('.paginationHolder').is(":visible"), !visible, "No results div should not be visible");	
 }
 
 function minWithSliderTest(element) {
@@ -614,8 +714,12 @@ function getCheckbox(element,ulNum,liNum) {
 
 function selectCheckbox(element,ulNum,liNum) {
 	var checkbox = getCheckbox(element,ulNum,liNum);
-	checkbox.prop("checked", true).click().prop("checked", true);	
+	doSelectCheckbox(checkbox);	
 	return checkbox.attr('name');
+}
+
+function doSelectCheckbox(checkbox) {
+	checkbox.prop("checked", true).click().prop("checked", true)
 }
 
 function selectSelectById(id, index) {
@@ -633,5 +737,5 @@ function clearAllCheckboxes(element,ulNum) {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11";
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
 }
