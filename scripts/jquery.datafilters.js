@@ -1311,12 +1311,12 @@ if (!window.console) console = { log: function(string){ } };
 			extractCurrencyValue: function(string) {
 				if (string == undefined) return "";
 
-				var trimmedString = string.trim(
-					);
+				var trimmedString = string.trim().toLowerCase();
+
 				if (string.indexOf('£') != -1) {
-					return utils.replaceAll(trimmedString, '£', '');
+					return utils.substringAfterLast(trimmedString, '£');
 				
-				} else if (trimmedString.toLowerCase() == "free" || trimmedString == "") {
+				} else if (utils.contains(trimmedString, "free") || trimmedString == "") {
 					return "0";
 
 				} else {

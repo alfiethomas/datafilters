@@ -1,11 +1,22 @@
+Tests
 * paging numbers tests
 * applySorting tests
 * minMaxWithBanding test
-* refactor to make banding a parameter to any?
+
+Features
+* refactor to make banding only for currency?
 * Refactor default sort
 * DoCallback try/catch
 * afterSort
 * Free text absolute positioning
-* navigation with #'s (refactor to selected items)
+* navigation with #'s (refactor selected items)
 * allow input types to be passed in
 * add extract text per filter
+
+* data-* items
+  var tn_array = $('#tariffTable tbody tr').map(function() {
+    return $(this).attr("data-mins");
+  });
+  for (var i=0; i<tn_array.length; i++) {
+    console.log(tn_array[i]);
+  }

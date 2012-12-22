@@ -25,6 +25,15 @@ function getTestCurrencyList() {
 	return ["£1", "£10", "", "£5", "Free", "£100"];
 }
 
+test("test compareCurrency range", function() {
+	deepEqual($('qunit').DataFilter('sortItems', getTestCurrencyRangeList(), "compareCurrency"), ["free on all tariffs", "£1 - £10", "£5 - £15", "Free - £20", "£10 - £25"]);
+	deepEqual($('qunit').DataFilter('sortItems', getTestCurrencyRangeList(), "compareCurrency", "-1"), ["£10 - £25", "Free - £20", "£5 - £15", "£1 - £10", "free on all tariffs"]);	
+});
+
+function getTestCurrencyRangeList() {
+	return ["£1 - £10", "£10 - £25", "free on all tariffs", "£5 - £15", "Free - £20"];
+}
+
 test("test comparePeriod", function() {
 	deepEqual($('qunit').DataFilter('sortItems', getTestPeriodList(), "comparePeriod"), ["30 Days", "12 Months", "18 Months", "24 Months"]);
 	deepEqual($('qunit').DataFilter('sortItems', getTestPeriodList(), "comparePeriod", "-1"), ["24 Months", "18 Months", "12 Months", "30 Days"]);	
