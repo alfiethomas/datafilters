@@ -3,15 +3,18 @@ Tests
 * applySorting tests
 * minMaxWithBanding test
 
+Docmentation
+
 Features
+* navigation with #'s (refactor selected items)
+
+* optimise pagination
 * refactor to make banding only for currency?
 * Refactor default sort
 * DoCallback try/catch
 * afterSort
 * Free text absolute positioning
-* navigation with #'s (refactor selected items)
 * allow input types to be passed in
-* add extract text per filter
 
 * data-* items
   var tn_array = $('#tariffTable tbody tr').map(function() {

@@ -310,6 +310,12 @@ table#tariffTable td {
 	width: 75px;
 }
 
+table#Filters-PropertiesTable th.default, table#Filters-PropertiesTable td.default,
+table#Filters-DataTypesTable th.default, table#Filters-DataTypesTable td.default,
+table#Filters-FilterTypesTable th.default, table#Filters-FilterTypesTable td.default {
+	display: none;
+}
+
 h2 {
 	margin-top: 25px;
 	margin-bottom: 15px;

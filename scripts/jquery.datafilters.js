@@ -15,42 +15,133 @@ if (!window.console) console = { log: function(string){ } };
 		 * See bottom of file for furhter configuration
 		 */
 
+		/* START Settings */
 		var settings = $.extend( {
-			useFreeTextSearch: false,
-			freeTextSearchLabel: "Search",
-			scrollToEnabled: false,
-			scrollToAnimationEnabled: true,
-			useShowResultsButton: false,
-			useApplyButton: false,
-			pageSize: -1,
-			maxPagingNumbers: 10,
+
+			/* This is used for configuring which filters to apply. See separate <a href="#filtersConfig">filters configuration</a> table for more details */
 			filters: {},
+
+			/* If this is set to true it will add a search box as the first filter with a title of search. It responds to the keyup 
+			event and takes the current text in the search box and matches it against any text in the element being filtered. Spaces 
+			are treated as a word separator and the match is done as an OR type search using all the words entered. */
+			useFreeTextSearch: false,
+
+			/*  */
+			freeTextSearchLabel: "Search",
+			
+			/* If this is set to true, whenever a filter is updated, then page will be scrolled. If there is an element in the DOM with 
+			an id of 'scrollTo' then the page is scrolled to that point, otherwise it scrolls to the first instance of an element with the
+			 "paginationHolder" class, or failing either of those two to the element being filtered. It has an animation length of 300ms.
+			<br>
+			Use sparingly, can be a bit annoying if the page scrolls away from the current filters, but in some circumstances, particularly 
+			when you have a small filter set, it can be useful. This can be used nicely in conjunction with <a href="#useApplyButton">useApplyButton</a>. */
+			scrollToEnabled: false,
+
+			/* If <a href="#scrollToEnabled" class="ref">scrollToEnabled</a> is true, then this can be used to turn of animation of the scrolling. */
+			scrollToAnimationEnabled: true,
+			
+			/* If this is set to true, a "Show Results" button will be added to the bottom of the filters list. When clicked, the page will 
+			be scrolled to the element in the DOM with an id of 'scrollTo'. If the element does not exist then the button will not do anything 
+			but will still be displayed. */
+			useShowResultsButton: false,
+
+			/*  If this is set to true, an "Apply" button will be added to the bottom of the filters list. Whenever a filter us updated, the 
+			results list will not be filtered until the "Apply" button is clicked. If <a href="#scrollToEnabled" class="ref">scrollToEnabled</a> is also set to true, the page will be 
+			scrolled to the element in the DOM with an id of 'scrollTo'. */
+			useApplyButton: false,
+
+			/* Sets the page size. If this is set to < 1 then paging is not used and all results are shown. */
+			pageSize: -1,
+
+			/*  */
+			maxPagingNumbers: 10,
+			
+			/*  */
 			sortingDropDown: undefined,
+			
+			/*  */
 			applyTableSorting: true,
+			
+			/*  */
 			defaultTableSort: undefined,
+			
+			/* If this is set to true, then sliders are used for max / min type filters. */
 			slidersEnabled: true,
+			
+			/*  */
 			multiSelectLabel: "Select to add",
+			
+			/*  */
 			useFixedWidthForMutliSelect: false,
+			
+			/* Text to show on the paging label i.e. 'Showing 1 - 10 of 20 &lt;itemsLabel&gt;'. The default is "items" so default is 
+			'Showing 1 - 10 of 20 items'. Setting this to 'thingys' would result in 'Showing 1 - 10 of 20 thingys'. */
 			itemsLabel: "items",
+			
+			/* See <a href="#itemsLabel" class="ref">itemsLabel</a> - used when only one restult returned i.e. 'Showing 1 - 10 of 20 <itemLabel>' */
 			itemLabel: "item",
+			
+			/* This is used when no restults are returned. When the filters are initially applied, a hidden div with this html is append 
+			after the element being filtered. */
 			noResultsHtml: "<p>No matching items, please modify your search criteria</p>",
+			
+			/*  */
 			logTiming: false,
+			
+			/*  */
 			disableIfSlow: false,
+			
+			/*  */
 			slowTimeMs: 1000,
+			
+			/*  */
 			useLoadingOverlayOnFilter: false,
+			
+			/*  */
 			loadingOverlayLoadingImage: undefined,
+			
+			/*  */
 			loadingOverlayLoadingText: "Loading...",
+			
+			/*  */
 			loadingMinTime: 300,
+			
+			/*  */
 			useLoadingOverlayOnFilterIfSlow: true,
+			
+			/*  */
 			disableFreeTextIfSlow: false,
+			
+			/*  */
 			useLoadingOverlayOnStartUp: false,
+			
+			/*  */
 			hideSingleItem: false,
+		/* END Settings */
+
+		/* START Custom Functions */
+			/* This is used to extract text from elements that need to be filtered. By default it just gets the text using the jQuery 
+			<a href="http://api.jquery.com/text/">text()</a> method. */
 			extractTextFn: function(element) { return element.text() },
+			
+			/* This is used to extract text from the row that needs to be filtered. By default it just gets the text using the jQuery 
+			<a href="http://api.jquery.com/text/">text()</a> method. */
 			freeTextSearchExtractTextFn: function(element) { return element.text() },
+
+			/* The function that is passed in using this will be called when the initial filters have been successfully created and 
+			the page is ready for use. */
 			onSuccess: function() {},
-			onSlow: function(time) { utils.log("Too slow to create filters: " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
+
+			/*  */
+			onSlow: function(time) { utils.log("Too slow to create filters - " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
+
+			/* The function that is passed in using this will be called everytime the results have been filter. */
 			afterFilter: function() {},
+
+			/*  */
 			logFn: function(string) { console.log(string) }
+		/* END Custom Functions */
+
 		}, options);		
 
 		var state = {
@@ -61,6 +152,7 @@ if (!window.console) console = { log: function(string){ } };
 			filtersInitialised: false,
 			initialised: false,
 			sort: {},
+			extractText: {},
 			paging: {
 				currentPage: 1,
 				itemsPerPage: -1,
@@ -217,43 +309,81 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function initDataElement(config) {
+
+		  /* START Filters - Properties */
+			/* The heading to be used when displaying the filter. */
+			var heading = config.heading;
+
+			/* This identifies the data in the list to be used when generating this filter. 
+			<span class="break"></span> 
+			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
+			var id = config.id;	
+
+			/* This is used to determine how to sort the data. See <a href="#filters-dataTypes">below</a> for a list of supported types. 
+			<span class="break"></span>
+			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
+			var dataType = config.dataType;
+
+			/* This is used to determine the type of filter used to filter the data. See <a href="#filters-dataTypes">below</a> for a list of supported types.
+			<span class="break"></span>
+			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
+			var filterType = config.filterType;
+
+			/*  */
+			var alias = config.alias;
+
+			/* If this is used, then the items used to generate the filter are the ones supplied.
+			<span class="break"></span> 
+			This is not normally supplied and a list of unique items are dynamically generated from the data. This is the normal
+			case as it is the main purpose of the plugin. */
+			var items = config.items;
+
+			/*  */
+			var hideSingleItem = config.hideSingleItem;
+
+			/*  */
+			var extractTextFn = config.extractTextFn;
+		  /* END Filters - Properties */
+
 			state.filtersInitialised = false;
-			sortFn = compareFunctionForDataType[config.dataType]
-			state.sort[config.id] = sortFn;
+			sortFn = compareFunctionForDataType[dataType]
+			state.sort[id] = sortFn;
+			
+			if (extractTextFn) state.extractText[id] = extractTextFn;
 
-			if (config.filterType == "sortOnly") return;
+			if (filterType == "sortOnly") return;
 
-			state.aliases[config.id] = config.alias;
-			factoryFn = factoryFunctionForFilterType[config.filterType];
+			state.aliases[id] = alias;
+			factoryFn = factoryFunctionForFilterType[filterType];
 
-			if (config.heading && config.id && factoryFn && sortFn) { 
-				var items = config.items;
+			if (heading && id && factoryFn && sortFn) { 
+				var items = items;
 
 				if (items == undefined) {
-					var data = functionsForElementType[state.elementType].getAllDataForGivenIdFn(config.id);
-					items = extractUniqueValues(data, sortFn);
+					var data = functionsForElementType[state.elementType].getAllDataForGivenIdFn(id);
+					items = extractUniqueValues(data, sortFn, id);
 				}
 
-				if (shouldShowElement(items, config)) {
-					createFilterGroup(config.id, config.heading, factoryFn, items);	
+				if (shouldShowElement(items, id, heading, hideSingleItem)) {
+					createFilterGroup(id, heading, factoryFn, items);	
 				}
 			
 			} else {
-				utils.log("Can not create filter for id '" + config.id + "' so '" + config.heading + "' with filterType '" + config.filterType + 
-					"' and dataType '" + config.dataType + "' not added as a filter");
+				utils.log("Can not create filter for id '" + id + "' so '" + heading + "' with filterType '" + filterType + 
+					"' and dataType '" + dataType + "' not added as a filter");
 			}
 		};
 
-		function shouldShowElement(items, config) {
+		function shouldShowElement(items, id, heading, hideSingleItem ) {
 			if (items.length == 0) {
-				utils.log("No items found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");
+				utils.log("No items found for id '" + id + "' so '" + heading + "' not added as a filter");
 				return false;
 			}
 
 			if (items.length == 1) {
-				var shouldShow = (config.hideSingleItem != undefined) ? !config.hideSingleItem : !settings.hideSingleItem;
+				var shouldShow = (hideSingleItem != undefined) ? !hideSingleItem : !settings.hideSingleItem;
 				if (!shouldShow) {
-					utils.log("Only 1 item found for id '" + config.id + "' so '" + config.heading + "' not added as a filter");	
+					utils.log("Only 1 item found for id '" + id + "' so '" + heading + "' not added as a filter");	
 					return false;
 				}
 			}
@@ -294,10 +424,10 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
-		function extractUniqueValues(data, sortFn) {
+		function extractUniqueValues(data, sortFn, index) {
 			var items=[];
 			data.each(function(){
-				var text = settings.extractTextFn($(this)).trim();
+				var text = extractText($(this), index).trim();
 			   if (text.length > 0 && $.inArray(text, items) < 0) items.push(text);       
 			});
 
@@ -322,12 +452,16 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function extratcTextFromTableCell(row, index) {
-			return settings.extractTextFn($(row).children('td').eq(index));
+			return extractText($(row).children('td').eq(index), index);
 		}
 
 		function extractTextFromListElement(row, index) {
-			return settings.extractTextFn($(row).find('.'+index));
-		}		
+			return extractText($(row).find('.'+index), index);
+		}	
+
+		function extractText(element, index) {
+			return (state.extractText[index]) ? state.extractText[index](element) : settings.extractTextFn(element);
+		}	
 
 		function doPaging(page,itemsPerPageValue) {
 			if (page) state.paging.currentPage = page;
@@ -1404,28 +1538,63 @@ if (!window.console) console = { log: function(string){ } };
 			}																
 		}	
 
-		// configuration section
+		/* START Filters - Data Types */
 	    var compareFunctionForDataType = {
+
+	    	/*  */
 	    	"default"  : compare.compare,
-	    	"amount"   : compare.compareAmount,
+
+	    	/*  */
+ 	    	"amount"   : compare.compareAmount,
+
+ 	    	/*  */
 	    	"currency" : compare.compareCurrency,
+
+	    	/*  */
 	    	"period"   : compare.comparePeriod,
+
+	    	/*  */
 	    	"stock"    : compare.compareStock
 	    }	
+	    /* END Filters - Data Types */
 
+	    /* START Filters - Filter Types */
 	    var factoryFunctionForFilterType = {
+
+	    	/*  */
 	    	"select"            : createSelectStandalone,
+
+	    	/*  */
 	    	"multiSelect"       : createMultiSelect,
+
+	    	/*  */
 	    	"checkboxes"        : createCheckboxes,
+
+	    	/*  */
 	    	"min"               : createMin,
+
+	    	/*  */
 	    	"max"               : createMax,
+
+	    	/*  */
 	    	"minMax"            : createMinMax,
+
+	    	/*  */
 	    	"minMaxWithBanding" : createMinMaxWithBanding,
+
+	    	/*  */
 	    	"minWithBanding"    : createMinWithBanding,
+
+	    	/*  */
 	    	"maxWithBanding"    : createMaxWithBanding,
+
+	    	/*  */
 	    	"rangeBanding"      : createRangeBanding,
+
+	    	/*  */
 	    	"search"            : createFreeTextSearch
 	    }
+	    /* END Filters - Filter Types */
 
 	    var functionsForElementType = {
 	    	"TABLE": {

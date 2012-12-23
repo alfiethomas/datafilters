@@ -17,7 +17,5 @@ function initFilters() {
     useFreeTextSearch: true, 
     onSuccess: onSuccessFn,
     scrollToEnabled: true       
-  });        
-
-  filterGroups(4);      
+  });            
 }

@@ -282,6 +282,36 @@ test("Test custom text extract", function() {
 	equal($('#tariffTable tbody tr:visible').eq(0).text(), getTextForRow(1), "Validate first row of text is " + getTextForRow(1));
 });
 
+test("Test custom text extract at filter level", function() {
+	remove();
+	setUpTable();
+
+	function filterLevelTextExtract(element) { 
+    	var text = element.text();
+    	return text.substring(text.indexOf('-')+1);
+    }
+
+	function highLevelTextExtract(element) { 
+    	var text = element.text();
+    	return text.substring(0, text.indexOf('-'));
+    }    
+
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [
+            { "heading": "Test1", "id": 1, "dataType": "default",  "filterType": "checkboxes" },
+            { "heading": "Test2", "id": 2, "dataType": "default",  "filterType": "checkboxes", "extractTextFn": filterLevelTextExtract }
+        ],
+        "pageSize": 4,
+        "settings.scrollToAnimationLength": 1,
+        "extractTextFn": highLevelTextExtract
+	});	
+	equal($('ul#Checkboxes_1 li input[type="checkbox"]').length, 11, "Should be 11 checkboxes");
+	equal($('ul#Checkboxes_1 li label').eq(1).text(), "row1", "2nd checkbox text should be row1");
+
+	equal($('ul#Checkboxes_2 li input[type="checkbox"]').length, 2, "Should be 2 checkboxes - All & col2");
+	equal($('ul#Checkboxes_2 li label').eq(1).text(), "col2", "2nd checkbox text should be col2");
+});
+
 test("Test Table default sort", function() {
 	var none = ["row1-col1","row2-col1","row3-col1","row4-col1"];
 	var asc =  ["row1-col1","row10-col1","row2-col1","row3-col1"];
