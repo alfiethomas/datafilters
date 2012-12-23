@@ -473,7 +473,6 @@ a.filterSelect.opened {
 .noUi-handle > div:hover, .noUi-handle > div.noUi-activeHandle {
 	background: #800000;
 	border-color: #000;
-	border-width: 2px;
 	border-radius: 2px;	
 }
 

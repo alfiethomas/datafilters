@@ -1,3 +1,5 @@
+/* Uses the Apache license - see https://github.com/alfiethomas/datafilters/license.txt */
+
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
