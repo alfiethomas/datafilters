@@ -1,4 +1,4 @@
-/* Uses the Apache license - see https://github.com/alfiethomas/datafilters/license.txt */
+/* Uses the Apache license - see https://www.datafilters.info/license.txt */
 
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
