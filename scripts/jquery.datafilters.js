@@ -1,4 +1,4 @@
-/*! https://www.datafilters.info/license.txt */
+/* https://www.datafilters.info/license.txt */
 
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
