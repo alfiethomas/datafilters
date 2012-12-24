@@ -1,4 +1,4 @@
-/* https://www.datafilters.info/license.txt */
+/*! https://www.datafilters.info/license.txt */
 
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
@@ -125,7 +125,7 @@ if (!window.console) console = { log: function(string){ } };
 			hideSingleItem: false,
 
 			/* Set to true to log timings - <b>not recommended for use in Production</b> */
-			logTiming: false
+			logTiming: false,
 
 		/* END Settings */
 
