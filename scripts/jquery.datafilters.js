@@ -1,4 +1,4 @@
-/* Uses the Apache license - see https://www.datafilters.info/license.txt */
+/*! https://www.datafilters.info/license.txt */
 
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
@@ -28,8 +28,8 @@ if (!window.console) console = { log: function(string){ } };
 			are treated as a word separator and the match is done as an OR type search using all the words entered. */
 			useFreeTextSearch: false,
 
-			/*  */
-			freeTextSearchLabel: "Search",
+			/* The heading to be used for the the global free text search see <a href="#useFreeTextSearch">useFreeTextSearch</a>  */
+			freeTextSearchHeading: "Search",
 			
 			/* If this is set to true, whenever a filter is updated, then page will be scrolled. If there is an element in the DOM with 
 			an id of 'scrollTo' then the page is scrolled to that point, otherwise it scrolls to the first instance of an element with the
@@ -55,26 +55,29 @@ if (!window.console) console = { log: function(string){ } };
 			/* Sets the page size. If this is set to < 1 then paging is not used and all results are shown. */
 			pageSize: -1,
 
-			/*  */
+			/* Maximum number of paging elements to show. For example, if they are 200 items with a page size of 10, then to start with page numbers 1 through 10
+			will be shown. As you get past the middle page then the page numbers no longer start from 1. In the previous example, page 7 would show pages 3 through 12 */
 			maxPagingNumbers: 10,
 			
 			/*  */
 			sortingDropDown: undefined,
 			
-			/*  */
+			/* By default, if you are using a table, then sorting is applied to the table. Set this to false to disable. Each &lt;th&gt; is made clickable and a class
+			of <b>sortable</b> is added to it. When selected it is sorted asc and a class of <b>sorted-asc</b> is added, if clicked again the column is sorted descending 
+			and a class of <b>sorted-desc</b> is added. There will only ever be a single sorted-asc or sorted-desc across all  &lt;th&gt; elements */
 			applyTableSorting: true,
 			
-			/*  */
+			/* The column to sort a table by by default. Specify the column index<br>
+			e.g. { "id" : 2 }<br>
+			and orptionally a direction of 1 or -1 for asc/desc<br>
+			e.g. { "id" : 2, "direction" : "-1" }*/
 			defaultTableSort: undefined,
 			
 			/* If this is set to true, then sliders are used for max / min type filters. */
 			slidersEnabled: true,
 			
-			/*  */
+			/* Label to be used as the default option in the dropdown for a multi-select label */
 			multiSelectLabel: "Select to add",
-			
-			/*  */
-			useFixedWidthForMutliSelect: false,
 			
 			/* Text to show on the paging label i.e. 'Showing 1 - 10 of 20 &lt;itemsLabel&gt;'. The default is "items" so default is 
 			'Showing 1 - 10 of 20 items'. Setting this to 'thingys' would result in 'Showing 1 - 10 of 20 thingys'. */
@@ -87,14 +90,21 @@ if (!window.console) console = { log: function(string){ } };
 			after the element being filtered. */
 			noResultsHtml: "<p>No matching items, please modify your search criteria</p>",
 			
-			/*  */
-			logTiming: false,
-			
-			/*  */
+			/* Disable plugin if browser is slow (by default 1000ms to create the filters) - can be used in conjunction with <a href="#slowTimeMs">slowTimeMs</a>.
+			If this happens then the callback function <a href="onSlow">onSlow</a> is called if you need to do anything in this scenario.
+			This effectively means that the web page is left as it was originally. Any other dependant changes to the DOM should be done using the callback 
+			function <a href="#onSuccess">onSuccess</a> which will not be called in this case.  */
 			disableIfSlow: false,
 			
-			/*  */
+			/* The time in ms that if the filters take longer than to create, the plugin is deemed to be slow. See <a href="disableIfSlow">disableIfSlow</a>,
+			<a href="useLoadingOverlayOnFilterIfSlow">useLoadingOverlayOnFilterIfSlow</a>, <a href="disableFreeTextIfSlow">disableFreeTextIfSlow</a> */
 			slowTimeMs: 1000,
+
+			/*  */
+			useLoadingOverlayOnFilterIfSlow: true,
+			
+			/*  */
+			disableFreeTextIfSlow: false,			
 			
 			/*  */
 			useLoadingOverlayOnFilter: false,
@@ -109,16 +119,14 @@ if (!window.console) console = { log: function(string){ } };
 			loadingMinTime: 300,
 			
 			/*  */
-			useLoadingOverlayOnFilterIfSlow: true,
-			
-			/*  */
-			disableFreeTextIfSlow: false,
-			
-			/*  */
 			useLoadingOverlayOnStartUp: false,
 			
 			/*  */
 			hideSingleItem: false,
+
+			/* Set to true to log timings - <b>not recommended for use in Production</b> */
+			logTiming: false
+
 		/* END Settings */
 
 		/* START Custom Functions */
@@ -134,13 +142,13 @@ if (!window.console) console = { log: function(string){ } };
 			the page is ready for use. */
 			onSuccess: function() {},
 
-			/*  */
+			/* Called when the plugin is deemed to be too slow - see <a href="disableIfSlow">disableIfSlow</a> */
 			onSlow: function(time) { utils.log("Too slow to create filters - " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
 
 			/* The function that is passed in using this will be called everytime the results have been filter. */
 			afterFilter: function() {},
 
-			/*  */
+			/* Determines how plugin logs events such as validations, errors and timings. Mainly provided as a hook for testing  */
 			logFn: function(string) { console.log(string) }
 		/* END Custom Functions */
 
@@ -782,7 +790,7 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		function addFreeTextSearch() {
-			wrapInFilterGroup(settings.freeTextSearchLabel, $('<div>').append(getFreeTextSearch()));
+			wrapInFilterGroup(settings.freeTextSearchHeading, $('<div>').append(getFreeTextSearch()));
 		}
 
 		function getFreeTextSearch(id) {
