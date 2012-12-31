@@ -44,10 +44,10 @@ function getTestPeriodList() {
 }
 
 test("test compareStock", function() {
-	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock"), ["In Stock", "Delivered in 2 days", "Out of Stock"]);
-	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock", "-1"), ["Out of Stock", "Delivered in 2 days", "In Stock"]);	
+	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock"), ["In Stock", "3 day delivery", "Delivered in 2 days", "Out of Stock"]);
+	deepEqual($('qunit').DataFilter('sortItems', getTestStockList(), "compareStock", "-1"), ["Out of Stock", "Delivered in 2 days", "3 day delivery", "In Stock"]);	
 });
 
 function getTestStockList() {
-	return ["Out of Stock", "In Stock", "Delivered in 2 days"];
+	return ["Out of Stock", "In Stock", "3 day delivery", "Delivered in 2 days"];
 }

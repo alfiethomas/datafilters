@@ -89,10 +89,20 @@
 <?php
 echo $tables["Filters-Properties"];
 echo $tables["Filters-FilterTypes"];
+
+echo ' 
+<a name="banding"></a>
+<h2>Banding</h2>
+Currently only works for currency. For example, £1, £3, £22, £33, £35, £45, £56 would be banded to £10, £20, £30, £40, £50, £60';
+
 echo $tables["Filters-DataTypes"];
 echo $tables["Settings"];
 echo $tables["CustomFunctions"];
 ?>
+
+<h2>Sort Config - TO DO</h2>
+
+<h2>Styling - TO DO</h2>
 
 </div>
 <?php showPageEnd(); ?>

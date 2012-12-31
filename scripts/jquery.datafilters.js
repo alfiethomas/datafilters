@@ -1,4 +1,4 @@
-/*! https://www.datafilters.info/license.txt */
+/*! http://www.datafilters.info/license.txt */
 
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
@@ -100,28 +100,32 @@ if (!window.console) console = { log: function(string){ } };
 			<a href="useLoadingOverlayOnFilterIfSlow">useLoadingOverlayOnFilterIfSlow</a>, <a href="disableFreeTextIfSlow">disableFreeTextIfSlow</a> */
 			slowTimeMs: 1000,
 
-			/*  */
+			/* See <a href="#slowTimeMs">slowTimeMs</a>. One of the options if the plugin is slow to start up */
 			useLoadingOverlayOnFilterIfSlow: true,
 			
-			/*  */
+			/* See <a href="#slowTimeMs">slowTimeMs</a>. One of the options if the plugin is slow to start up */
 			disableFreeTextIfSlow: false,			
 			
-			/*  */
+			/* If set to true, shows a "Loading overaly" everytime something is filtered. This can be used if the dataset is large and likely to take a while to 
+			filter, or just for feedback to confirm something is happening. By default, the loading overlay will be shown for a minimum of 300ms so it is visible.
+			This can be change using See <a href="#loadingMinTime">loadingMinTime</a> */
 			useLoadingOverlayOnFilter: false,
 			
-			/*  */
-			loadingOverlayLoadingImage: undefined,
-			
-			/*  */
+			/* Text to show with the loading overlay. This is not used if the  property <a href="loadingOverlayLoadingImage">loadingOverlayLoadingImage</a> is set */
 			loadingOverlayLoadingText: "Loading...",
 			
-			/*  */
+			/* By default the loading overlyay use the text "Loading...". If this property is set, then no text is display and this image is used as the backlground image
+			for the overlay */
+			loadingOverlayLoadingImage: undefined,
+			
+			/* The mimimum amount of time to show the "Loading" overlay for. The default is 300ms which allows time for the user to see it, but does not fee long.
+			The filtering is not blocked of this time as the loading time runs in parallel and continues if filtering not complete after specified time */
 			loadingMinTime: 300,
 			
-			/*  */
+			/* If this is set to true the loading overlay is shown when the filters are being created */
 			useLoadingOverlayOnStartUp: false,
 			
-			/*  */
+			/* If this is set to true then if there is only a single item, a filter is not shown. Can be overriden at the filter level using the same property */
 			hideSingleItem: false,
 
 			/* Set to true to log timings - <b>not recommended for use in Production</b> */
@@ -329,17 +333,17 @@ if (!window.console) console = { log: function(string){ } };
 			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
 			var id = config.id;	
 
-			/* This is used to determine how to sort the data. See <a href="#filters-dataTypes">below</a> for a list of supported types. 
+			/* This is used to determine how to sort the data. See <a href="#Filters-DataTypes">below</a> for a list of supported types. 
 			<span class="break"></span>
 			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
 			var dataType = config.dataType;
 
-			/* This is used to determine the type of filter used to filter the data. See <a href="#filters-dataTypes">below</a> for a list of supported types.
+			/* This is used to determine the type of filter used to filter the data. See <a href="#Filters-FilterTypes">below</a> for a list of supported types.
 			<span class="break"></span>
 			See explanations above for us with &lt;table&gt; and &lt;ul&gt; elements. */
 			var filterType = config.filterType;
 
-			/*  */
+			/* Alias to be used. This is used for pre-selecting filter options using the query string */
 			var alias = config.alias;
 
 			/* If this is used, then the items used to generate the filter are the ones supplied.
@@ -348,7 +352,7 @@ if (!window.console) console = { log: function(string){ } };
 			case as it is the main purpose of the plugin. */
 			var items = config.items;
 
-			/*  */
+			/* If this is set to true then if there is only a single item, this fitler is not shown. This overrides the global option */
 			var hideSingleItem = config.hideSingleItem;
 
 			/*  */
@@ -976,7 +980,6 @@ if (!window.console) console = { log: function(string){ } };
 			}
 
 			var containerDiv = $("<div/>");
-			containerDiv.append(createSelectlabel(id, "MultiSelect", ""));
 			
 			var select = createSelect(items, id, "MultiSelect", onChangeFn)
 			containerDiv.append(select);
@@ -1010,7 +1013,6 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createSelectStandalone(items, id) {
 			var containerDiv = $("<div/>");
-			containerDiv.append(createSelectlabel(id, "Select", ""));
 			containerDiv.append(createSelect(items, id, "Select"));
 			return containerDiv;
 		}
@@ -1413,7 +1415,7 @@ if (!window.console) console = { log: function(string){ } };
 			},
 
 			convertStock: function(stock) {
-				if (utils.startsWith(stock.toLowerCase(), "in stock")) return "aaaa";
+				if (utils.startsWith(stock.toLowerCase(), "in stock")) return "000";
 				if (utils.startsWith(stock.toLowerCase(), "out of stock")) return "zzz";
 				return stock.toLowerCase();
 			},
@@ -1551,19 +1553,20 @@ if (!window.console) console = { log: function(string){ } };
 		/* START Filters - Data Types */
 	    var compareFunctionForDataType = {
 
-	    	/*  */
+	    	/* Items will be sorted alaphabetically using the default JS sort order */
 	    	"default"  : compare.compare,
 
-	    	/*  */
+	    	/* Sorts items by treating GB with 000000 and MB with 000. Unlimitied is treated as Number.MAX_VALUE */
  	    	"amount"   : compare.compareAmount,
 
- 	    	/*  */
+ 	    	/* If the string contains a £ sign, then the text after the last instance of the £ sign is parsed in to a number. If the text does not contain
+ 	    	a £ sign then 0 is assumed */
 	    	"currency" : compare.compareCurrency,
 
 	    	/*  */
 	    	"period"   : compare.comparePeriod,
 
-	    	/*  */
+	    	/* In Stock is first, Out of Stock is last anyhing else is sorted alaphabetically in between */
 	    	"stock"    : compare.compareStock
 	    }	
 	    /* END Filters - Data Types */
@@ -1571,37 +1574,50 @@ if (!window.console) console = { log: function(string){ } };
 	    /* START Filters - Filter Types */
 	    var factoryFunctionForFilterType = {
 
-	    	/*  */
+	    	/* Uses a standard HTML Select element to filter results based on option selected.<br>
+	    	<img src="images/select.jpg" / > */
 	    	"select"            : createSelectStandalone,
 
-	    	/*  */
+	    	/* Creates an HTML Select element and everytime an option is chosen, this is added to  a list of selected options
+	    	and reomoved from the Select element enabling multi-selection.<br>
+	    	<img src="images/multiSelect.jpg" / >*/
 	    	"multiSelect"       : createMultiSelect,
 
-	    	/*  */
+	    	/* Creates a checkbox per unique item. Also adds an all checkbox as the first element. By default, "All" is selected.
+	    	When another element is selected, "All" is deselected. If no elements are selected, "All" is selected.<br>
+	    	<img src="images/checkboxes.jpg" / > */
 	    	"checkboxes"        : createCheckboxes,
 
-	    	/*  */
+	    	/* Creates an HTML select element and when an option is selected, the data is filtered so that anything greater or equal to the
+	    	value is selected (i.e. the seleted option is the minimum). If sliders are enabled then they can be used to update the Select box.<br>
+	    	<img src="images/min.jpg" / >*/
 	    	"min"               : createMin,
 
-	    	/*  */
+	    	/* Creates an HTML select element and when an option is selected, the data is filtered so that anything less than or equal to the
+	    	value is selected (i.e. the seleted option is the maximum). If sliders are enabled then they can be used to update the Select box.<br>
+	    	<img src="images/max.jpg" / >*/
 	    	"max"               : createMax,
 
-	    	/*  */
+	    	/* Creates HTML select elements for <a href="#max">max</a> and <a href="#min">min</a> and combines the results. If sliders are enabled then they can be used to update the Select boxes.<br>
+	    	<img src="images/minMax.jpg" / >*/
 	    	"minMax"            : createMinMax,
 
-	    	/*  */
+	    	/* As per <a href="#minMax">minMax</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
 	    	"minMaxWithBanding" : createMinMaxWithBanding,
 
-	    	/*  */
+	    	/* As per <a href="#minMax">min</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
 	    	"minWithBanding"    : createMinWithBanding,
 
-	    	/*  */
+	    	/* As per <a href="#minMax">max</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
 	    	"maxWithBanding"    : createMaxWithBanding,
 
-	    	/*  */
+	    	/* Puts the data in to bands (see <a href="#banding">banding</a> for details) and then creates a checkbox per valid band range.<br>
+	    	<img src="images/rangeBanding.jpg" / > */
 	    	"rangeBanding"      : createRangeBanding,
 
-	    	/*  */
+	    	/* Uses an HTML5 &lt;input="search"&gt; element to display a search box. Whenever the user types someting or clears the search, then a free text search is 
+	    	performed. If browser does not support &lt;input="search"&gt; then a default input box is used instead.<br>
+	    	<img src="images/search.jpg" / > */
 	    	"search"            : createFreeTextSearch
 	    }
 	    /* END Filters - Filter Types */
