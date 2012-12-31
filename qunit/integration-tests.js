@@ -524,12 +524,12 @@ function checkboxTests(element, selector) {
  	clearAllCheckboxes(element,1);
 
  	equal(getCheckbox(element,1,1).attr('checked'), "checked", "All checkbox should be checked");
- 	equal(selectCheckbox(element, 2, 2), "~row1", "Select and check first checkbox in second list is row1");	
+ 	equal(selectCheckbox(element, 2, 2), "~row.1", "Select and check first checkbox in second list is row1");	
  	equal($(selector+":visible").length, 2, "Should be 2 rows when checkbox row1 selected as configured to non-word matching so matches row1 & row10");
  	clearAllCheckboxes(element, 2);
  	
  	equal(all.attr('checked'), "checked", "All checkbox should be checked");
- 	equal(selectCheckbox(element, 2, 3), "row2", "Select and check second checkbox in second list is row2");	
+ 	equal(selectCheckbox(element, 2, 3), "row.2", "Select and check second checkbox in second list is row2");	
  	equal($(selector+":visible").length, 1, "Should be 1 row when checkbox row2 selected as configured for word matching."); 	
  	clearAllCheckboxes(element, 2);
 }

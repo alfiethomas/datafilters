@@ -2,7 +2,7 @@ function initDataFilterForList(sortBy) {
 	$('#tariffList').DataFilter('init', { 
         "filters": [
             { "heading": "Test1",  "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes"     },
-            { "heading": "Test9",  "id": "testClass9",  "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },            
+            { "heading": "Test9",  "id": "testClass9",  "dataType": "default",  "filterType": "checkboxes", "items": ["~row.1", "row.2"] },            
             { "heading": "Test2",  "id": "testClass2",  "dataType": "default",  "filterType": "min"            },
             { "heading": "Test3",  "id": "testClass3",  "dataType": "period",   "filterType": "max"            },
             { "heading": "Test4",  "id": "testClass4",  "dataType": "default",  "filterType": "minMax"         },
@@ -38,7 +38,7 @@ function initDataFilterForTable(successFn, afterFilterFn) {
 	$('#tariffTable').DataFilter('init', { 
         "filters": [
             { "heading": "Test1",  "id": 1,  "dataType": "default",  "filterType": "checkboxes"     },
-            { "heading": "Test9",  "id": 9,  "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },
+            { "heading": "Test9",  "id": 9,  "dataType": "default",  "filterType": "checkboxes", "items": ["~row.1", "row.2"] },
             { "heading": "Test2",  "id": 2,  "dataType": "default",  "filterType": "min"            },
             { "heading": "Test3",  "id": 3,  "dataType": "period",   "filterType": "max"            },
             { "heading": "Test4",  "id": 4,  "dataType": "default",  "filterType": "minMax"         },

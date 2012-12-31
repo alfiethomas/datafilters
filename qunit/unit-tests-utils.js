@@ -80,5 +80,14 @@ test("locationHashContainsParam should do what is says on the tin", function() {
 
 test("escapeForRegex tests", function() {
 	equal($('qunit').DataFilter('escapeForRegex', "hello 123 456"), "hello 123 456");	
-	equal($('qunit').DataFilter('escapeForRegex', "hello.123.456"), "hello123456");	
+	equal($('qunit').DataFilter('escapeForRegex', "hello.123.456"), "hello123456");
+	equal($('qunit').DataFilter('escapeForRegex', "hello$123{456"), "hello123456");
+
+	matchUsingWordBoundary("Delivered in 1-2 days.");
+	matchUsingWordBoundary("Delivered (in) $1-$2 {days}.");
 });
+
+function matchUsingWordBoundary(text) {
+	var escapedText = $('qunit').DataFilter('escapeForRegex', text);
+	equal(escapedText.search(new RegExp("\\b"+escapedText+"\\b", "i")), 0, text+" should be matched by itself");
+}
