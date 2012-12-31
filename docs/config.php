@@ -25,7 +25,7 @@
 <div>
   <div id="filters"></div>
 
-  <table id="exampleTable">
+  <table id="exampleTable" border="0" cellpadding="0" cellspacing="0">
     <thead>
       <th>Make</th>
       <th>Model</th>

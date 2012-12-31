@@ -271,13 +271,12 @@ p {
 
 @media screen and (min-width: 850px) {
 	body {
-		margin: 22px auto;
+		margin: 12px auto;
 	}
 }
 
 table {
-	border-radius: 2px;
-	box-shadow: 1px 1px 2px 2px #CCC;
+	border: 1px solid #CCC;
 	padding: 2px 2px 2px 0px;
 }
 
