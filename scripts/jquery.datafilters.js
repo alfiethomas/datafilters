@@ -677,7 +677,9 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function matchesRegex(text, regex) {
-			return utils.convertToSingleLine(text).search(new RegExp(regex, "i")) > -1;
+			text = utils.convertToSingleLine(text);
+			text = utils.escapeForRegex(text);
+			return text.search(new RegExp(regex, "i")) > -1;
 		}
 
 		function matchesRanges(index, value, ranges) {
@@ -761,6 +763,7 @@ if (!window.console) console = { log: function(string){ } };
 		}		
 
 		function addToSearchString(searchString, value) {
+			value = utils.escapeForRegex(value);
 			var searchToAdd = matchWordBoundaryUnlessTextStartWithTilda(value);
 			return (searchString=="" ? searchToAdd : "|" + searchToAdd); 
 		}
@@ -1433,6 +1436,10 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		utils = {
+
+			escapeForRegex: function(str) {
+			    return (str+'').replace(/([.?*+^$[\]\\(){}|])/g, "");
+			},
 
 			locationHashContainsParam: function(index, item) {
 				var locationHash = window.location.hash;

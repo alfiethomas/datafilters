@@ -119,7 +119,7 @@ function setUpTable(useZero, useFree) {
 		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
 		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col8"));
-		tr.append($(document.createElement("td")).text("row"+i+"-col9"));
+		tr.append($(document.createElement("td")).text("row."+i+"-col9"));
 		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
         tr.append($(document.createElement("td")).text("row"+i+"-col11"));
         tr.append($(document.createElement("td")).text("col12"));
@@ -152,7 +152,7 @@ function setUpList(useZero, useFree) {
 		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text(getCurreny(i, useZero, useFree))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
 		li.append($(document.createElement("p")).attr({"class": "testClass8"}).text("row"+i+"-col8"));
-		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row"+i+"-col9"));
+		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row."+i+"-col9"));
 		li.append($(document.createElement("p")).attr({"class": "testClass10"}).text(getCurreny(i, useZero, useFree))); 
         li.append($(document.createElement("p")).attr({"class": "testClass11"}).text("row"+i+"-col11"));
         li.append($(document.createElement("p")).attr({"class": "testClass12"}).text("col12"));

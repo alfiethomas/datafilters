@@ -77,3 +77,8 @@ test("locationHashContainsParam should do what is says on the tin", function() {
 	window.location.hash = "name=bob-bobbo";
 	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), false);				
 });
+
+test("escapeForRegex tests", function() {
+	equal($('qunit').DataFilter('escapeForRegex', "hello 123 456"), "hello 123 456");	
+	equal($('qunit').DataFilter('escapeForRegex', "hello.123.456"), "hello123456");	
+});

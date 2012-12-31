@@ -767,5 +767,5 @@ function clearAllCheckboxes(element,ulNum) {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
+	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row."+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
 }
