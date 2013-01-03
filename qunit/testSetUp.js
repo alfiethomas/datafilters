@@ -2,7 +2,7 @@ function initDataFilterForList(sortBy) {
 	$('#tariffList').DataFilter('init', { 
         "filters": [
             { "heading": "Test1",  "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes"     },
-            { "heading": "Test9",  "id": "testClass9",  "dataType": "default",  "filterType": "checkboxes", "items": ["~row.1", "row.2"] },            
+            { "heading": "Test9",  "id": "testClass9",  "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },            
             { "heading": "Test2",  "id": "testClass2",  "dataType": "default",  "filterType": "min"            },
             { "heading": "Test3",  "id": "testClass3",  "dataType": "period",   "filterType": "max"            },
             { "heading": "Test4",  "id": "testClass4",  "dataType": "default",  "filterType": "minMax"         },
@@ -38,7 +38,7 @@ function initDataFilterForTable(successFn, afterFilterFn) {
 	$('#tariffTable').DataFilter('init', { 
         "filters": [
             { "heading": "Test1",  "id": 1,  "dataType": "default",  "filterType": "checkboxes"     },
-            { "heading": "Test9",  "id": 9,  "dataType": "default",  "filterType": "checkboxes", "items": ["~row.1", "row.2"] },
+            { "heading": "Test9",  "id": 9,  "dataType": "default",  "filterType": "checkboxes", "items": ["~row1", "row2"] },
             { "heading": "Test2",  "id": 2,  "dataType": "default",  "filterType": "min"            },
             { "heading": "Test3",  "id": 3,  "dataType": "period",   "filterType": "max"            },
             { "heading": "Test4",  "id": 4,  "dataType": "default",  "filterType": "minMax"         },
@@ -112,14 +112,14 @@ function setUpTable(useZero, useFree) {
 	for (i=1; i<=10; i++) {
 		var tr = $(document.createElement("tr"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col1"));
-		tr.append($(document.createElement("td")).text("row"+(11-i)+"-col2"));
+		tr.append($(document.createElement("td")).text("row"+(11-i)+"-col2."));
 		tr.append($(document.createElement("td")).text("row"+i+"-col3"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col4"));
 		tr.append($(document.createElement("td")).text("£"+(i%4)));
 		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
 		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
 		tr.append($(document.createElement("td")).text("row"+i+"-col8"));
-		tr.append($(document.createElement("td")).text("row."+i+"-col9"));
+		tr.append($(document.createElement("td")).text("row"+i+"-col9"));
 		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
         tr.append($(document.createElement("td")).text("row"+i+"-col11"));
         tr.append($(document.createElement("td")).text("col12"));
@@ -145,14 +145,14 @@ function setUpList(useZero, useFree) {
 	for (i=1; i<=10; i++) {
 		var li = $(document.createElement("li"));
 		li.append($(document.createElement("p")).attr({"class": "testClass1"}).text("row"+i+"-col1"));
-		li.append($(document.createElement("p")).attr({"class": "testClass2"}).text("row"+(11-i)+"-col2")); // reversed
+		li.append($(document.createElement("p")).attr({"class": "testClass2"}).text("row"+(11-i)+"-col2.")); // reversed
 		li.append($(document.createElement("p")).attr({"class": "testClass3"}).text("row"+i+"-col3")); 
 		li.append($(document.createElement("p")).attr({"class": "testClass4"}).text("row"+i+"-col4")); 
 		li.append($(document.createElement("p")).attr({"class": "testClass5"}).text("£"+(i%4))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text(getCurreny(i, useZero, useFree))); 
 		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
 		li.append($(document.createElement("p")).attr({"class": "testClass8"}).text("row"+i+"-col8"));
-		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row."+i+"-col9"));
+		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row"+i+"-col9"));
 		li.append($(document.createElement("p")).attr({"class": "testClass10"}).text(getCurreny(i, useZero, useFree))); 
         li.append($(document.createElement("p")).attr({"class": "testClass11"}).text("row"+i+"-col11"));
         li.append($(document.createElement("p")).attr({"class": "testClass12"}).text("col12"));

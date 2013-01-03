@@ -78,16 +78,27 @@ test("locationHashContainsParam should do what is says on the tin", function() {
 	equal($('qunit').DataFilter('locationHashContainsParam', "name", "bob bobbo"), false);				
 });
 
-test("escapeForRegex tests", function() {
-	equal($('qunit').DataFilter('escapeForRegex', "hello 123 456"), "hello 123 456");	
-	equal($('qunit').DataFilter('escapeForRegex', "hello.123.456"), "hello123456");
-	equal($('qunit').DataFilter('escapeForRegex', "hello$123{456"), "hello123456");
+test("escapeRegex tests", function() {
+	equal($('qunit').DataFilter('escapeRegex', "hello 123 456"), "hello 123 456");	
+	equal($('qunit').DataFilter('escapeRegex', "hello.123.456"), "hello\\.123\\.456");
+	equal($('qunit').DataFilter('escapeRegex', "hello$123{456"), "hello\\$123\\{456");
 
 	matchUsingWordBoundary("Delivered in 1-2 days.");
 	matchUsingWordBoundary("Delivered (in) $1-$2 {days}.");
 });
 
 function matchUsingWordBoundary(text) {
-	var escapedText = $('qunit').DataFilter('escapeForRegex', text);
-	equal(escapedText.search(new RegExp("\\b"+escapedText+"\\b", "i")), 0, text+" should be matched by itself");
+	var escapedText = $('qunit').DataFilter('escapeRegex', text);
+	equal(text.search(new RegExp(escapedText, "i")), 0, text+" should be matched by itself");
 }
+
+test("startsAndEndsWithWordCharacter test", function() {
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "(hello)"), false);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "hello^"), false);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', " hello"), false);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "hello"), true);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "h(ell)o"), true);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "h(ell)o"), true);
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "h(ell)o)"), false);	
+	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "(h(ell)o)"), false);	
+});

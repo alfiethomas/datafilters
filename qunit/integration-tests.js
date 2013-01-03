@@ -308,8 +308,8 @@ test("Test custom text extract at filter level", function() {
 	equal($('ul#Checkboxes_1 li input[type="checkbox"]').length, 11, "Should be 11 checkboxes");
 	equal($('ul#Checkboxes_1 li label').eq(1).text(), "row1", "2nd checkbox text should be row1");
 
-	equal($('ul#Checkboxes_2 li input[type="checkbox"]').length, 2, "Should be 2 checkboxes - All & col2");
-	equal($('ul#Checkboxes_2 li label').eq(1).text(), "col2", "2nd checkbox text should be col2");
+	equal($('ul#Checkboxes_2 li input[type="checkbox"]').length, 2, "Should be 2 checkboxes - All & col2.");
+	equal($('ul#Checkboxes_2 li label').eq(1).text(), "col2.", "2nd checkbox text should be col2.");
 });
 
 test("Test Table default sort", function() {
@@ -485,19 +485,24 @@ function dropdownTests(element, selector) {
 	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should be 'Select to add'");
 	equal($(selector+":visible").length, 10, "Should be 10 rows when nothing selected");
 
-	// select item - should remove from dropwdown and add to div
+	// select item - should add to div
 	selectSelect($("select[id*='MultiSelect_']"), 3);
-	equal($("select[id*='MultiSelect_'] option").length, 10, "Select list should be 10 items - was 11");
+	equal($("select[id*='MultiSelect_'] option").length, 11, "Select list should be 11 items - option is not removed");
 	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8", "row2-col8 shoulld be added to list of items div");
 	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should return to 'Select to add");
 	equal($(selector+":visible").length, 1, "Should be 1 row visible");
 
-	// select item - should remove from dropwdown and add to div
-	selectSelect($("select[id*='MultiSelect_']"), 3);
-	equal($("select[id*='MultiSelect_'] option").length, 9, "Select list should be 9 items - was 1o");
+	// select item - should add to div
+	selectSelect($("select[id*='MultiSelect_']"), 4);
 	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8row3-col8", "row3-col8 shoulld be added to list of items div");
 	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should return to 'Select to add");
 	equal($(selector+":visible").length, 2, "Should be 2 row visible");
+
+	// check that selecting an already selected element does nothing and returns dropdown to "Select to add"
+	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8row3-col8", "row3-col8 shoulld be added to list of items div");
+	selectSelect($("select[id*='MultiSelect_']"), 4);
+	equal($("div[id*='MultiSelectItems_']").find('p').text(), "row2-col8row3-col8", "selecting an already added option does nothing");
+	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should be 'Select to add'");
 
 	// reset - click all items that have been selected
 	$("div[id*='MultiSelectItems_'] p").click();
@@ -524,12 +529,12 @@ function checkboxTests(element, selector) {
  	clearAllCheckboxes(element,1);
 
  	equal(getCheckbox(element,1,1).attr('checked'), "checked", "All checkbox should be checked");
- 	equal(selectCheckbox(element, 2, 2), "~row.1", "Select and check first checkbox in second list is row1");	
+ 	equal(selectCheckbox(element, 2, 2), "~row1", "Select and check first checkbox in second list is row1");	
  	equal($(selector+":visible").length, 2, "Should be 2 rows when checkbox row1 selected as configured to non-word matching so matches row1 & row10");
  	clearAllCheckboxes(element, 2);
  	
  	equal(all.attr('checked'), "checked", "All checkbox should be checked");
- 	equal(selectCheckbox(element, 2, 3), "row.2", "Select and check second checkbox in second list is row2");	
+ 	equal(selectCheckbox(element, 2, 3), "row2", "Select and check second checkbox in second list is row2");	
  	equal($(selector+":visible").length, 1, "Should be 1 row when checkbox row2 selected as configured for word matching."); 	
  	clearAllCheckboxes(element, 2);
 }
@@ -593,7 +598,7 @@ function assertNoResultsVisible(visible) {
 }
 
 function minWithSliderTest(element) {
-	sliderTest(element, 2, "Min", "From", "row7-col2", 8, 0);
+	sliderTest(element, 2, "Min", "From", "row7-col2.", 8, 0);
 	checkDropdownMovesSlider(element, 2, "Min", 8, 0, "144px", "0px");
 }
 
@@ -708,7 +713,7 @@ function sortingTestsForList() {
 	assertSortOrderForList("#tariffList", "testClass1", ["row1-col1","row10-col1","row2-col1","row3-col1"]);
 
 	// tests currency sort order
-	assertSortOrderForList("#tariffList", "testClass2", ["row10-col2","row1-col2","row9-col2","row8-col2"]);
+	assertSortOrderForList("#tariffList", "testClass2", ["row10-col2.","row1-col2.","row9-col2.","row8-col2."]);
 	nthOption(9).prop("selected", "selected");
 	$("#sortBySelect").change();
 	assertSortOrderForList("#tariffList", "testClass6", ["£100","£90","£80","£70"]);		
@@ -767,5 +772,5 @@ function clearAllCheckboxes(element,ulNum) {
 }
 
 function getTextForRow(n) {
-	return "row"+n+"-col1row"+(11-n)+"-col2row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row."+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
+	return "row"+n+"-col1row"+(11-n)+"-col2.row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
 }

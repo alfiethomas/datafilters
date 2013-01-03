@@ -5,7 +5,7 @@ $(document).ready(function() {
 function initFilters() {
   $('#tariffTable').DataFilter('init', { 
     filters: [
-      { heading: "Tariff Length", "id": 3, "dataType": "period",   "filterType": "select", "alias": "tariffLength" },
+      { heading: "Tariff Length", "id": 3, "dataType": "period",   "filterType": "multiSelect", "alias": "tariffLength" },
       { heading: "Monthly Cost",  "id": 1, "dataType": "currency", "filterType": "maxWithBanding" },
       { heading: "UK Minutes",    "id": 4, "dataType": "amount",   "filterType": "min"            },
       { heading: "UK Data",       "id": 6, "dataType": "amount",   "filterType": "minMax"         },          

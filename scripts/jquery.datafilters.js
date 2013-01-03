@@ -678,7 +678,6 @@ if (!window.console) console = { log: function(string){ } };
 
 		function matchesRegex(text, regex) {
 			text = utils.convertToSingleLine(text);
-			text = utils.escapeForRegex(text);
 			return text.search(new RegExp(regex, "i")) > -1;
 		}
 
@@ -763,7 +762,7 @@ if (!window.console) console = { log: function(string){ } };
 		}		
 
 		function addToSearchString(searchString, value) {
-			value = utils.escapeForRegex(value);
+			value = utils.escapeRegex(value);
 			var searchToAdd = matchWordBoundaryUnlessTextStartWithTilda(value);
 			return (searchString=="" ? searchToAdd : "|" + searchToAdd); 
 		}
@@ -773,7 +772,11 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function matchWordOnly(word) {
-			return "\\b"+utils.extractCurrencyValue(word)+"\\b";
+			if (utils.startsAndEndsWithWordCharacter(word)) {
+				return "\\b"+utils.extractCurrencyValue(word)+"\\b";
+			} else {
+				return word;
+			}
 		}
 
 		function createFilterGroup(index, group, factoryFn, items) {
@@ -968,23 +971,28 @@ if (!window.console) console = { log: function(string){ } };
 			function onChangeFn(select) {
 				if (select.value != settings.multiSelectLabel) {
 					var multiSelect = $(select).parent().find('.multiSelect');
-					var selectedP = $('<p/>').text(select.value).prop("class", select.selectedIndex);
+					var selectedPiD = multiSelect.attr("id")+"_"+select.selectedIndex;
 
-					$(multiSelect).append(selectedP.click(function() {
-						var text = $(this).text();
-						$(select).append($("<option/>").prop("value", text).text(text));
-						sortSelect($(select));
-						$(this).remove();
-						filterAfterChange();
-					}));
+					if ($("#"+selectedPiD).length == 0 && select.selectedIndex > 0) {
+						var selectedP = $('<p/>').text(select.value).attr("id", selectedPiD);
 
-					$(select).find("option:selected").remove();
+						$(multiSelect).append(selectedP.click(function() {
+							$(this).remove();
+							select.selectedIndex = 0;
+							filterAfterChange();
+						}));						
+					}
+					select.selectedIndex = 0;
 				}
+			}
+
+			function blurFunction(select) {
+				if (select.selectedIndex != 0) select.selectedIndex = 0;
 			}
 
 			var containerDiv = $("<div/>");
 			
-			var select = createSelect(items, id, "MultiSelect", onChangeFn)
+			var select = createSelect(items, id, "MultiSelect", onChangeFn, blurFunction);
 			containerDiv.append(select);
 
 			var selectedItems = $("<div/>").attr({"id": "MultiSelectItems_"+id, "class": "multiSelect" })
@@ -1020,7 +1028,7 @@ if (!window.console) console = { log: function(string){ } };
 			return containerDiv;
 		}
 
-		function createSelect(items, index, type, changeFunction) {
+		function createSelect(items, index, type, changeFunction, blurFunction) {
 			if (type == undefined) type = "Select";
 
 			var id = type+'_'+index;
@@ -1044,7 +1052,13 @@ if (!window.console) console = { log: function(string){ } };
 			select.change(function(event) {
 				if (changeFunction) changeFunction(this);
 		        filterAfterChange();
-		    })	
+		    });
+
+		    if (blurFunction != undefined) {
+		    	select.blur(function(event) {
+		    		blurFunction(this);	
+		    	});
+		    }
 
 			if (type == "Max") select.append($("<option/>").attr({"selected": !optionSelected}).text("Show All"));
 
@@ -1437,8 +1451,12 @@ if (!window.console) console = { log: function(string){ } };
 
 		utils = {
 
-			escapeForRegex: function(str) {
-			    return (str+'').replace(/([.?*+^$[\]\\(){}|])/g, "");
+			escapeRegex: function(text) {
+			    return (text).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+			},
+
+			startsAndEndsWithWordCharacter: function(text) {
+				return text.search(new RegExp("^\\w.*\\w$")) > -1;
 			},
 
 			locationHashContainsParam: function(index, item) {
