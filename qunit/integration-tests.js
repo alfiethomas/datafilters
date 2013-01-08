@@ -136,6 +136,8 @@ function getPageOffset() {
 }
 
 test("Test pre-select", function() {
+
+	// checkboxes
 	remove();
 	setUpList();
 	window.location.hash = "#testClass1=row1-col1";
@@ -150,6 +152,7 @@ test("Test pre-select", function() {
 	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
 	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "row1-col1", "Checkbox should be row1-col1");
 
+	// select
 	remove();
 	setUpList();
 	window.location.hash = "#testClass1=row1-col1";
@@ -164,6 +167,7 @@ test("Test pre-select", function() {
 	equal($('option:selected').length, 1, "One select option should be selected");
 	equal($('option:selected').eq(0).text(), "row1-col1", "Select option should be row1-col1");	
 
+	// multiselect
 	remove();
 	setUpList();
 	window.location.hash = "#testClass1=row1-col1";
@@ -177,6 +181,19 @@ test("Test pre-select", function() {
 	equal($(selector+':visible').length, 1, "1 element should be visible");
 	equal($('.multiSelect p').length, 1, "One multi select option should be selected");
 	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
+
+	// free text
+	remove();
+	setUpList();
+	window.location.hash = "#search=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        useFreeTextSearch: true
+	});	
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('#freeTextSearch').val(), "row1-col1", "Free text field should be pre-populated");
 });
 
 test("Test zeros", function() {

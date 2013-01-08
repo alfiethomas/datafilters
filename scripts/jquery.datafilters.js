@@ -3,7 +3,7 @@
 /* IE patches */
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
-    return this.replace(/^\s+|\s+$/g, ''); 
+	return this.replace(/^\s+|\s+$/g, ''); 
   }
 }
 
@@ -301,7 +301,7 @@ if (!window.console) console = { log: function(string){ } };
 					"    position: relative;" +
 					"    color: black;" +
 					"    top: 45%;" +
-                    "    text-align: center;" +
+					"    text-align: center;" +
 					"}" +
 					"body.loading {" +
 					"    overflow: hidden;" +
@@ -542,12 +542,12 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function showLoading() { 
-		    $('body').addClass("loading");
-		    if(navigator.userAgent.match(/(iPhone|iPod|MSIE)/i)) $('#dataFiltersModal').css('postion', 'absolute').css('top', ((-($('html').offset().top))+25)+'px') 
+			$('body').addClass("loading");
+			if(navigator.userAgent.match(/(iPhone|iPod|MSIE)/i)) $('#dataFiltersModal').css('postion', 'absolute').css('top', ((-($('html').offset().top))+25)+'px') 
 		}
 
 		function hideLoading() { 
-		    $('body').removeClass("loading"); 
+			$('body').removeClass("loading"); 
 		} 		
 
 		function scrollToResults() {
@@ -588,23 +588,23 @@ if (!window.console) console = { log: function(string){ } };
 
 			var data = functionsForElementType[state.elementType].getAllDataFn();
 			data.each(function() {
-			    var matched = matches(this, searches);
-			    state.paging.totalItems++;
+				var matched = matches(this, searches);
+				state.paging.totalItems++;
 
-			    if (matched) {
+				if (matched) {
 
-			    	if (shouldShowItem(visibleItems)) {
-			    		$(this).attr("showHide", "show");
-			    		visibleItems++; 
-			    	} else {
-			    		$(this).attr("showHide", "hide");
-			    	}
+					if (shouldShowItem(visibleItems)) {
+						$(this).attr("showHide", "show");
+						visibleItems++; 
+					} else {
+						$(this).attr("showHide", "hide");
+					}
 
-			    	state.paging.numMatchedItems++;	
+					state.paging.numMatchedItems++;	
 
-			    } else {                  
-			    	$(this).attr("showHide", "hide");
-			    }
+				} else {                  
+					$(this).attr("showHide", "hide");
+				}
 			});	
 
 			$(state.element).find('[showHide="hide"]').hide();
@@ -809,9 +809,15 @@ if (!window.console) console = { log: function(string){ } };
 				freeTextSearchId += '_'+id;
 			}
 
-			return $('<input/>').attr({ type: 'search', id: freeTextSearchId, placeholder: "type to search" })
-				.keyup(function() { filter(); })
-				.click(function() { filter(); });			
+			var input = $('<input/>').attr({ type: 'search', id: freeTextSearchId, placeholder: "type to search" });
+
+			var search = utils.getHashParameter("search");
+			if (search) {
+				input.val(search);
+			}
+
+			input.keyup(function() { filter(); }).click(function() { filter(); });			
+			return input;
 		}	
 
 		function createFreeTextSearch(items, index) {
@@ -1013,13 +1019,13 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function sortSelect(select) {
-		    var selectedValue = select.val();
-		    select.html($("option", select).sort(function(a, b) { 
-		    	if (a.text == settings.multiSelectLabel) return -1;
-		    	if (b.text == settings.multiSelectLabel) return 1;
-		        return a.text == b.text ? 0 : a.text < b.text ? -1 : 1 
-		    }));
-		    select.val(selectedValue);
+			var selectedValue = select.val();
+			select.html($("option", select).sort(function(a, b) { 
+				if (a.text == settings.multiSelectLabel) return -1;
+				if (b.text == settings.multiSelectLabel) return 1;
+				return a.text == b.text ? 0 : a.text < b.text ? -1 : 1 
+			}));
+			select.val(selectedValue);
 		}
 
 		function createSelectStandalone(items, id) {
@@ -1040,29 +1046,29 @@ if (!window.console) console = { log: function(string){ } };
 
 			var optionSelected = false;
 			$.each(items, function(iteration, item) {
-			    var option = $("<option/>").prop("value", item).text(item);
-			    select.append(option);
-			    
-			    if (utils.locationHashContainsParam(index, item)) {
-			    	option.prop("selected", "selected"); 
-			    	optionSelected = true;
-			    }
+				var option = $("<option/>").prop("value", item).text(item);
+				select.append(option);
+				
+				if (utils.locationHashContainsParam(index, item)) {
+					option.prop("selected", "selected"); 
+					optionSelected = true;
+				}
 			});
 
 			select.change(function(event) {
 				if (changeFunction) changeFunction(this);
-		        filterAfterChange();
-		    });
+				filterAfterChange();
+			});
 
-		    if (blurFunction != undefined) {
-		    	select.blur(function(event) {
-		    		blurFunction(this);	
-		    	});
-		    }
+			if (blurFunction != undefined) {
+				select.blur(function(event) {
+					blurFunction(this);	
+				});
+			}
 
 			if (type == "Max") select.append($("<option/>").attr({"selected": !optionSelected}).text("Show All"));
 
-		    return select;
+			return select;
 		}
 
 		function createSelectlabel(id, type, labelForSelect) {
@@ -1080,11 +1086,11 @@ if (!window.console) console = { log: function(string){ } };
 			  scale: [0, items.length],
 			  start: [0, items.length],   
 			  change:
-			    function(){
-			      var index = $(this).noUiSlider('value');
-			      selectSelect(id, index);
-			      updateSliderLabel(id, selectValue(id, index));
-			    },
+				function(){
+				  var index = $(this).noUiSlider('value');
+				  selectSelect(id, index);
+				  updateSliderLabel(id, selectValue(id, index));
+				},
 			  end: function(){ filterAfterChange(); }
 			}); 
 
@@ -1173,10 +1179,10 @@ if (!window.console) console = { log: function(string){ } };
 				var checked = utils.locationHashContainsParam(index, item);
 				atLeastOnChecked = atLeastOnChecked || checked;
 
-			    ul.append(createCheckboxLi(item, id, checked, function(event) { 
-			    	checkAll(id, false);
-			    	filterAfterChange() 
-			    }));
+				ul.append(createCheckboxLi(item, id, checked, function(event) { 
+					checkAll(id, false);
+					filterAfterChange() 
+				}));
 			});
 
 			// add all checkbox
@@ -1200,25 +1206,25 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createCheckboxLi(item, index, checked, clickFn) {
 			return $("<li/>").attr({"class": "checkboxLi"})
-			   		.append(createCheckboxLabel(item).prepend(createCheckbox(item, index, checked, clickFn)))			
+					.append(createCheckboxLabel(item).prepend(createCheckbox(item, index, checked, clickFn)))			
 		}
 
 		function createCheckbox(item, index, checked, clickFn) {
-		    return $("<input/>").attr({
-		        "id":    index + '_' + item
-		       ,"class": "filterCheckbox" 
-		       ,"name":  item
-		       ,"value": item
-		       ,"type":  'checkbox'
-		       ,"checked": checked
-		    })
-		    .click(clickFn);
+			return $("<input/>").attr({
+				"id":    index + '_' + item
+			   ,"class": "filterCheckbox" 
+			   ,"name":  item
+			   ,"value": item
+			   ,"type":  'checkbox'
+			   ,"checked": checked
+			})
+			.click(clickFn);
 		}
 
 		function createCheckboxLabel(item) {
 			// remove tilda used for non-exact word searching for display
 			item = utils.startsWith(item, '~') ? item.substring(1) : item;
-		    return $("<label/>").text(item);
+			return $("<label/>").text(item);
 		}
 
 		function createPagination() {
@@ -1245,7 +1251,7 @@ if (!window.console) console = { log: function(string){ } };
 			var showing = "Showing ";
 
 			if (settings.pageSize > 0) {
-			 	showing += from + " - " + to + " of ";
+				showing += from + " - " + to + " of ";
 			} 
 
 			showing += state.paging.numMatchedItems + " " + ((state.paging.numMatchedItems==1) ? settings.itemLabel : settings.itemsLabel);
@@ -1325,7 +1331,7 @@ if (!window.console) console = { log: function(string){ } };
 
 				if (state.sort[sortConfig.id] != undefined) {
 					var value = sortConfig.id + "_" + sortConfig.direction;
-				    select.append($("<option/>").prop("value", value).text(sortConfig.heading));
+					select.append($("<option/>").prop("value", value).text(sortConfig.heading));
 
 				} else {
 					utils.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + sortConfig.heading + "' to sorting dropdown")
@@ -1336,7 +1342,7 @@ if (!window.console) console = { log: function(string){ } };
 			select.change(function(event) {
 				var key = $('select#sortBySelect>option:selected').val();
 				if (key != "sortBy") sortData(state.element, functionsForElementType[state.elementType].getAllDataFn(), key.split('_')[0], key.split('_')[1]);
-		    });
+			});
 			
 			var sortDiv = $("<div/>").append(select);
 			wrapInFilterGroup("Sort by", sortDiv, true);   
@@ -1452,7 +1458,7 @@ if (!window.console) console = { log: function(string){ } };
 		utils = {
 
 			escapeRegex: function(text) {
-			    return (text).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+				return (text).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
 			},
 
 			startsAndEndsWithWordCharacter: function(text) {
@@ -1477,7 +1483,12 @@ if (!window.console) console = { log: function(string){ } };
 				} else {
 					return false;
 				}
-			},							
+			},	
+
+			getHashParameter: function(name) {
+				if(name=(new RegExp('[#&]'+encodeURIComponent(name)+'=([^&]*)')).exec(window.location.hash))
+					return decodeURIComponent(name[1]);
+			},
 
 			extractCurrencyValue: function(string) {
 				if (string == undefined) return "";
@@ -1576,89 +1587,89 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		/* START Filters - Data Types */
-	    var compareFunctionForDataType = {
+		var compareFunctionForDataType = {
 
-	    	/* Items will be sorted alaphabetically using the default JS sort order */
-	    	"default"  : compare.compare,
+			/* Items will be sorted alaphabetically using the default JS sort order */
+			"default"  : compare.compare,
 
-	    	/* Sorts items by treating GB with 000000 and MB with 000. Unlimitied is treated as Number.MAX_VALUE */
- 	    	"amount"   : compare.compareAmount,
+			/* Sorts items by treating GB with 000000 and MB with 000. Unlimitied is treated as Number.MAX_VALUE */
+			"amount"   : compare.compareAmount,
 
- 	    	/* If the string contains a £ sign, then the text after the last instance of the £ sign is parsed in to a number. If the text does not contain
- 	    	a £ sign then 0 is assumed */
-	    	"currency" : compare.compareCurrency,
+			/* If the string contains a £ sign, then the text after the last instance of the £ sign is parsed in to a number. If the text does not contain
+			a £ sign then 0 is assumed */
+			"currency" : compare.compareCurrency,
 
-	    	/*  */
-	    	"period"   : compare.comparePeriod,
+			/*  */
+			"period"   : compare.comparePeriod,
 
-	    	/* In Stock is first, Out of Stock is last anyhing else is sorted alaphabetically in between */
-	    	"stock"    : compare.compareStock
-	    }	
-	    /* END Filters - Data Types */
+			/* In Stock is first, Out of Stock is last anyhing else is sorted alaphabetically in between */
+			"stock"    : compare.compareStock
+		}	
+		/* END Filters - Data Types */
 
-	    /* START Filters - Filter Types */
-	    var factoryFunctionForFilterType = {
+		/* START Filters - Filter Types */
+		var factoryFunctionForFilterType = {
 
-	    	/* Uses a standard HTML Select element to filter results based on option selected.<br>
-	    	<img src="images/select.jpg" / > */
-	    	"select"            : createSelectStandalone,
+			/* Uses a standard HTML Select element to filter results based on option selected.<br>
+			<img src="images/select.jpg" / > */
+			"select"            : createSelectStandalone,
 
-	    	/* Creates an HTML Select element and everytime an option is chosen, this is added to  a list of selected options
-	    	and reomoved from the Select element enabling multi-selection.<br>
-	    	<img src="images/multiSelect.jpg" / >*/
-	    	"multiSelect"       : createMultiSelect,
+			/* Creates an HTML Select element and everytime an option is chosen, this is added to  a list of selected options
+			and reomoved from the Select element enabling multi-selection.<br>
+			<img src="images/multiSelect.jpg" / >*/
+			"multiSelect"       : createMultiSelect,
 
-	    	/* Creates a checkbox per unique item. Also adds an all checkbox as the first element. By default, "All" is selected.
-	    	When another element is selected, "All" is deselected. If no elements are selected, "All" is selected.<br>
-	    	<img src="images/checkboxes.jpg" / > */
-	    	"checkboxes"        : createCheckboxes,
+			/* Creates a checkbox per unique item. Also adds an all checkbox as the first element. By default, "All" is selected.
+			When another element is selected, "All" is deselected. If no elements are selected, "All" is selected.<br>
+			<img src="images/checkboxes.jpg" / > */
+			"checkboxes"        : createCheckboxes,
 
-	    	/* Creates an HTML select element and when an option is selected, the data is filtered so that anything greater or equal to the
-	    	value is selected (i.e. the seleted option is the minimum). If sliders are enabled then they can be used to update the Select box.<br>
-	    	<img src="images/min.jpg" / >*/
-	    	"min"               : createMin,
+			/* Creates an HTML select element and when an option is selected, the data is filtered so that anything greater or equal to the
+			value is selected (i.e. the seleted option is the minimum). If sliders are enabled then they can be used to update the Select box.<br>
+			<img src="images/min.jpg" / >*/
+			"min"               : createMin,
 
-	    	/* Creates an HTML select element and when an option is selected, the data is filtered so that anything less than or equal to the
-	    	value is selected (i.e. the seleted option is the maximum). If sliders are enabled then they can be used to update the Select box.<br>
-	    	<img src="images/max.jpg" / >*/
-	    	"max"               : createMax,
+			/* Creates an HTML select element and when an option is selected, the data is filtered so that anything less than or equal to the
+			value is selected (i.e. the seleted option is the maximum). If sliders are enabled then they can be used to update the Select box.<br>
+			<img src="images/max.jpg" / >*/
+			"max"               : createMax,
 
-	    	/* Creates HTML select elements for <a href="#max">max</a> and <a href="#min">min</a> and combines the results. If sliders are enabled then they can be used to update the Select boxes.<br>
-	    	<img src="images/minMax.jpg" / >*/
-	    	"minMax"            : createMinMax,
+			/* Creates HTML select elements for <a href="#max">max</a> and <a href="#min">min</a> and combines the results. If sliders are enabled then they can be used to update the Select boxes.<br>
+			<img src="images/minMax.jpg" / >*/
+			"minMax"            : createMinMax,
 
-	    	/* As per <a href="#minMax">minMax</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-	    	"minMaxWithBanding" : createMinMaxWithBanding,
+			/* As per <a href="#minMax">minMax</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
+			"minMaxWithBanding" : createMinMaxWithBanding,
 
-	    	/* As per <a href="#minMax">min</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-	    	"minWithBanding"    : createMinWithBanding,
+			/* As per <a href="#minMax">min</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
+			"minWithBanding"    : createMinWithBanding,
 
-	    	/* As per <a href="#minMax">max</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-	    	"maxWithBanding"    : createMaxWithBanding,
+			/* As per <a href="#minMax">max</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
+			"maxWithBanding"    : createMaxWithBanding,
 
-	    	/* Puts the data in to bands (see <a href="#banding">banding</a> for details) and then creates a checkbox per valid band range.<br>
-	    	<img src="images/rangeBanding.jpg" / > */
-	    	"rangeBanding"      : createRangeBanding,
+			/* Puts the data in to bands (see <a href="#banding">banding</a> for details) and then creates a checkbox per valid band range.<br>
+			<img src="images/rangeBanding.jpg" / > */
+			"rangeBanding"      : createRangeBanding,
 
-	    	/* Uses an HTML5 &lt;input="search"&gt; element to display a search box. Whenever the user types someting or clears the search, then a free text search is 
-	    	performed. If browser does not support &lt;input="search"&gt; then a default input box is used instead.<br>
-	    	<img src="images/search.jpg" / > */
-	    	"search"            : createFreeTextSearch
-	    }
-	    /* END Filters - Filter Types */
+			/* Uses an HTML5 &lt;input="search"&gt; element to display a search box. Whenever the user types someting or clears the search, then a free text search is 
+			performed. If browser does not support &lt;input="search"&gt; then a default input box is used instead.<br>
+			<img src="images/search.jpg" / > */
+			"search"            : createFreeTextSearch
+		}
+		/* END Filters - Filter Types */
 
-	    var functionsForElementType = {
-	    	"TABLE": {
-	    		"getAllDataFn"           : getAllDataForTable,
-	    		"getAllDataForGivenIdFn" : getAllDataForColumnFromTable,
-	    		"extractTextFn"          : extratcTextFromTableCell
-	    	},
-	    	"UL" : {
-	    		"getAllDataFn"           : getAllDataForList,
-	    		"getAllDataForGivenIdFn" : getAllDataForIdFromList,
-	    		"extractTextFn"          : extractTextFromListElement
-	    	} 
-	    }
+		var functionsForElementType = {
+			"TABLE": {
+				"getAllDataFn"           : getAllDataForTable,
+				"getAllDataForGivenIdFn" : getAllDataForColumnFromTable,
+				"extractTextFn"          : extratcTextFromTableCell
+			},
+			"UL" : {
+				"getAllDataFn"           : getAllDataForList,
+				"getAllDataForGivenIdFn" : getAllDataForIdFromList,
+				"extractTextFn"          : extractTextFromListElement
+			} 
+		}
 
 
 		// default jQuery method invocation pattern
