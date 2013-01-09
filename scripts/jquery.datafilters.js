@@ -678,7 +678,7 @@ if (!window.console) console = { log: function(string){ } };
 
 		function matchesRegex(text, regex) {
 			text = utils.convertToSingleLine(text);
-			return text.search(new RegExp(regex, "i")) > -1;
+			return text.search(new RegExp(regex, "gi")) > -1;
 		}
 
 		function matchesRanges(index, value, ranges) {
