@@ -150,7 +150,7 @@
 <tr>
 <td class="monthlyCost">&pound;18<span>.50</span></td>
 <td class="phoneCost">Free</td>
-<td><span class="lowLight">18 Months</span></td>
+<td><span class="lowLight">18 months</span></td>
 <td>50</td>
 <td>250</td>
 <td class="dataAllowance">100MB</td>

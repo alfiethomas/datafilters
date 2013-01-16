@@ -175,7 +175,8 @@ if (!window.console) console = { log: function(string){ } };
 				numMatchedItems: 0
 			},
 			wrapper: $(document.createElement('div')).attr("class", "filterWrapper"),
-			noResultsVisible: false
+			noResultsVisible: false,
+			nonExactMatch: []
 		}
 
 		methods = {		
@@ -325,8 +326,11 @@ if (!window.console) console = { log: function(string){ } };
 		function initDataElement(config) {
 
 		  /* START Filters - Properties */
-			/* The heading to be used when displaying the filter. */
+			/* The heading to be used when displaying the filter. Note this will escape HTML */
 			var heading = config.heading;
+
+			/* Additional html for heading that will not be part of the header link. Note this can contain HTML */
+			var headingHtml = config.headingHtml;
 
 			/* This identifies the data in the list to be used when generating this filter. 
 			<span class="break"></span> 
@@ -371,15 +375,17 @@ if (!window.console) console = { log: function(string){ } };
 			factoryFn = factoryFunctionForFilterType[filterType];
 
 			if (heading && id && factoryFn && sortFn) { 
-				var items = items;
 
 				if (items == undefined) {
 					var data = functionsForElementType[state.elementType].getAllDataForGivenIdFn(id);
 					items = extractUniqueValues(data, sortFn, id);
+				
+				} else {
+					checkForNonExactMatches(items, id);
 				}
 
 				if (shouldShowElement(items, id, heading, hideSingleItem)) {
-					createFilterGroup(id, heading, factoryFn, items);	
+					createFilterGroup(id, heading, headingHtml, factoryFn, items);	
 				}
 			
 			} else {
@@ -387,6 +393,16 @@ if (!window.console) console = { log: function(string){ } };
 					"' and dataType '" + dataType + "' not added as a filter");
 			}
 		};
+
+		function checkForNonExactMatches(items, id) {
+			for (var i=0; i<items.length; i++) {
+				if (utils.startsWith(items[i], "~")) {
+					var newString = items[i].substring(1);
+					items[i] = newString;
+					state.nonExactMatch.push(id+"_"+newString);
+				}
+			}
+		}
 
 		function shouldShowElement(items, id, heading, hideSingleItem ) {
 			if (items.length == 0) {
@@ -442,7 +458,7 @@ if (!window.console) console = { log: function(string){ } };
 			var items=[];
 			data.each(function(){
 				var text = extractText($(this), index).trim();
-			   if (text.length > 0 && $.inArray(text, items) < 0) items.push(text);       
+			   if (text.length > 0 && !utils.inArrayIgnoreCase(text, items)) items.push(text);       
 			});
 
 			compare.sortItems(items, sortFn);
@@ -529,16 +545,49 @@ if (!window.console) console = { log: function(string){ } };
 			logTiming("doShowRows>filterRows", start);
 
 			createPagination();
-			logTiming("doShowRows>pagination", start);
+			logTiming("doShowRows>createPagination", start);
 
 			scrollToResults();
 			logTiming("doShowRows>scrollToResults", start);
 
 			checkForNoResults();
-			logTiming("doShowRows>no results", start);
+			logTiming("doShowRows>checkForNoResults", start);
 
-			settings.afterFilter();
+			var hash = getUriHash(searches);
+			logTiming("doShowRows>udateUriHash", start);			
+
+			settings.afterFilter(hash);
 			logTiming("doShowRows>afterFilter", start);
+		}
+
+		function getUriHash(searches) {
+			if (state.paging.itemsPerPage <= 0 || state.paging.itemsPerPage == Number.MAX_VALUE) {
+				addToSearches(searches, "showAll", "true");
+			} else {
+				addToSearches(searches, "page", state.paging.currentPage+"");
+			}
+			addToSearches(searches, "freeTextSearch", getFreeTextSearchValue());
+
+			var hash = "";
+			$.each(searches, function(id, searchStrings) {
+				$.each(searchStrings, function(index, searchString) {
+					searchString= escapeHashString(searchString);
+					if (searchString.length > 0) {
+						var searchStringTokens = searchString.split("|");
+						$.each(searchStringTokens, function(index, searchString) {
+							if (hash.length > 0) hash += "&"; 
+							hash += utils.getIdAlias(id)+"="+searchString;
+						});
+					}
+				});
+			});
+			return utils.replaceAll(hash, " ", "+");
+		}
+
+		function escapeHashString(string) {
+			var escaped = string.replace("Show All", "").replace("--MAX--_", "to_").replace("--MIN--_", "from_").replace("--RANGE--_", "range_");
+			escaped = utils.replaceAll(escaped, "\\\\b", "");
+			return (utils.endsWith(escaped, "_")) ? "" : escaped;
 		}
 
 		function showLoading() { 
@@ -646,11 +695,15 @@ if (!window.console) console = { log: function(string){ } };
 				if (!matched) return false;
 			});
 
-			if (settings.useFreeTextSearch && $('#freeTextSearch').val().trim() != "" && matched) {
+			if (getFreeTextSearchValue() != "" && matched) {
 				matched = matchesRegex(settings.freeTextSearchExtractTextFn($(row)), getAndRegex($('#freeTextSearch').val().trim()));
 			}
 
 			return matched;	
+		}
+
+		function getFreeTextSearchValue() {
+			return (settings.useFreeTextSearch) ? $('#freeTextSearch').val().trim() : "";
 		}
 
 		function getAndRegex(text) {
@@ -738,15 +791,16 @@ if (!window.console) console = { log: function(string){ } };
 			var searchString = "";
 			id = id.split("_")[1];
 			$('#MultiSelectItems_'+id+' p').each(function () {
-				searchString += addToSearchString(searchString, $(this).text());
+				searchString += addToSearchString(searchString, $(this).text(), id);
 			});
 			return searchString;
 		}		
 
 		function getSearchStringForCheckboxGroup(id) {
 			var searchString = "";
+			var index = id.split("_")[1];
 			$('ul#'+id+' li input[type=checkbox]').each(function () {
-				if ($(this).prop("checked") && $(this).prop("name") != "All") searchString += addToSearchString(searchString, $(this).prop("name"));
+				if ($(this).prop("checked") && $(this).prop("name") != "All") searchString += addToSearchString(searchString, $(this).prop("name"), index);
 			});
 			return searchString;
 		}
@@ -761,14 +815,15 @@ if (!window.console) console = { log: function(string){ } };
 			addToSearches(searches, index, rangeSearches);
 		}		
 
-		function addToSearchString(searchString, value) {
+		function addToSearchString(searchString, value, id) {
 			value = utils.escapeRegex(value);
-			var searchToAdd = matchWordBoundaryUnlessTextStartWithTilda(value);
+			var searchToAdd = addWordBoundaryMatchForExactMatches(value, id);
 			return (searchString=="" ? searchToAdd : "|" + searchToAdd); 
 		}
 
-		function matchWordBoundaryUnlessTextStartWithTilda(value) {
-			return (utils.startsWith(value, '~')) ? value.substring(1) : matchWordOnly(value);
+		function addWordBoundaryMatchForExactMatches(value, id) {
+			var nonExactMatch = $.inArray(id+"_"+value, state.nonExactMatch) > -1;
+			return (nonExactMatch) ? value : matchWordOnly(value) ;
 		}
 
 		function matchWordOnly(word) {
@@ -779,13 +834,14 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
-		function createFilterGroup(index, group, factoryFn, items) {
-			wrapInFilterGroup(group, factoryFn(items, index));
+		function createFilterGroup(index, heading, headingHtml, factoryFn, items) {
+			wrapInFilterGroup(heading, headingHtml, factoryFn(items, index));
 		}	
 
-		function wrapInFilterGroup(group, element, prepend) {
+		function wrapInFilterGroup(heading, headingHtml, element, prepend) {
 			var filterDiv = $("<div/>").attr({"class": "filterSet"})
-			filterDiv.append($("<a/>").attr({"class": "filterSelect"}).text(group));
+			filterDiv.append($("<a/>").attr({"class": "filterSelect"}).text(heading));
+			if (headingHtml) filterDiv.append($("<span/>").attr({"class": "filterSelectInfo"}).html(headingHtml));
 			filterDiv.append(addFilterAttrs(element));	
 			
 			if (prepend) {
@@ -800,7 +856,7 @@ if (!window.console) console = { log: function(string){ } };
 		}	
 
 		function addFreeTextSearch() {
-			wrapInFilterGroup(settings.freeTextSearchHeading, $('<div>').append(getFreeTextSearch()));
+			wrapInFilterGroup(settings.freeTextSearchHeading, undefined, $('<div>').append(getFreeTextSearch()));
 		}
 
 		function getFreeTextSearch(id) {
@@ -905,7 +961,7 @@ if (!window.console) console = { log: function(string){ } };
 			var step = 10;
 
 			if (range > 1750) { step = 500 } else
-			if (range > 750)  { step = 250 } else
+			if (range > 900)  { step = 250 } else
 			if (range > 350)  { step = 100 } else
 			if (range > 175)  { step = 50  } else  
 			if (range >  75)  { step = 25  } else 
@@ -1345,7 +1401,7 @@ if (!window.console) console = { log: function(string){ } };
 			});
 			
 			var sortDiv = $("<div/>").append(select);
-			wrapInFilterGroup("Sort by", sortDiv, true);   
+			wrapInFilterGroup("Sort by", undefined, sortDiv, true);   
 		}
 
 		function selectDefaultSortingDropdownItem(items) {
@@ -1457,6 +1513,14 @@ if (!window.console) console = { log: function(string){ } };
 
 		utils = {
 
+			inArrayIgnoreCase: function(text, items) {
+				var lowerCaseText = text.toLowerCase();
+				for (var i=0; i<items.length; i++) {
+					if (items[i].toLowerCase() == lowerCaseText) return true;
+				}
+				return false;
+			}, 
+
 			escapeRegex: function(text) {
 				return (text).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
 			},
@@ -1472,10 +1536,8 @@ if (!window.console) console = { log: function(string){ } };
 					locationHash = utils.replaceAll(locationHash, '%20', ' ');
 					locationHash = utils.replaceAll(locationHash, '\\+', ' ');
 					locationHash = encodeURIComponent(locationHash);
-
-					if (state.aliases[index]) index = state.aliases[index];
 					
-					var param = encodeURIComponent(index+'='+item);
+					var param = encodeURIComponent(utils.getIdAlias(index)+'='+item);
 					var contains = utils.contains(locationHash.toLowerCase(), param.toLowerCase());
 					
 					return contains;
@@ -1484,6 +1546,10 @@ if (!window.console) console = { log: function(string){ } };
 					return false;
 				}
 			},	
+
+			getIdAlias: function(id) {
+				return (state.aliases[id]) ? state.aliases[id] : id;
+			},
 
 			getHashParameter: function(name) {
 				if(name=(new RegExp('[#&]'+encodeURIComponent(name)+'=([^&]*)')).exec(window.location.hash))
@@ -1538,6 +1604,10 @@ if (!window.console) console = { log: function(string){ } };
 			startsWith: function(txt, fragment) {
 				return txt.indexOf(fragment) == 0;
 			},
+
+			endsWith: function(txt, fragment) {
+				return txt.indexOf(fragment) == txt.length - fragment.length;
+			},			
 
 			isAlphaNumeric: function(txt) {
 				return (txt.match(/^[0-9a-zA-Z ]+$/)) ? true : false;

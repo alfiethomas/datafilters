@@ -102,3 +102,12 @@ test("startsAndEndsWithWordCharacter test", function() {
 	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "h(ell)o)"), false);	
 	equal($('qunit').DataFilter('startsAndEndsWithWordCharacter', "(h(ell)o)"), false);	
 });
+
+test("inArrayIgnoreCase test", function() {
+	var items = ["hello", "world"];
+	equal($('qunit').DataFilter('inArrayIgnoreCase', "hello", items), true);
+	equal($('qunit').DataFilter('inArrayIgnoreCase', "Hello", items), true);
+	equal($('qunit').DataFilter('inArrayIgnoreCase', "world", items), true);
+	equal($('qunit').DataFilter('inArrayIgnoreCase', "World", items), true);	
+	equal($('qunit').DataFilter('inArrayIgnoreCase', "wibble", items), false);
+});
