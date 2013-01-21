@@ -61,7 +61,10 @@ if (!window.console) console = { log: function(string){ } };
 			
 			/*  */
 			sortingDropDown: undefined,
-			
+
+			/* Heading for sorting drop down */
+			sortingDropDownHeading: "Sort by",
+
 			/* By default, if you are using a table, then sorting is applied to the table. Set this to false to disable. Each &lt;th&gt; is made clickable and a class
 			of <b>sortable</b> is added to it. When selected it is sorted asc and a class of <b>sorted-asc</b> is added, if clicked again the column is sorted descending 
 			and a class of <b>sorted-desc</b> is added. There will only ever be a single sorted-asc or sorted-desc across all  &lt;th&gt; elements */
@@ -175,7 +178,6 @@ if (!window.console) console = { log: function(string){ } };
 				numMatchedItems: 0
 			},
 			wrapper: $(document.createElement('div')).attr("class", "filterWrapper"),
-			noResultsVisible: false,
 			nonExactMatch: []
 		}
 
@@ -668,15 +670,13 @@ if (!window.console) console = { log: function(string){ } };
 
 		/* optimised to only redraw if required */
 		function checkForNoResults() {
-			if (state.paging.numMatchedItems == 0 && !state.noResultsVisible) {
+			if (state.paging.numMatchedItems == 0) {
 				$('#noFilterResults').show();
 				$('.paginationHolder').hide();
-				state.noResultsVisible = true;
 			
-			} else if (state.paging.numMatchedItems > 0 && state.noResultsVisible) {
+			} else if (state.paging.numMatchedItems > 0) {
 				$('#noFilterResults').hide();
 				$('.paginationHolder').show();
-				state.noResultsVisible = false;
 			}
 		}
 
@@ -1329,16 +1329,17 @@ if (!window.console) console = { log: function(string){ } };
 		}		
 
 		function addPageNumbersToPagingUl(ul) {
+			var currentPage = parseInt(state.paging.currentPage);
 			var numPages = parseInt((state.paging.numMatchedItems/state.paging.itemsPerPage) + ((state.paging.numMatchedItems%state.paging.itemsPerPage > 0) ? 1 : 0)); 
-			var prev = (state.paging.currentPage>1) ? state.paging.currentPage-1 : 1;
-			var next = (state.paging.currentPage<numPages) ? state.paging.currentPage+1 : numPages;
+			var prev = (currentPage>1) ? currentPage-1 : 1;
+			var next = (currentPage<numPages) ? currentPage+1 : numPages;
 			if (next > numPages) next = numPages;
 
 			pagingNextPrevLi(ul, "&laquo;", "Skip to first page", 1);
 			pagingNextPrevLi(ul, "&lsaquo;", "Skip to previous page", prev);
 
 			var numPagesMidPoint = Math.floor(settings.maxPagingNumbers/2)
-			var pagingStartsFrom = (numPages > settings.maxPagingNumbers && state.paging.currentPage > numPagesMidPoint) ? state.paging.currentPage - numPagesMidPoint : 1;
+			var pagingStartsFrom = (numPages > settings.maxPagingNumbers && currentPage > numPagesMidPoint) ? currentPage - numPagesMidPoint : 1;
 			var pagingEndsAt     = (numPages > settings.maxPagingNumbers) ? Math.min(settings.maxPagingNumbers-1 + pagingStartsFrom, numPages) : numPages;
 
 			if (pagingEndsAt - pagingStartsFrom < settings.maxPagingNumbers && pagingStartsFrom > 1) {
@@ -1347,7 +1348,7 @@ if (!window.console) console = { log: function(string){ } };
 
 			for (var i=pagingStartsFrom; i<=pagingEndsAt; i++) {
 				var li = $("<li/>").addClass("pageNumber");
-				if (i == state.paging.currentPage) li.addClass("active");
+				if (i == currentPage) li.addClass("active");
 				
 				ul.append(li.append($("<a/>").text(i).click(function(event) {
 					doPaging($(this).text());
@@ -1401,7 +1402,7 @@ if (!window.console) console = { log: function(string){ } };
 			});
 			
 			var sortDiv = $("<div/>").append(select);
-			wrapInFilterGroup("Sort by", undefined, sortDiv, true);   
+			wrapInFilterGroup(settings.sortingDropDownHeading, undefined, sortDiv, true);   
 		}
 
 		function selectDefaultSortingDropdownItem(items) {
