@@ -17,6 +17,8 @@ function initFilters() {
     useFreeTextSearch: true, 
     onSuccess: onSuccessFn,
     scrollToEnabled: false,
-    afterFilter: function(state) { console.log(state) }       
+    afterFilter: function(state) { console.log(state) },
+    hashNavigationEnabled: true,
+    logTiming: false       
   });            
 }

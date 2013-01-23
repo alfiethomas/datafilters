@@ -62,7 +62,7 @@ if (!window.console) console = { log: function(string){ } };
 			/*  */
 			sortingDropDown: undefined,
 
-			/* Heading for sorting drop down */
+			/*  */
 			sortingDropDownHeading: "Sort by",
 
 			/* By default, if you are using a table, then sorting is applied to the table. Set this to false to disable. Each &lt;th&gt; is made clickable and a class
@@ -1428,21 +1428,30 @@ if (!window.console) console = { log: function(string){ } };
 			// don't add twice
 			if (utils.contains(th.attr("class"), "noSorting") || utils.contains(th.attr("class"), "sortable") ) return;
 
+			// if header contains an anchor, add a click handler and if clicked, don't sort
+			if (th.find("a").length > 0) {
+				th.find("a").click(function(){ $(th).addClass("skipSorting") });
+			}
+
 			th.addClass('sortable')
 			.click(function(){
-				var $rows = $('#tariffTable tbody tr').get();
-				var sortDirection = th.is('.sorted-asc') ? -1 : 1;	
-				sortData($('#tariffTable tbody'), $rows, column, sortDirection);
-				
-				//identify the column sort order
-				$('th').removeClass('sorted-asc sorted-desc');
-				var $sortHead = $('th').filter(':nth-child(' + (column + 1) + ')');
-				sortDirection == 1 ? $sortHead.addClass('sorted-asc') : $sortHead.addClass('sorted-desc');
-				
-				//identify the column to be sorted by
-				$('td').removeClass('sorted')
-					.filter(':nth-child(' + (column + 1) + ')')
-					.addClass('sorted');
+				if (utils.contains(th.attr("class"), "skipSorting")) {
+					$(th).removeClass("skipSorting");
+				} else {
+					var $rows = $('#tariffTable tbody tr').get();
+					var sortDirection = th.is('.sorted-asc') ? -1 : 1;	
+					sortData($('#tariffTable tbody'), $rows, column, sortDirection);
+					
+					//identify the column sort order
+					$('th').removeClass('sorted-asc sorted-desc');
+					var $sortHead = $('th').filter(':nth-child(' + (column + 1) + ')');
+					sortDirection == 1 ? $sortHead.addClass('sorted-asc') : $sortHead.addClass('sorted-desc');
+					
+					//identify the column to be sorted by
+					$('td').removeClass('sorted')
+						.filter(':nth-child(' + (column + 1) + ')')
+						.addClass('sorted');
+				}
 			});	
 		}
 

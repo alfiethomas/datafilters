@@ -30,6 +30,12 @@ if (!window.console) console = { log: function(string){ } };
 
 			/* The heading to be used for the the global free text search see <a href="#useFreeTextSearch">useFreeTextSearch</a>  */
 			freeTextSearchHeading: "Search",
+
+			/* If this is set to true, then the current state of the filter is shown in the hash or the URL. The history is not updated
+			so if the users click back, they are taken to the previous page, not the previous filter state. This can be used for bookmarking and
+			sharing links to a particular filter state. It also means that when you navigate away from the page and then click the back button
+			the filters are re-created in the last state they were in based on the URL hash */
+			hashNavigationEnabled: false,
 			
 			/* If this is set to true, whenever a filter is updated, then page will be scrolled. If there is an element in the DOM with 
 			an id of 'scrollTo' then the page is scrolled to that point, otherwise it scrolls to the first instance of an element with the
@@ -62,7 +68,7 @@ if (!window.console) console = { log: function(string){ } };
 			/*  */
 			sortingDropDown: undefined,
 
-			/* Heading for sorting drop down */
+			/*  */
 			sortingDropDownHeading: "Sort by",
 
 			/* By default, if you are using a table, then sorting is applied to the table. Set this to false to disable. Each &lt;th&gt; is made clickable and a class
@@ -152,8 +158,10 @@ if (!window.console) console = { log: function(string){ } };
 			/* Called when the plugin is deemed to be too slow - see <a href="disableIfSlow">disableIfSlow</a> */
 			onSlow: function(time) { utils.log("Too slow to create filters - " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
 
-			/* The function that is passed in using this will be called everytime the results have been filter. */
-			afterFilter: function() {},
+			/* The function that is passed in using this will be called everytime the results have been filter. This is function is passed 
+			the current filter state as a string. This is the same string that is displayed in the URL hash if 
+			<a href="#hashNavigationEnabled">hashNavigationEnabled</a> is set to true. */
+			afterFilter: function(state) {},
 
 			/* Determines how plugin logs events such as validations, errors and timings. Mainly provided as a hook for testing  */
 			logFn: function(string) { console.log(string) }
@@ -166,7 +174,7 @@ if (!window.console) console = { log: function(string){ } };
 			elementId: $(this).attr("id"),
 			elementType: $(this).prop('tagName'),
 			aliases: {},
-			filteringEnabled: false,
+			filtersInitialised: false,
 			initialised: false,
 			sort: {},
 			extractText: {},
@@ -178,8 +186,7 @@ if (!window.console) console = { log: function(string){ } };
 				numMatchedItems: 0
 			},
 			wrapper: $(document.createElement('div')).attr("class", "filterWrapper"),
-			nonExactMatch: [],
-			filters: {}
+			nonExactMatch: []
 		}
 
 		methods = {		
@@ -219,8 +226,8 @@ if (!window.console) console = { log: function(string){ } };
 			
 			if (settings.useFreeTextSearch) addFreeTextSearch();
 
-			for (var i=0; i<settings.filters.length; i++) {				
-				var filter = settings.filters[i];
+			for (var filtersIndex=0; filtersIndex<settings.filters.length; filtersIndex++) {				
+				var filter = settings.filters[filtersIndex];
 				initDataElement(filter);
 			}
 
@@ -254,25 +261,6 @@ if (!window.console) console = { log: function(string){ } };
 			}
 
 			logTiming("doInt>initialised", start);
-		}
-
-		function preSelectFilters() {
-			var start = utils.now();
-			state.filteringEnabled = false;
-
-			for (var i=0; i<settings.filters.length; i++) {				
-				var filterConfig = settings.filters[i];
-				var filterElement = state.filters[filterConfig.id];
-				
-				if (filterElement) {
-					var selectFn = factoryFunctionForFilterType[filterConfig.filterType].select;
-					selectFn(filterConfig.id, filterElement);
-				}
-			}
-			
-			state.filteringEnabled = true;
-			logTiming("preSelectFilters>", start);
-			filter();
 		}
 
 		function logTiming(msg, start) {
@@ -385,7 +373,7 @@ if (!window.console) console = { log: function(string){ } };
 			var extractTextFn = config.extractTextFn;
 		  /* END Filters - Properties */
 
-			state.filteringEnabled = false;
+			state.filtersInitialised = false;
 			sortFn = compareFunctionForDataType[dataType]
 			state.sort[id] = sortFn;
 			
@@ -394,10 +382,9 @@ if (!window.console) console = { log: function(string){ } };
 			if (filterType == "sortOnly") return;
 
 			state.aliases[id] = alias;
-			var createFn;
-			if (factoryFunctionForFilterType[filterType]) createFn = factoryFunctionForFilterType[filterType].create;
+			factoryFn = factoryFunctionForFilterType[filterType];
 
-			if (heading && id && createFn && sortFn) { 
+			if (heading && id && factoryFn && sortFn) { 
 
 				if (items == undefined) {
 					var data = functionsForElementType[state.elementType].getAllDataForGivenIdFn(id);
@@ -408,7 +395,7 @@ if (!window.console) console = { log: function(string){ } };
 				}
 
 				if (shouldShowElement(items, id, heading, hideSingleItem)) {
-					createFilterGroup(id, heading, headingHtml, createFn, items);	
+					createFilterGroup(id, heading, headingHtml, factoryFn, items);	
 				}
 			
 			} else {
@@ -445,6 +432,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function ready(itemsPerPageValue) {
+			state.filtersInitialised = true;
 			state.paging.defaultItemsPerPage = itemsPerPageValue;
 			doPaging(1, itemsPerPageValue);	
 
@@ -461,8 +449,7 @@ if (!window.console) console = { log: function(string){ } };
 				if (settings.defaultTableSort.direction && settings.defaultTableSort.direction == "-1") th.click(); 
 			}
 
-			preSelectFilters(); 
-			state.initialised = true;
+			setTimeout(function() { state.initialised = true }, 1);
 		}
 
 		function addButton(text, id, clickFn) {
@@ -538,11 +525,11 @@ if (!window.console) console = { log: function(string){ } };
 		function showRows() {
 			utils.wrapFunctionWithLoading(function() {
 				doShowRows();
-			}, settings.useLoadingOverlayOnFilter && state.filteringEnabled);
+			}, settings.useLoadingOverlayOnFilter && state.filtersInitialised);
 		}
 
 		function doShowRows() {
-			if (!state.filteringEnabled) {
+			if (!state.filtersInitialised) {
 				return;	
 			} 
 
@@ -576,14 +563,14 @@ if (!window.console) console = { log: function(string){ } };
 			checkForNoResults();
 			logTiming("doShowRows>checkForNoResults", start);
 
-			var hash = getUriHash(searches);
+			var hash = updateUriHash(searches);
 			logTiming("doShowRows>udateUriHash", start);			
 
 			settings.afterFilter(hash);
 			logTiming("doShowRows>afterFilter", start);
 		}
 
-		function getUriHash(searches) {
+		function updateUriHash(searches) {
 			if (state.paging.itemsPerPage <= 0 || state.paging.itemsPerPage == Number.MAX_VALUE) {
 				addToSearches(searches, "showAll", "true");
 			} else {
@@ -604,7 +591,14 @@ if (!window.console) console = { log: function(string){ } };
 					}
 				});
 			});
-			return utils.replaceAll(hash, " ", "+");
+			
+			hash = utils.replaceAll(hash, " ", "+");
+
+			if (settings.hashNavigationEnabled) {
+				window.location.replace((''+window.location).split('#')[0] + '#' + hash);
+			}
+
+			return hash;
 		}
 
 		function escapeHashString(string) {
@@ -855,10 +849,8 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
-		function createFilterGroup(index, heading, headingHtml, createFn, items) {
-			var filter = createFn(items, index);
-			state.filters[index] = filter;
-			wrapInFilterGroup(heading, headingHtml, filter);
+		function createFilterGroup(index, heading, headingHtml, factoryFn, items) {
+			wrapInFilterGroup(heading, headingHtml, factoryFn(items, index));
 		}	
 
 		function wrapInFilterGroup(heading, headingHtml, element, prepend) {
@@ -1013,11 +1005,17 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createMinMax(items, id) {
 			var ul = $("<ul/>").attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Min","From: ").addClass("forSlider"),  createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider")));
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Max","Up to: ").addClass("forSlider"), createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider")));
+			
+			var minSelectLabel = createSelectlabel(id,"Min","From: ").addClass("forSlider");
+			var minSelect = createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider");
+			ul.append(wrapSelectInLi(minSelectLabel, minSelect));
+			
+			var maxSelectLabel = createSelectlabel(id,"Max","Up to: ").addClass("forSlider");
+			var maxSelect = createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider");
+			ul.append(wrapSelectInLi(maxSelectLabel, maxSelect));
 			
 			var containerDiv = $("<div/>");
-			createSlider(containerDiv, items, id, "MaxMin");
+			createSlider(containerDiv, items, id, "MaxMin", minSelect, maxSelect);
 			containerDiv.append(ul);
 			
 			return containerDiv;
@@ -1038,16 +1036,20 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
 			var containerDiv = $("<div/>");
-			createSlider(containerDiv, items, id, type);
-			containerDiv.append(createSelectlabel(id, type, labelForSelect).addClass("forSlider"));
-			containerDiv.append(createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider"));
+			var select = createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider");
+			var selectLabel = createSelectlabel(id, type, labelForSelect).addClass("forSlider");
+
+			createSlider(containerDiv, items, id, type, select);
+			containerDiv.append(selectLabel);
+			containerDiv.append(select);
+
 			return containerDiv;
 		}
 
 		function updateSliderFn(type, id) {
 			return function updateSlider(select) { 
 				updateSliderLabel(id, select.value);
-				moveSlider(type+"_"+id, select.selectedIndex);
+				moveSlider(select);
 			}			
 		}
 
@@ -1083,7 +1085,18 @@ if (!window.console) console = { log: function(string){ } };
 			var selectedItems = $("<div/>").attr({"id": "MultiSelectItems_"+id, "class": "multiSelect" })
 			containerDiv.append(selectedItems);
 
+			preSelectMultiSelect(select, id);
+
 			return containerDiv;
+		}
+
+		function preSelectMultiSelect(select, id) {
+			$.each(select.children(), function() {
+				if (utils.locationHashContainsParam(id, $(this).prop("value"))) {
+					$(this).prop('selected', 'selected');
+					select.change();
+				}
+			});			
 		}
 
 		function sortSelect(select) {
@@ -1116,6 +1129,11 @@ if (!window.console) console = { log: function(string){ } };
 			$.each(items, function(iteration, item) {
 				var option = $("<option/>").prop("value", item).text(item);
 				select.append(option);
+				
+				if (utils.locationHashContainsParam(index, getHashParamModifier(type) + item)) {
+					option.prop("selected", "selected"); 
+					optionSelected = true;
+				}
 			});
 
 			select.change(function(event) {
@@ -1134,33 +1152,23 @@ if (!window.console) console = { log: function(string){ } };
 			return select;
 		}
 
-		function preSelectMinSelect     (index, filter) { preSelectSelect(index, filter, "from_", settings.slidersEnabled) }
-		function preSelectMaxSelect     (index, filter) { preSelectSelect(index, filter, "to_"  , settings.slidersEnabled ) }
-		function preSelectMinMaxSelect  (index, filter) { 
-			preSelectSelect(index, filter, "from_" , settings.slidersEnabled );
-			preSelectSelect(index, filter, "to_"   , settings.slidersEnabled );
+		function getHashParamModifier(type) {
+			if (type === "Min") {
+				return "from_";
+
+			} else if (type === "Max") {
+				return "to_";
+			
+			} else {
+				return "";
+			}
 		}
-
-		function preSelectSelect(index, filter, modifier, hasSlider) {
-			if (modifier == undefined) modifier = "";
-
-			$.each(filter.find("select option"), function(iteration, option) {
-				if (utils.locationHashContainsParam(index, modifier+$(option).val())) {
-					$(option).prop("selected", "selected"); 
-				} 
-			});
-
-			var select = filter.find("select");
-			$.each(filter.find("select"), function() {
-				$(this).change(); 
-			});
-		}	
 
 		function createSelectlabel(id, type, labelForSelect) {
 			return $("<label/>").attr({"id": "selectLabel_"+type+"_"+id, "class": "selectLabel"}).text(labelForSelect)
 		}
 
-		function createSlider(containerDiv, items, id, type) {
+		function createSlider(containerDiv, items, id, type, associatedSelect1, associatedSelect2) {
 			if (!settings.slidersEnabled) return containerDiv;
 
 			id = type+'_'+id;
@@ -1183,7 +1191,18 @@ if (!window.console) console = { log: function(string){ } };
 			containerDiv.append(labelDiv);
 			containerDiv.append(sliderDiv);
 
+			setTimeout(function(){ moveSliders(associatedSelect1, associatedSelect2); }, 0);			
+
 			return containerDiv;
+		}
+
+		function moveSliders(associatedSelect1, associatedSelect2) {
+			if (associatedSelect2) {
+			 	moveSlider(associatedSelect1);
+			 	moveSlider(associatedSelect2);
+			} else {
+				moveSlider(associatedSelect1);
+			}
 		}
 
 		function selectSelect(id, indexArray) {
@@ -1235,19 +1254,23 @@ if (!window.console) console = { log: function(string){ } };
 			}
 		}
 
-		function moveSlider(selectId, index) {
+		
+		function moveSlider(select) {
 
-			// Min or Max single sliders
+			var selectId = $(select).attr("id");
+			var selectedIndex = $(select).prop("selectedIndex");
+		
+			// if we find a slider matching the select id, it must be min or max slider (i.e. only 1 knob)
 			if (utils.exists('#slider_'+selectId)) {
-				$('#slider_'+selectId).noUiSlider('move', { knob: knob, to: index, surpressChange: true });	
+				$('#slider_'+selectId).noUiSlider('move', { knob: knob, to: selectedIndex, surpressChange: true });	
 			
-			// MinMax range slider
+			// if we can't find a slider matching the select id, it must be minMax slider (i.e. 2 knobs). Min is knob 0, Max is knob 1			
 			} else {
 				var knob = (utils.contains(selectId, "Max")) ? "1" : "0";
-				var id = selectId.split("_")[1];
+				selectId = selectId.split("_")[1];
 
-				if (utils.exists('#slider_MaxMin_'+id))  {
-					$('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index, surpressChange: true });
+				if (utils.exists('#slider_MaxMin_'+selectId))  {
+					$('#slider_MaxMin_'+selectId).noUiSlider('move', { knob: knob, to: selectedIndex, surpressChange: true });
 				}
 			}
 		}
@@ -1710,82 +1733,49 @@ if (!window.console) console = { log: function(string){ } };
 
 			/* Uses a standard HTML Select element to filter results based on option selected.<br>
 			<img src="images/select.jpg" / > */
-			"select"            : {
-				"create": createSelectStandalone,
-				"select": preSelectSelect
-			},
+			"select"            : createSelectStandalone,
 
 			/* Creates an HTML Select element and everytime an option is chosen, this is added to  a list of selected options
 			and reomoved from the Select element enabling multi-selection.<br>
 			<img src="images/multiSelect.jpg" / >*/
-			"multiSelect"       : {
-				"create": createMultiSelect,
-				"select": preSelectSelect
-			},
+			"multiSelect"       : createMultiSelect,
 
 			/* Creates a checkbox per unique item. Also adds an all checkbox as the first element. By default, "All" is selected.
 			When another element is selected, "All" is deselected. If no elements are selected, "All" is selected.<br>
 			<img src="images/checkboxes.jpg" / > */
-			"checkboxes"        : {
-				"create": createCheckboxes,
-				"select": function(){}
-			},
+			"checkboxes"        : createCheckboxes,
 
 			/* Creates an HTML select element and when an option is selected, the data is filtered so that anything greater or equal to the
 			value is selected (i.e. the seleted option is the minimum). If sliders are enabled then they can be used to update the Select box.<br>
 			<img src="images/min.jpg" / >*/
-			"min"               : {
-				"create": createMin,
-				"select": preSelectMinSelect
-			},
+			"min"               : createMin,
 
 			/* Creates an HTML select element and when an option is selected, the data is filtered so that anything less than or equal to the
 			value is selected (i.e. the seleted option is the maximum). If sliders are enabled then they can be used to update the Select box.<br>
 			<img src="images/max.jpg" / >*/
-			"max"               : {
-				"create": createMax,
-				"select": preSelectMaxSelect
-			},
+			"max"               : createMax,
 
 			/* Creates HTML select elements for <a href="#max">max</a> and <a href="#min">min</a> and combines the results. If sliders are enabled then they can be used to update the Select boxes.<br>
 			<img src="images/minMax.jpg" / >*/
-			"minMax"            : {
-				"create": createMinMax,
-				"select":  preSelectMinMaxSelect
-			},
+			"minMax"            : createMinMax,
 
 			/* As per <a href="#minMax">minMax</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-			"minMaxWithBanding" : {
-				"create": createMinMaxWithBanding,
-				"select": function(){}
-			},
+			"minMaxWithBanding" : createMinMaxWithBanding,
 
 			/* As per <a href="#minMax">min</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-			"minWithBanding"    : {
-				"create": createMinWithBanding,
-				"select": preSelectMinSelect
-			},
+			"minWithBanding"    : createMinWithBanding,
 
 			/* As per <a href="#minMax">max</a>, however, the data used is placed in to bands - see <a href="#banding">banding</a> for details. */
-			"maxWithBanding"    : {
-				"create": createMaxWithBanding,
-				"select": preSelectMaxSelect
-			},
+			"maxWithBanding"    : createMaxWithBanding,
 
 			/* Puts the data in to bands (see <a href="#banding">banding</a> for details) and then creates a checkbox per valid band range.<br>
 			<img src="images/rangeBanding.jpg" / > */
-			"rangeBanding"      : {
-				"create": createRangeBanding,
-				"select": function(){}
-			},
+			"rangeBanding"      : createRangeBanding,
 
 			/* Uses an HTML5 &lt;input="search"&gt; element to display a search box. Whenever the user types someting or clears the search, then a free text search is 
 			performed. If browser does not support &lt;input="search"&gt; then a default input box is used instead.<br>
 			<img src="images/search.jpg" / > */
-			"search"            : {
-				"create": createFreeTextSearch,
-				"select": function(){}
-			}
+			"search"            : createFreeTextSearch
 		}
 		/* END Filters - Filter Types */
 
