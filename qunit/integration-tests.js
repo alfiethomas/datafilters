@@ -1,5 +1,22 @@
 window.location.hash = "";
 
+test("temp", function() {
+	// range checkboxes
+	remove();
+	setUpList();
+	window.location.hash = "#testClass10=range_£50+-+£75";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass10",  "dataType": "currency",  "filterType": "rangeBanding" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 3, "3 elements should be visible");
+	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
+	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "£50 - £75", "Checkbox should be £50 - £75");	
+});
+
 test("Hide Single Item Tests", function() {
 	var logs = [];
 	remove();
@@ -138,67 +155,6 @@ test("Test apply and show results buttons", function() {
 function getPageOffset() {
 	return (-$('html, body').offset().top > $('html, body').scrollTop()) ? -$('html, body').offset().top : $('html, body').scrollTop();
 }
-
-test("Test pre-select", function() {
-
-	// checkboxes
-	remove();
-	setUpList();
-	window.location.hash = "#testClass1=row1-col1";
-
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-        scrollToAnimationEnabled: false
-	});		
-
-	var selector = "#tariffList li";
-	equal($(selector+':visible').length, 1, "1 element should be visible");
-	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
-	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "row1-col1", "Checkbox should be row1-col1");
-
-	// select
-	remove();
-	setUpList();
-	window.location.hash = "#testClass1=row1-col1";
-
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "select" }],
-        scrollToAnimationEnabled: false
-	});		
-
-	var selector = "#tariffList li";
-	equal($(selector+':visible').length, 1, "1 element should be visible");
-	equal($('option:selected').length, 1, "One select option should be selected");
-	equal($('option:selected').eq(0).text(), "row1-col1", "Select option should be row1-col1");	
-
-	// multiselect
-	remove();
-	setUpList();
-	window.location.hash = "#testClass1=row1-col1";
-
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "multiSelect" }],
-        scrollToAnimationEnabled: false
-	});		
-
-	var selector = "#tariffList li";
-	equal($(selector+':visible').length, 1, "1 element should be visible");
-	equal($('.multiSelect p').length, 1, "One multi select option should be selected");
-	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
-
-	// free text
-	remove();
-	setUpList();
-	window.location.hash = "#search=row1-col1";
-
-	$('#tariffList').DataFilter('init', { 
-        useFreeTextSearch: true
-	});	
-
-	var selector = "#tariffList li";
-	equal($(selector+':visible').length, 1, "1 element should be visible");
-	equal($('#freeTextSearch').val(), "row1-col1", "Free text field should be pre-populated");
-});
 
 test("Test zeros", function() {
 	remove();
@@ -359,7 +315,7 @@ test("Test Table", function() {
 	setUpTable();
 	initDataFilterForTable(
 		function() {
-			$('#qunit').append($(document.createElement('label')).prop("id", "success").text("success"));
+			$('#qunit').append($("<label/>").prop("id", "success").text("success"));
 		},
 		function () {
 			$('#qunit #success').text("filtered");	
@@ -370,11 +326,316 @@ test("Test Table", function() {
 	sortingTestsForTable('#tariffTable');
 	equal($('#success').text(), "filtered", "Should updated success label after filter using callback")
 
-	setTimeout(doSliderTests, 10);
-	setTimeout(doSlowLoadingTests, 10);
+	setTimeout(delayedSliderTests, 1);
 	//if (isLocal) setTimeout(doOverlayTest, 10);
-	setTimeout(done, 10);
 });
+
+function delayedSliderTests() {
+	test("Test Table Delayed slider test", function() {
+		doSliderTests();
+		setTimeout(delayedSlowLoadingTests, 1);
+	});
+}
+
+function delayedSlowLoadingTests() {
+	test("Slow Loading Tests", function() { 
+		doSlowLoadingTests();
+		setTimeout(delayedPreselectTests, 1);
+	});
+}
+
+function delayedPreselectTests() {
+	test("Preselet Tests", function() { 
+		doHashTests();
+		doPreselectTests(done);
+	});
+}
+
+function doHashTests() {
+	remove();
+	setUpList();
+	initDataFilterForList();	
+
+	// select
+	selectSelectById("Select_testClass7", 3);
+	equal(getHashLocation(), "#testClass7=row2-col7&page=1", "Add testClass7=row2-col7 to hash for select");		
+	selectSelectById("Select_testClass7", 0);
+
+	// multi-select
+	selectSelectById("MultiSelect_testClass8", 3);
+	equal(getHashLocation(), "#testClass8=row2-col8&page=1", "Add testClass8=row2-col8 to hash for multi-select");	
+	$("#MultiSelectItems_testClass8_3").click();
+
+	// checkbox (1st group, 2nd item - row1-col1)
+	selectCheckbox("#tariffList", 1, 2);
+	equal(getHashLocation(), "#testClass1=row1-col1&page=1", "Add testClass1=row1-col1 to hash for checkbox");
+	selectCheckbox("#tariffList", 1, 1);
+
+	// checkbox range (3rd set of checkboxes, 3rd item)
+	selectCheckbox("#tariffList", 3, 3);
+	equal(getHashLocation(), "#testClass10=range_£25+-+£50&page=1", "Add testClass10=range_£25+-+£50 to hash for checkbox range");
+	selectCheckbox("#tariffList", 3, 1);
+
+	// Max
+	selectSelectById("Max_testClass3", 2);
+	equal(getHashLocation(), "#testClass3=to_row3-col3&page=1", "Add testClass3=to_row3-col3 to hash for max");
+	selectSelectById("Max_testClass3", 10);
+
+	// Min
+	selectSelectById("Min_testClass2", 2);
+	equal(getHashLocation(), "#testClass2=from_row10-col2.&page=1", "Add testClass2=from_row10-col2. to hash for min");
+	selectSelectById("Min_testClass2", 0);	
+
+	// Min & Max
+	selectSelectById("Max_testClass4", 8);
+	selectSelectById("Min_testClass4", 3);
+	equal(getHashLocation(), "#testClass4=from_row2-col4&testClass4=to_row8-col4&page=1", "Add testClass4=from_row2-col4&testClass4=to_row8-col4 to hash for min/max");
+	selectSelectById("Min_testClass4", 0);
+	selectSelectById("Max_testClass4", 10);
+
+	// freeText at filter level
+	enterText("#freeTextSearch_testClass11", "test");
+	equal(getHashLocation(), "#testClass11=test&page=1", "Add testClass11=test to hash for freeText");
+	enterText("#freeTextSearch_testClass11", "");
+
+	// show all
+	toggleShowAllLess();
+	equal(getHashLocation(), "#showAll=true", "Add showAll=true to hash for show all");
+	toggleShowAllLess();
+
+	// go to page 2
+	clickPagingElement(5);
+	equal(getHashLocation(), "#page=2", "Add page=2 to hash");
+
+	// sort dropdown
+	remove();
+	setUpList();
+	initDataFilterForList(getSortingDropdownItems());	
+	equal(getHashLocation(), "#sortBy=testClass1_desc&page=1", "Add sortBy=testClass1_desc to hash");	
+	selectSelectById("sortBySelect", 1);
+	equal(getHashLocation(), "#sortBy=testClass1_asc&page=1", "Add sortBy=testClass1_asc to hash");
+
+	// table sorting
+	remove();
+	setUpTable();
+	initDataFilterForTable();
+	$("#tariffTable thead th:nth-child(1)").click();
+	equal(getHashLocation(), "#sortyByColumn=1_asc&page=1", "Add sortyByColumn=1_asc to hash");
+	$("#tariffTable thead th:nth-child(1)").click();
+	equal(getHashLocation(), "#sortyByColumn=1_desc&page=1", "Add sortyByColumn=1_asc to hash");
+
+
+	// free Text non-filter level
+	remove();
+	setUpTable();
+	initDataFilterForTableWithTextSearch();
+	enterText("#freeTextSearch", "test");
+	equal(getHashLocation(), "#search=test&showAll=true", "Add search=test to hash for non-filter text search");	
+}
+
+function doPreselectTests(nextTest) {
+
+	// paging
+	remove();
+	setUpList();
+	window.location.hash = "#page=3";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false,
+        pageSize: 4
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 2, "2 elements should be visible");
+	equal($('ul.pagination li:nth-child(1)').text(), "Showing 9 - 10 of 10 items", "Validate showing paging element");
+
+	// show all
+	remove();
+	setUpList();
+	window.location.hash = "#showAll=true";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false,
+        pageSize: 4
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 10, "10 elements should be visible");
+	equal($('ul.pagination li:nth-child(1)').text(), "Showing 1 - 10 of 10 items", "Validate showing paging element");	
+
+	// checkboxes
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
+	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "row1-col1", "Checkbox should be row1-col1");
+
+	// range checkboxes
+	remove();
+	setUpList();
+	window.location.hash = "#testClass10=range_£50+-+£75";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass10",  "dataType": "currency",  "filterType": "rangeBanding" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 3, "3 elements should be visible");
+	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
+	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "£50 - £75", "Checkbox should be £50 - £75");	
+
+	// select
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "select" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('option:selected').length, 1, "One select option should be selected");
+	equal($('option:selected').eq(0).text(), "row1-col1", "Select option should be row1-col1");	
+
+	// multiselect
+	remove();
+	setUpList();
+	window.location.hash = "#testClass1=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "multiSelect" }],
+        scrollToAnimationEnabled: false
+	});		
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('.multiSelect p').length, 1, "One multi select option should be selected");
+	equal($('.multiSelect p').eq(0).text(), "row1-col1", "Multi select option should be row1-col1");		
+
+	// free text
+	remove();
+	setUpList();
+	window.location.hash = "#search=row1-col1";
+
+	$('#tariffList').DataFilter('init', { 
+        useFreeTextSearch: true
+	});	
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 1, "1 element should be visible");
+	equal($('#freeTextSearch').val(), "row1-col1", "Free text field should be pre-populated");	
+
+	// check sort order in prep for following test
+	equal($(selector+':visible p').eq(0).text(), "row1-col1", "First element of first list item should be row1-col1");
+
+	// sortBy dropdown
+	remove();
+	setUpList();
+	window.location.hash = "#sortBy=testClass1_desc";
+
+	$('#tariffList').DataFilter('init', { 
+		 "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+		 sortingDropDown: [
+			{"heading": "testClass 1 - asc",  "id": "testClass1", "direction":  "1"},
+		 	{"heading": "testClass 1 - desc", "id": "testClass1", "direction": "-1"}]
+	});	
+
+	var selector = "#tariffList li";
+	equal($(selector+':visible').length, 10, "10 elements should be visible");
+	equal($(selector+':visible p').eq(0).text(), "row9-col1", "Should be sorted by first col, so row first element of first list item should be row1-col1");		
+
+	setTimeout(function() { doMinPreselectTest(nextTest); }, 1);
+}
+
+function doMinPreselectTest(nextTest) {
+	test("doMinPreselectTest", function() {
+		remove();
+		setUpList();
+		window.location.hash = "#testClass2=from_row4-col2.";
+
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test2",  "id": "testClass2",  "dataType": "default",  "filterType": "min" }],
+	        scrollToAnimationEnabled: false
+		});	
+
+		toggleShowAllLess();
+		var selector = "#tariffList li";
+		equal($(selector+':visible').length, 6, "6 elements should be visible");
+		equal($('#Min_testClass2 option:selected').text(), "row4-col2.", "Min dropdown should be pre-populated");
+
+		setTimeout(function() {
+			test("doMinPreselectTest>sliderShouldMove", function() {
+				equal($("#slider_Min_testClass2").find(".noUi-handle").css("left"), "90px", "Slider should move to 90px");
+			});
+			doMaxPreselectTest(nextTest);
+		}, 1);	
+	});
+}
+
+function doMaxPreselectTest(nextTest) {
+	test("doMaxPreselectTest", function() {
+		remove();
+		setUpList();
+		window.location.hash = "#testClass3=to_row6-col3";
+
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test3",  "id": "testClass3",  "dataType": "default",  "filterType": "max" }],
+	        scrollToAnimationEnabled: false
+		});	
+
+		toggleShowAllLess();
+		var selector = "#tariffList li";
+		equal($(selector+':visible').length, 7, "7 elements should be visible");
+		equal($('#Max_testClass3 option:selected').text(), "row6-col3", "Max dropdown should be pre-populated");
+
+		setTimeout(function() {
+			test("doMaxPreselectTest>sliderShouldMove", function() {
+				equal($("#slider_Max_testClass3").find(".noUi-handle").css("left"), "108px", "Slider should move to 108px");
+			});
+			doMinMaxPreselectTest(nextTest);
+		}, 1);	
+	});
+}
+
+function doMinMaxPreselectTest(nextTest) {
+	test("doMinMaxPreselectTest", function() {
+		remove();
+		setUpList();
+		window.location.hash = "#testClass4=from_row2-col4&testClass4=to_row7-col4";
+
+		$('#tariffList').DataFilter('init', { 
+	        "filters": [{ "heading": "Test4",  "id": "testClass4",  "dataType": "default",  "filterType": "minMax" }],
+	        scrollToAnimationEnabled: false
+		});	
+
+		toggleShowAllLess();
+		var selector = "#tariffList li";
+		equal($(selector+':visible').length, 6, "6 elements should be visible");
+		equal($('#Min_testClass4 option:selected').text(), "row2-col4", "Min dropdown should be pre-populated");
+		equal($('#Max_testClass4 option:selected').text(), "row7-col4", "Max dropdown should be pre-populated");
+
+		setTimeout(function() {
+			test("doMinMaxPreselectTest>slidersShouldMove", function() {
+				equal($("#slider_MaxMin_testClass4").find(".noUi-lowerHandle").css("left"), "54px",  "Min slider should move to 54px" );
+				equal($("#slider_MaxMin_testClass4").find(".noUi-upperHandle").css("left"), "126px", "Max slider should move to 126px");
+			});
+			nextTest();
+		}, 1);	
+	});
+}
 
 function isLocal() {
  	var ua =  navigator.userAgent.toLowerCase();
@@ -382,56 +643,53 @@ function isLocal() {
 }
 
 function done() {
+	remove();
 	document.title = document.title + " - finished";
 }
 
 function doSliderTests() {
-	test("Test Table Delayed slider test", function() { 
-		toggleShowAllLess();
-		minWithSliderTest('#tariffTable'); 
-		maxWithSliderTest('#tariffTable');
-		maxMinWithSliderTest('#tariffTable');
-		remove();
-	}); 	
+	toggleShowAllLess();
+	minWithSliderTest('#tariffTable'); 
+	maxWithSliderTest('#tariffTable');
+	maxMinWithSliderTest('#tariffTable');
+	remove();
 }
 
 
 function doSlowLoadingTests(){
-	test("Slow Loading Tests", function() { 
-		var logs = [];
-		remove();
-		setUpList();
-		$('#tariffList').DataFilter('init', { 
-	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-	        logFn: function(string) { logs.push(string); console.log(string); },
-	        disableIfSlow: true,
-	        slowTimeMs: 1
-		});	
-		assertLastLogStartsWith(logs, "Too slow to create filters");
+	var logs = [];
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        disableIfSlow: true,
+        slowTimeMs: 1
+	});	
+	assertLastLogStartsWith(logs, "Too slow to create filters");
 
-		remove();
-		setUpList();
-		$('#tariffList').DataFilter('init', { 
-	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-	        logFn: function(string) { logs.push(string); console.log(string); },
-	        disableIfSlow: true,
-	        slowTimeMs: 1,
-	        onSlow: function(time) { logs.push("Custom on slow test") }
-		});		
-		assertLastLogStartsWith(logs, "Custom on slow test");
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        disableIfSlow: true,
+        slowTimeMs: 1,
+        onSlow: function(time) { logs.push("Custom on slow test") }
+	});		
+	assertLastLogStartsWith(logs, "Custom on slow test");
 
-		remove();
-		setUpList();
-		$('#tariffList').DataFilter('init', { 
-	        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
-	        logFn: function(string) { logs.push(string); console.log(string); },
-	        enableFreeTextSearch: true,
-	        disableIfSlow: false,
-	        disableFreeTextIfSlow: true,
-	        slowTimeMs: 1
-		});		
-		equal($('freeTextSearch').length == 0, true, "Should not add free text search if slow");
-	});
+	remove();
+	setUpList();
+	$('#tariffList').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": "testClass1",  "dataType": "default",  "filterType": "checkboxes" }],
+        logFn: function(string) { logs.push(string); console.log(string); },
+        enableFreeTextSearch: true,
+        disableIfSlow: false,
+        disableFreeTextIfSlow: true,
+        slowTimeMs: 1
+	});		
+	equal($('freeTextSearch').length == 0, true, "Should not add free text search if slow");
 }
 
 function doOverlayTest() {
@@ -463,7 +721,8 @@ function commonTests(element, selector) {
 	equal($(selector+':visible').eq(0).text(), getTextForRow(1), "Validate first row");
 
 	pagingTests(selector);
-	dropdownTests(element, selector);
+	multiSelectTests(element, selector);
+	selectTests(element, selector);
 	checkboxTests(element, selector);
 	rangeBandingTests(element, selector);
 	freeTextSearchTestsAndNoResultsTests(element, selector);
@@ -514,7 +773,7 @@ function pagingTests(selector) {
 	equal($('ul.pagination li:nth-child(2)').text(), "First Page", "Should have First Page option after clicking show all");
 }
 
-function dropdownTests(element, selector) {
+function multiSelectTests(element, selector) {
 
 	// check initial state
 	equal($("select[id*='MultiSelect_'] option").length, 11, "Select list should be 11 items");
@@ -545,6 +804,23 @@ function dropdownTests(element, selector) {
 	equal($("select[id*='MultiSelect_'] option").length, 11, "Select list should be 11 items");
 	equal($("select[id*='MultiSelect_'] option:selected").text(), "Select to add", "Default value should be 'Select to add'");
 	equal($(selector+":visible").length, 10, "Should be 10 rows when nothing selected");
+}
+
+function selectTests(element, selector) {
+
+	// check initial state
+	equal($("select[id*=Select_]").eq(0).find("option").length, 6, "Select list should be 6 items");
+	equal($("select[id*=Select_]").eq(0).find("option:selected").text(), "All", "Default value should be 'All'");
+	equal($(selector+":visible").length, 10, "Should be 10 rows when nothing selected");
+
+	// select value
+	selectSelect($("select[id*=Select_]"), 3);
+	equal($("select[id*=Select_]").eq(0).find("option:selected").text(), "row2-col7", "Value should be 'row2-col7'");
+	equal($(selector+":visible").length, 2, "Should be 2 rows when row2-col7 selected");	
+
+	// reset
+	selectSelect($("select[id*=Select_]"), 0);
+	equal($("select[id*=Select_]").eq(0).find("option:selected").text(), "All", "Default value should be 'All'");
 }	
 
 function checkboxTests(element, selector) {
@@ -634,7 +910,7 @@ function assertNoResultsVisible(visible) {
 }
 
 function minWithSliderTest(element) {
-	sliderTest(element, 2, "Min", "From", "row7-col2.", 8, 0);
+	sliderTest(element, 2, "Min", "At least", "row7-col2.", 8, 0);
 	checkDropdownMovesSlider(element, 2, "Min", 8, 0, "144px", "0px");
 }
 
@@ -644,7 +920,7 @@ function maxWithSliderTest(element) {
 }
 
 function maxMinWithSliderTest(element) {
-	sliderTest(element, 4, "Min", "From", "row7-col4", 8, 0, true);
+	sliderTest(element, 4, "Min", "At least", "row7-col4", 8, 0, true);
 	sliderTest(element, 4, "Max", "Up to", "row2-col4", 2, 10, true, 1);
 
 	$('#slider_MaxMin_4').noUiSlider('move', { knob: 0, to: 3 });
@@ -807,6 +1083,16 @@ function clearAllCheckboxes(element,ulNum) {
 	getCheckbox(element,ulNum,1).click().prop("checked", true);	
 }
 
+function enterText(id, text) {
+	$(id).val(text);
+	var event = jQuery.Event("keyup");
+	$(id).trigger(event);	
+}
+
 function getTextForRow(n) {
 	return "row"+n+"-col1row"+(11-n)+"-col2.row"+n+"-col3row"+n+"-col4£"+(n%4)+"£"+(n*10)+"row"+(n%5)+"-col7row"+n+"-col8row"+n+"-col9£"+(n*10)+"row"+n+"-col11col12";
+}
+
+function getHashLocation() {
+	return decodeURIComponent(window.location.hash);
 }

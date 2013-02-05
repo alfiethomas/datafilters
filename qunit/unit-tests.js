@@ -13,6 +13,11 @@ test("substringAfterLastIndex should do what it says on the tin", function() {
 	equal($('qunit').DataFilter('substringAfterLast', "you", ","), "");
 });
 
+test("substringBeforeFirst should do what it says on the tin", function() {
+	equal($('qunit').DataFilter('substringBeforeFirst', "hello,world,how,are,you", ","), "hello");
+	equal($('qunit').DataFilter('substringBeforeFirst', "you", ","), "you");
+});
+
 test("contains should do what it says on the tin", function() {
 	equal($('qunit').DataFilter('contains', "~hello", "~"), true);
 	equal($('qunit').DataFilter('contains', "hello", "~"), false);

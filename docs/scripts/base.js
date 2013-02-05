@@ -62,7 +62,7 @@ function onSuccessFn(){
     })))
     .prepend($(document.createElement('p')).attr({"class": "refresh"}) 
     .append($(document.createElement('a')).text("clear filters").prepend($(document.createElement('img')).prop("src", "styles/refresh.jpg")).click(function(){ 
-      initFilters(); 
+      clearFilters(); 
     }))); 
 
     filterGroups(4);

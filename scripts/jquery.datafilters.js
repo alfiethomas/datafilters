@@ -30,6 +30,12 @@ if (!window.console) console = { log: function(string){ } };
 
 			/* The heading to be used for the the global free text search see <a href="#useFreeTextSearch">useFreeTextSearch</a>  */
 			freeTextSearchHeading: "Search",
+
+			/* If this is set to true, then the current state of the filter is shown in the hash or the URL. The history is not updated
+			so if the users click back, they are taken to the previous page, not the previous filter state. This can be used for bookmarking and
+			sharing links to a particular filter state. It also means that when you navigate away from the page and then click the back button
+			the filters are re-created in the last state they were in based on the URL hash */
+			hashNavigationEnabled: false,
 			
 			/* If this is set to true, whenever a filter is updated, then page will be scrolled. If there is an element in the DOM with 
 			an id of 'scrollTo' then the page is scrolled to that point, otherwise it scrolls to the first instance of an element with the
@@ -152,8 +158,10 @@ if (!window.console) console = { log: function(string){ } };
 			/* Called when the plugin is deemed to be too slow - see <a href="disableIfSlow">disableIfSlow</a> */
 			onSlow: function(time) { utils.log("Too slow to create filters - " + time + "ms, max allowed is " + settings.slowTimeMs + "ms") },
 
-			/* The function that is passed in using this will be called everytime the results have been filter. */
-			afterFilter: function() {},
+			/* The function that is passed in using this will be called everytime the results have been filter. This is function is passed 
+			the current filter state as a string. This is the same string that is displayed in the URL hash if 
+			<a href="#hashNavigationEnabled">hashNavigationEnabled</a> is set to true. */
+			afterFilter: function(state) {},
 
 			/* Determines how plugin logs events such as validations, errors and timings. Mainly provided as a hook for testing  */
 			logFn: function(string) { console.log(string) }
@@ -166,9 +174,12 @@ if (!window.console) console = { log: function(string){ } };
 			elementId: $(this).attr("id"),
 			elementType: $(this).prop('tagName'),
 			aliases: {},
+			reverseAliases: {},
 			filtersInitialised: false,
 			initialised: false,
+			surpressSliderEvent: false,
 			sort: {},
+			tableSortedByCol: undefined,
 			extractText: {},
 			paging: {
 				currentPage: 1,
@@ -179,6 +190,12 @@ if (!window.console) console = { log: function(string){ } };
 			},
 			wrapper: $(document.createElement('div')).attr("class", "filterWrapper"),
 			nonExactMatch: []
+		}
+
+		var hashParamModifier = {
+			"Min"    : "from_",
+			"Max"    : "to_",
+			"Range"  : "range_"
 		}
 
 		methods = {		
@@ -374,6 +391,7 @@ if (!window.console) console = { log: function(string){ } };
 			if (filterType == "sortOnly") return;
 
 			state.aliases[id] = alias;
+			state.reverseAliases[alias] = id;
 			factoryFn = factoryFunctionForFilterType[filterType];
 
 			if (heading && id && factoryFn && sortFn) { 
@@ -426,7 +444,7 @@ if (!window.console) console = { log: function(string){ } };
 		function ready(itemsPerPageValue) {
 			state.filtersInitialised = true;
 			state.paging.defaultItemsPerPage = itemsPerPageValue;
-			doPaging(1, itemsPerPageValue);	
+			doPaging(getInitialPageNumber(), getInitialPageSize(itemsPerPageValue));	
 
 			if (settings.useApplyButton) {
 				addButton("Apply Filters", "applyFilter", filter);
@@ -443,6 +461,16 @@ if (!window.console) console = { log: function(string){ } };
 
 			setTimeout(function() { state.initialised = true }, 1);
 		}
+
+		function getInitialPageNumber() {
+			var pageNumber = utils.getHashParameter("page");
+			return (pageNumber) ? pageNumber : 1;
+		}
+
+		function getInitialPageSize(itemsPerPageValue) {
+			var showAll = utils.getHashParameter("showAll");
+			return (showAll) ? -1 : itemsPerPageValue;
+		}		
 
 		function addButton(text, id, clickFn) {
 			var btn = $("<button/>").attr({"type": "button", "id": id, "class": "btn-style"}).click(function() { 
@@ -555,20 +583,23 @@ if (!window.console) console = { log: function(string){ } };
 			checkForNoResults();
 			logTiming("doShowRows>checkForNoResults", start);
 
-			var hash = getUriHash(searches);
+			var hash = updateUriHash(searches);
 			logTiming("doShowRows>udateUriHash", start);			
 
 			settings.afterFilter(hash);
 			logTiming("doShowRows>afterFilter", start);
 		}
 
-		function getUriHash(searches) {
+		function updateUriHash(searches) {
+			addToSearches(searches, "search", getFreeTextSearchValue());
+			if (settings.sortingDropDown) addToSearches(searches, "sortBy", getCurrentSortState());
+			if (state.tableSortedByCol)   addToSearches(searches, "sortyByColumn", state.tableSortedByCol);
+
 			if (state.paging.itemsPerPage <= 0 || state.paging.itemsPerPage == Number.MAX_VALUE) {
 				addToSearches(searches, "showAll", "true");
 			} else {
 				addToSearches(searches, "page", state.paging.currentPage+"");
 			}
-			addToSearches(searches, "freeTextSearch", getFreeTextSearchValue());
 
 			var hash = "";
 			$.each(searches, function(id, searchStrings) {
@@ -583,13 +614,29 @@ if (!window.console) console = { log: function(string){ } };
 					}
 				});
 			});
-			return utils.replaceAll(hash, " ", "+");
+			
+			hash = utils.replaceAll(hash, " ", "+");
+
+			if (settings.hashNavigationEnabled) {
+				window.location.replace((''+window.location).split('#')[0] + '#' + hash);
+			}
+
+			return hash;
 		}
 
 		function escapeHashString(string) {
 			var escaped = string.replace("Show All", "").replace("--MAX--_", "to_").replace("--MIN--_", "from_").replace("--RANGE--_", "range_");
-			escaped = utils.replaceAll(escaped, "\\\\b", "");
-			return (utils.endsWith(escaped, "_")) ? "" : escaped;
+			escaped = removeWordBoundaryMarkers(escaped); 
+			escaped = removeRegexForFreeText(escaped);
+			return (utils.endsWith(escaped, "_")) ? "" : utils.unEscapeRegex(escaped);
+		}
+
+		function removeWordBoundaryMarkers(text) {
+			return utils.replaceAll(text, "\\\\b", "");
+		}
+
+		function removeRegexForFreeText(text) {
+			return (utils.startsWith(text, "(?=.*")) ? text.substring(5, text.length-1) : text; 
 		}
 
 		function showLoading() { 
@@ -990,11 +1037,17 @@ if (!window.console) console = { log: function(string){ } };
 
 		function createMinMax(items, id) {
 			var ul = $("<ul/>").attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Min","From: ").addClass("forSlider"),  createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider")));
-			ul.append(wrapSelectInLi(createSelectlabel(id,"Max","Up to: ").addClass("forSlider"), createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider")));
+			
+			var minSelectLabel = createSelectlabel(id,"Min","At least: ").addClass("forSlider");
+			var minSelect = createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider");
+			ul.append(wrapSelectInLi(minSelectLabel, minSelect));
+			
+			var maxSelectLabel = createSelectlabel(id,"Max","Up to: ").addClass("forSlider");
+			var maxSelect = createSelect(items,id,"Max",updateSliderFn("Max", id)).addClass("forSlider");
+			ul.append(wrapSelectInLi(maxSelectLabel, maxSelect));
 			
 			var containerDiv = $("<div/>");
-			createSlider(containerDiv, items, id, "MaxMin");
+			createSlider(containerDiv, items, id, "MaxMin", minSelect, maxSelect);
 			containerDiv.append(ul);
 			
 			return containerDiv;
@@ -1010,21 +1063,25 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function createMin(items, index) {
-			return createSelectAndSlider(items, index, "Min", "From: ");
+			return createSelectAndSlider(items, index, "Min", "At least: ");
 		}
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
 			var containerDiv = $("<div/>");
-			createSlider(containerDiv, items, id, type);
-			containerDiv.append(createSelectlabel(id, type, labelForSelect).addClass("forSlider"));
-			containerDiv.append(createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider"));
+			var select = createSelect(items, id, type, updateSliderFn(type, id)).addClass("forSlider");
+			var selectLabel = createSelectlabel(id, type, labelForSelect).addClass("forSlider");
+
+			createSlider(containerDiv, items, id, type, select);
+			containerDiv.append(selectLabel);
+			containerDiv.append(select);
+
 			return containerDiv;
 		}
 
 		function updateSliderFn(type, id) {
 			return function updateSlider(select) { 
 				updateSliderLabel(id, select.value);
-				moveSlider(type+"_"+id, select.selectedIndex);
+				moveSlider(select);
 			}			
 		}
 
@@ -1074,16 +1131,6 @@ if (!window.console) console = { log: function(string){ } };
 			});			
 		}
 
-		function sortSelect(select) {
-			var selectedValue = select.val();
-			select.html($("option", select).sort(function(a, b) { 
-				if (a.text == settings.multiSelectLabel) return -1;
-				if (b.text == settings.multiSelectLabel) return 1;
-				return a.text == b.text ? 0 : a.text < b.text ? -1 : 1 
-			}));
-			select.val(selectedValue);
-		}
-
 		function createSelectStandalone(items, id) {
 			var containerDiv = $("<div/>");
 			containerDiv.append(createSelect(items, id, "Select"));
@@ -1105,7 +1152,7 @@ if (!window.console) console = { log: function(string){ } };
 				var option = $("<option/>").prop("value", item).text(item);
 				select.append(option);
 				
-				if (utils.locationHashContainsParam(index, item)) {
+				if (utils.locationHashContainsParam(index, item, type)) {
 					option.prop("selected", "selected"); 
 					optionSelected = true;
 				}
@@ -1131,7 +1178,7 @@ if (!window.console) console = { log: function(string){ } };
 			return $("<label/>").attr({"id": "selectLabel_"+type+"_"+id, "class": "selectLabel"}).text(labelForSelect)
 		}
 
-		function createSlider(containerDiv, items, id, type) {
+		function createSlider(containerDiv, items, id, type, associatedSelect1, associatedSelect2) {
 			if (!settings.slidersEnabled) return containerDiv;
 
 			id = type+'_'+id;
@@ -1144,7 +1191,9 @@ if (!window.console) console = { log: function(string){ } };
 			  change:
 				function(){
 				  var index = $(this).noUiSlider('value');
-				  selectSelect(id, index);
+				  if (!state.surpressSliderEvent) {
+				  	selectSelect(id, index);
+				  }
 				  updateSliderLabel(id, selectValue(id, index));
 				},
 			  end: function(){ filterAfterChange(); }
@@ -1154,11 +1203,24 @@ if (!window.console) console = { log: function(string){ } };
 			containerDiv.append(labelDiv);
 			containerDiv.append(sliderDiv);
 
-			if (type == "Min")    setTimeout(function(){ moveSlider(id, 0)            }, 0);
-			if (type == "Max")    setTimeout(function(){ moveSlider(id, items.length) }, 0);
-			if (type == "MaxMin") setTimeout(function(){ moveSlider(id, items.length) }, 0);
+			setTimeout(function(){ moveSliders(associatedSelect1, associatedSelect2); }, 0);			
 
 			return containerDiv;
+		}
+
+		function moveSliders(associatedSelect1, associatedSelect2) {
+			state.surpressSliderEvent = true;
+
+			if (associatedSelect2) {
+
+				// move max first (initially max set to 0 and min can not be more thab max so wouldn't be moved)
+			 	moveSlider(associatedSelect2);
+			 	moveSlider(associatedSelect1);
+			} else {
+				moveSlider(associatedSelect1);
+			}
+
+			state.surpressSliderEvent = false;
 		}
 
 		function selectSelect(id, indexArray) {
@@ -1194,7 +1256,7 @@ if (!window.console) console = { log: function(string){ } };
 				return "Show All";
 			
 			} else if (to == "Show All") {
-				return "From " + from;
+				return "At least " + from;
 			
 			} else if (from == "Show All") {
 				return "Up to " + to;
@@ -1209,18 +1271,23 @@ if (!window.console) console = { log: function(string){ } };
 				$('#sliderLabel_'+id).text(value);
 			}
 		}
+		
+		function moveSlider(select) {
 
-		function moveSlider(id, index) {
-			if (utils.exists('#slider_'+id)) {
-				var knob = (utils.contains(id, "MaxMin")) ? "1" : "0";
-				$('#slider_'+id).noUiSlider('move', { knob: knob, to: index, surpressChange: true });	
+			var selectId = $(select).attr("id");
+			var selectedIndex = $(select).prop("selectedIndex");
+		
+			// if we find a slider matching the select id, it must be min or max slider (i.e. only 1 knob)
+			if (utils.exists('#slider_'+selectId)) {
+				$('#slider_'+selectId).noUiSlider('move', { knob: knob, to: selectedIndex, surpressChange: true });	
 			
+			// if we can't find a slider matching the select id, it must be minMax slider (i.e. 2 knobs). Min is knob 0, Max is knob 1			
 			} else {
-				var knob = (utils.contains(id, "Max")) ? "1" : "0";
-				id = id.split("_")[1];
+				var knob = (utils.contains(selectId, "Max")) ? "1" : "0";
+				selectId = selectId.split("_")[1];
 
-				if (utils.exists('#slider_MaxMin_'+id))  {
-					$('#slider_MaxMin_'+id).noUiSlider('move', { knob: knob, to: index, surpressChange: true });
+				if (utils.exists('#slider_MaxMin_'+selectId))  {
+					$('#slider_MaxMin_'+selectId).noUiSlider('move', { knob: knob, to: selectedIndex, surpressChange: true });
 				}
 			}
 		}
@@ -1232,7 +1299,7 @@ if (!window.console) console = { log: function(string){ } };
 			var atLeastOnChecked = false;
 			$.each(items, function(iteration, item) {
 
-				var checked = utils.locationHashContainsParam(index, item);
+				var checked = utils.locationHashContainsParam(index, item, type);
 				atLeastOnChecked = atLeastOnChecked || checked;
 
 				ul.append(createCheckboxLi(item, id, checked, function(event) { 
@@ -1393,12 +1460,15 @@ if (!window.console) console = { log: function(string){ } };
 				} else {
 					utils.log("Sort function not defined for id '" + sortConfig.id + "' so not adding '" + sortConfig.heading + "' to sorting dropdown")
 				}
-
 			}
 			
 			select.change(function(event) {
-				var key = $('select#sortBySelect>option:selected').val();
-				if (key != "sortBy") sortData(state.element, functionsForElementType[state.elementType].getAllDataFn(), key.split('_')[0], key.split('_')[1]);
+				var key = getSelectedSortKey();
+				var sortFn = functionsForElementType[state.elementType].getAllDataFn();
+				var index = key.split('_')[0];
+				var direction =  key.split('_')[1];
+
+				if (key != "sortBy") sortData(state.element, sortFn, index, direction);
 			});
 			
 			var sortDiv = $("<div/>").append(select);
@@ -1406,14 +1476,39 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function selectDefaultSortingDropdownItem(items) {
+			var uriSortConfig = getUriSortConfig();
+
 			var index = 1;
 			$.each(items, function(key, sortConfig) {
-				if (sortConfig.isDefault) {
+				var shouldSelectOption = (uriSortConfig) ? (uriSortConfig.id === sortConfig.id && uriSortConfig.direction === sortConfig.direction) : sortConfig.isDefault;
+
+				if (shouldSelectOption) {
 					sortData(state.element, functionsForElementType[state.elementType].getAllDataFn(), sortConfig.id, sortConfig.direction);
 					$('#sortBySelect option:eq('+index+')').attr('selected', 'selected');
 				}
 				index++;
 			});
+		}
+
+		function getUriSortConfig() {
+			var sortKey = utils.getHashParameter("sortBy");
+			if (sortKey && utils.contains(sortKey, '_')) {
+				var id = utils.getIdFromAlias(sortKey.split('_')[0]);
+				var direction = utils.getSortDirectionFromAlias(sortKey.split('_')[1]);
+				return {"id": id, "direction": direction}
+			}
+		}
+
+		function getSelectedSortKey() {
+			return $('select#sortBySelect>option:selected').val();
+		}
+
+		function getCurrentSortState() {
+			var key = getSelectedSortKey();
+			var id = utils.getIdAlias(key.split('_')[0]);
+			var direction =  utils.getSortDirectionAlias(key.split('_')[1]);
+
+			return (key != "sortBy") ? id+'_'+direction : "";			
 		}
 
 		function applyTableSorting() {
@@ -1422,6 +1517,13 @@ if (!window.console) console = { log: function(string){ } };
 					applySortToColum($(this), column);
 				}
 			});
+
+			var sortyByColumn = utils.getHashParameter("sortyByColumn");
+			if (sortyByColumn && utils.contains(sortyByColumn, "_")) {
+				var column = utils.getIdFromAlias(sortyByColumn.split("_")[0])-1;
+				var direction = utils.getSortDirectionFromAlias(sortyByColumn.split("_")[1]);
+				sortTableByColumn(column, direction);
+			}
 		}
 
 		function applySortToColum(th, column) {
@@ -1435,45 +1537,54 @@ if (!window.console) console = { log: function(string){ } };
 
 			th.addClass('sortable')
 			.click(function(){
+				
+				// prevent sorting once if required
 				if (utils.contains(th.attr("class"), "skipSorting")) {
 					$(th).removeClass("skipSorting");
+				
 				} else {
-					var $rows = $('#tariffTable tbody tr').get();
 					var sortDirection = th.is('.sorted-asc') ? -1 : 1;	
-					sortData($('#tariffTable tbody'), $rows, column, sortDirection);
-					
-					//identify the column sort order
-					$('th').removeClass('sorted-asc sorted-desc');
-					var $sortHead = $('th').filter(':nth-child(' + (column + 1) + ')');
-					sortDirection == 1 ? $sortHead.addClass('sorted-asc') : $sortHead.addClass('sorted-desc');
-					
-					//identify the column to be sorted by
-					$('td').removeClass('sorted')
-						.filter(':nth-child(' + (column + 1) + ')')
-						.addClass('sorted');
+					sortTableByColumn(column, sortDirection);
 				}
 			});	
+		}	
+
+		function sortTableByColumn(column, sortDirection) {
+			state.tableSortedByCol = utils.getIdAlias(column+1) + '_' + utils.getSortDirectionAlias(sortDirection);	
+
+			var rows = $('#tariffTable tbody tr').get();
+			sortData($('#tariffTable tbody'), rows, column, sortDirection);		
+			
+			//identify the column sort order
+			$('th').removeClass('sorted-asc sorted-desc');
+			var $sortHead = $('th').filter(':nth-child(' + (column + 1) + ')');
+			sortDirection == 1 ? $sortHead.addClass('sorted-asc') : $sortHead.addClass('sorted-desc');
+			
+			//identify the column to be sorted by
+			$('td').removeClass('sorted')
+				.filter(':nth-child(' + (column + 1) + ')')
+				.addClass('sorted');			
 		}
 
-		function sortData($parent, $rows, index, sortDirection) {
-			doSortData($parent, $rows, index, sortDirection);
+		function sortData(parent, rows, index, sortDirection) {
+			doSortData(parent, rows, index, sortDirection);
 			doPaging(1);
-		}
+		}		
 
-		function doSortData($parent, $rows, index, sortDirection) {
-			$.each($rows, function(rowIndex, row) {
+		function doSortData(parent, rows, index, sortDirection) {
+			$.each(rows, function(rowIndex, row) {
 				row.sortKey = functionsForElementType[state.elementType].extractTextFn(row, index);
 			});
 			
-			//compare and sort the rows 
-			$rows.sort(function(a,b) {
+			// compare and sort the rows 
+			rows.sort(function(a,b) {
 				var sortFn = getSortFunctionForColumn(index);
 				return sortFn(a.sortKey, b.sortKey, sortDirection);
 			});
-			
-			//add the rows in the correct order to the bottom of the table
-			$.each($rows, function(rowIndex, row) {
-				$parent.append(row);
+
+			// add the rows in the correct order to the bottom of the table
+			$.each(rows, function(rowIndex, row) {
+				parent.append(row);
 				row.sortKey = null;
 			});
 		}
@@ -1535,12 +1646,23 @@ if (!window.console) console = { log: function(string){ } };
 				return (text).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
 			},
 
+			unEscapeRegex: function(text) {
+				return (text).replace(/\\/g, "");
+			},			
+
 			startsAndEndsWithWordCharacter: function(text) {
 				return text.search(new RegExp("^\\w.*\\w$")) > -1;
 			},
 
-			locationHashContainsParam: function(index, item) {
-				var locationHash = window.location.hash;
+			getHashLocation: function() {
+				// hack to get £ working in Safari based browsers
+				return utils.replaceAll(utils.replaceAll(window.location.hash, "%A3", "£"), "%C2", "");
+			},
+
+			locationHashContainsParam: function(index, item, type) {
+				var locationHash = utils.getHashLocation();
+
+				if (type) item = utils.getHashParamModifier(type) + item;
 
 				if (index && item) {
 					locationHash = utils.replaceAll(locationHash, '%20', ' ');
@@ -1557,12 +1679,29 @@ if (!window.console) console = { log: function(string){ } };
 				}
 			},	
 
+			getHashParamModifier: function(type) {
+				var modifier = hashParamModifier[type];
+				return (modifier) ? modifier : "";
+			},			
+
 			getIdAlias: function(id) {
 				return (state.aliases[id]) ? state.aliases[id] : id;
 			},
 
+			getIdFromAlias: function(alias) {
+				return (state.reverseAliases[alias]) ? state.reverseAliases[alias] : alias;
+			},
+
+			getSortDirectionAlias: function(direction) {
+				return (direction+"" == "1") ? "asc" : "desc";
+			},		
+
+			getSortDirectionFromAlias: function(alias) {
+				return (alias === "asc") ? "1" : "-1";
+			},					
+
 			getHashParameter: function(name) {
-				if(name=(new RegExp('[#&]'+encodeURIComponent(name)+'=([^&]*)')).exec(window.location.hash))
+				if(name=(new RegExp('[#&]'+encodeURIComponent(name)+'=([^&]*)')).exec(utils.getHashLocation()))
 					return decodeURIComponent(name[1]);
 			},
 
@@ -1585,6 +1724,11 @@ if (!window.console) console = { log: function(string){ } };
 			substringAfterLast: function(string, delimiter) {
 				return(string.indexOf(delimiter) > -1) ? string.substring(string.lastIndexOf(delimiter)+delimiter.length) : "";
 			},	
+
+			substringBeforeFirst: function(text, delim) {
+				var index = text.indexOf(delim);
+				return (index > -1) ? text.substring(0, index) : text 
+			},			
 
 			contains: function(value, text) {
 				if (value == undefined || text == undefined) return false;
@@ -1622,11 +1766,6 @@ if (!window.console) console = { log: function(string){ } };
 			isAlphaNumeric: function(txt) {
 				return (txt.match(/^[0-9a-zA-Z ]+$/)) ? true : false;
 			},
-
-			substringBeforeFirst: function(text, delim) {
-				var index = text.indexOf(delim);
-				return (index > -1) ? text.substring(0, index) : text 
-			},	
 
 			log: function(string) {
 				settings.logFn(string);

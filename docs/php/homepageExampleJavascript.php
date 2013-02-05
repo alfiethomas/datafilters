@@ -2,6 +2,11 @@ $(document).ready(function() {
   initFilters();
 });
 
+function clearFilters() {
+    window.location.replace((''+window.location).split('#')[0] + '#');
+    initFilters();
+}
+
 function initFilters() {
   $('#tariffTable').DataFilter('init', { 
     filters: [
@@ -17,8 +22,7 @@ function initFilters() {
     useFreeTextSearch: true, 
     onSuccess: onSuccessFn,
     scrollToEnabled: false,
-    afterFilter: function(state) { console.log(state) },
     hashNavigationEnabled: true,
-    logTiming: false       
+    logTiming: true       
   });            
 }

@@ -17,7 +17,8 @@ function initDataFilterForList(sortBy) {
         ],
         "pageSize": 4,
         "sortingDropDown": sortBy,
-        "scrollToAnimationLength": 1
+        "scrollToAnimationLength": 1,
+        "hashNavigationEnabled": true
 	});
 }
 
@@ -54,7 +55,7 @@ function initDataFilterForTable(successFn, afterFilterFn) {
         "onSuccess": successFn,
         "afterFilter": afterFilterFn,
         "scrollToAnimationLength": 1,
-        "useFixedWidthForMutliSelect": true        
+        "hashNavigationEnabled": true       
 	});	
 }
 
@@ -87,7 +88,8 @@ function initDataFilterForTableWithTextSearch() {
             { "heading": "Test1", "id": 1, "dataType": "default",  "filterType": "checkboxes" }
         ],
         "scrollToAnimationLength": 1,
-        "useFreeTextSearch": true
+        "useFreeTextSearch": true,
+        "hashNavigationEnabled": true
    	});	
 }
 
@@ -102,27 +104,27 @@ function initDataFilterForTableWithDefaultSort(direction) {
 }
 
 function setUpTable(useZero, useFree) {
-	var table = $(document.createElement("table")).attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
-	var tr = $(document.createElement("tr"));
+	var table = $("<table/>").attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
+	var tr = $("<tr/>");
 	for (i=1; i<=12; i++) {
-		tr.append($(document.createElement("th")).prop("class", "sorting").text("Test"+i));
+		tr.append($("<th/>").prop("class", "sorting").text("Test"+i));
 	}
-	table.append($(document.createElement('thead')).append(tr));
+	table.append($("<thead/>").append(tr));
 
 	for (i=1; i<=10; i++) {
-		var tr = $(document.createElement("tr"));
-		tr.append($(document.createElement("td")).text("row"+i+"-col1"));
-		tr.append($(document.createElement("td")).text("row"+(11-i)+"-col2."));
-		tr.append($(document.createElement("td")).text("row"+i+"-col3"));
-		tr.append($(document.createElement("td")).text("row"+i+"-col4"));
-		tr.append($(document.createElement("td")).text("£"+(i%4)));
-		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
-		tr.append($(document.createElement("td")).text("row"+(i%5)+"-col7"));
-		tr.append($(document.createElement("td")).text("row"+i+"-col8"));
-		tr.append($(document.createElement("td")).text("row"+i+"-col9"));
-		tr.append($(document.createElement("td")).text(getCurreny(i, useZero, useFree)));
-        tr.append($(document.createElement("td")).text("row"+i+"-col11"));
-        tr.append($(document.createElement("td")).text("col12"));
+		var tr = $("<tr/>");
+		tr.append($("<td/>").text("row"+i+"-col1"));
+		tr.append($("<td/>").text("row"+(11-i)+"-col2."));
+		tr.append($("<td/>").text("row"+i+"-col3"));
+		tr.append($("<td/>").text("row"+i+"-col4"));
+		tr.append($("<td/>").text("£"+(i%4)));
+		tr.append($("<td/>").text(getCurreny(i, useZero, useFree)));
+		tr.append($("<td/>").text("row"+(i%5)+"-col7"));
+		tr.append($("<td/>").text("row"+i+"-col8"));
+		tr.append($("<td/>").text("row"+i+"-col9"));
+		tr.append($("<td/>").text(getCurreny(i, useZero, useFree)));
+        tr.append($("<td/>").text("row"+i+"-col11"));
+        tr.append($("<td/>").text("col12"));
 		table.append(tr);
 	}
 	
@@ -141,21 +143,21 @@ function getCurreny(i, useZero, useFree) {
 }
 
 function setUpList(useZero, useFree) {
-	var list = $(document.createElement("ul")).attr({id: "tariffList"});
+	var list = $("<ul/>").attr({id: "tariffList"});
 	for (i=1; i<=10; i++) {
-		var li = $(document.createElement("li"));
-		li.append($(document.createElement("p")).attr({"class": "testClass1"}).text("row"+i+"-col1"));
-		li.append($(document.createElement("p")).attr({"class": "testClass2"}).text("row"+(11-i)+"-col2.")); // reversed
-		li.append($(document.createElement("p")).attr({"class": "testClass3"}).text("row"+i+"-col3")); 
-		li.append($(document.createElement("p")).attr({"class": "testClass4"}).text("row"+i+"-col4")); 
-		li.append($(document.createElement("p")).attr({"class": "testClass5"}).text("£"+(i%4))); 
-		li.append($(document.createElement("p")).attr({"class": "testClass6"}).text(getCurreny(i, useZero, useFree))); 
-		li.append($(document.createElement("p")).attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
-		li.append($(document.createElement("p")).attr({"class": "testClass8"}).text("row"+i+"-col8"));
-		li.append($(document.createElement("p")).attr({"class": "testClass9"}).text("row"+i+"-col9"));
-		li.append($(document.createElement("p")).attr({"class": "testClass10"}).text(getCurreny(i, useZero, useFree))); 
-        li.append($(document.createElement("p")).attr({"class": "testClass11"}).text("row"+i+"-col11"));
-        li.append($(document.createElement("p")).attr({"class": "testClass12"}).text("col12"));
+		var li = $("<li/>");
+		li.append($("<p/>").attr({"class": "testClass1"}).text("row"+i+"-col1"));
+		li.append($("<p/>").attr({"class": "testClass2"}).text("row"+(11-i)+"-col2.")); // reversed
+		li.append($("<p/>").attr({"class": "testClass3"}).text("row"+i+"-col3")); 
+		li.append($("<p/>").attr({"class": "testClass4"}).text("row"+i+"-col4")); 
+		li.append($("<p/>").attr({"class": "testClass5"}).text("£"+(i%4))); 
+		li.append($("<p/>").attr({"class": "testClass6"}).text(getCurreny(i, useZero, useFree))); 
+		li.append($("<p/>").attr({"class": "testClass7"}).text("row"+(i%5)+"-col7"));
+		li.append($("<p/>").attr({"class": "testClass8"}).text("row"+i+"-col8"));
+		li.append($("<p/>").attr({"class": "testClass9"}).text("row"+i+"-col9"));
+		li.append($("<p/>").attr({"class": "testClass10"}).text(getCurreny(i, useZero, useFree))); 
+        li.append($("<p/>").attr({"class": "testClass11"}).text("row"+i+"-col11"));
+        li.append($("<p/>").attr({"class": "testClass12"}).text("col12"));
 		list.append(li);
 	}
 
@@ -164,8 +166,8 @@ function setUpList(useZero, useFree) {
 }
 
 function addFilterAndPagingDivs() {
-	$('#qunit').append($(document.createElement("div")).attr({id: "filters"}));
-	$('#qunit').append($(document.createElement("div")).attr({id: "paginationHolder", "class": "paginationHolder"}));
+	$('#qunit').append($("<div/>").attr({id: "filters"}));
+	$('#qunit').append($("<div/>").attr({id: "paginationHolder", "class": "paginationHolder"}));
 }
 
 function remove() {

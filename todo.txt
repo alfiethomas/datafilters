@@ -1,13 +1,7 @@
 Tests
-* paging numbers tests
-* applySorting tests
 * minMaxWithBanding test
 
-Docmentation
-
 Features
-* navigation with #'s (refactor selected items)
-
 * optimise pagination
 * refactor to make banding only for currency?
 * Refactor default sort
