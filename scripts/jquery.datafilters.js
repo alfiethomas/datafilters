@@ -23,6 +23,9 @@ if (!window.console) console = { log: function(string){ } };
 			/* This is used for configuring which filters to apply. See separate <a href="#filtersConfig">filters configuration</a> table for more details */
 			filters: {},
 
+			/* Use this to specify the currency symbol to be used. If not specified, £ is used. */
+			currencySymbol: "£",
+
 			/* If this is set to true it will add a search box as the first filter with a title of search. It responds to the keyup 
 			event and takes the current text in the search box and matches it against any text in the element being filtered. Spaces 
 			are treated as a word separator and the match is done as an OR type search using all the words entered. */
@@ -523,7 +526,7 @@ if (!window.console) console = { log: function(string){ } };
 			return (state.extractText[index]) ? state.extractText[index](element) : settings.extractTextFn(element);
 		}	
 
-		function doPaging(page,itemsPerPageValue) {
+		function doPaging(page, itemsPerPageValue) {
 			if (page) state.paging.currentPage = page;
 			if (state.paging.currentPage <= 0) state.paging.currentPage = 1;
 
@@ -625,10 +628,13 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function escapeHashString(string) {
-			var escaped = string.replace("Show All", "").replace("--MAX--_", "to_").replace("--MIN--_", "from_").replace("--RANGE--_", "range_");
-			escaped = removeWordBoundaryMarkers(escaped); 
-			escaped = removeRegexForFreeText(escaped);
-			return (utils.endsWith(escaped, "_")) ? "" : utils.unEscapeRegex(escaped);
+			string = utils.replaceAll(string, "Show All", "");
+			string = utils.replaceAll(string, "--MAX--_", "to_")
+			string = utils.replaceAll(string, "--MIN--_", "from_")
+			string = utils.replaceAll(string, "--RANGE--_", "range_");
+			string = removeWordBoundaryMarkers(string); 
+			string = removeRegexForFreeText(string);
+			return (utils.endsWith(string, "_")) ? "" : utils.unEscapeRegex(string);
 		}
 
 		function removeWordBoundaryMarkers(text) {
@@ -794,7 +800,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function matchesRange(index, value, range) {
-			range = utils.replaceAll(range, "up to ", "£0 - ");
+			range = utils.replaceAll(range, "up to ", settings.currencySymbol + "0 - ");
 
 			var values = range.split(' - ');
 			if (values.length == 1) values[1] = values[0];
@@ -1025,7 +1031,7 @@ if (!window.console) console = { log: function(string){ } };
 
 			if (noItems > 1 || bandedItems.length == 0) {
 				for (var i=0; i< noItems; i++) {
-					bandedItems.push("£" + (startFrom + i*step));
+					bandedItems.push(settings.currencySymbol + (startFrom + i*step));
 				}
 			}
 			return bandedItems;			
@@ -1430,7 +1436,7 @@ if (!window.console) console = { log: function(string){ } };
 		function pagingShowAllLi(ul, text, currentPageParam, itemsPerPageParam) {
 			ul.append($("<li/>").append($("<a/>").addClass("pagingShow").text(text).click(function(event) {
 				doPaging(currentPageParam, itemsPerPageParam);
-				doScrollToResults();				
+				if (itemsPerPageParam != -1) doScrollToResults();				
 			})));		
 		}
 
@@ -1710,8 +1716,8 @@ if (!window.console) console = { log: function(string){ } };
 
 				var trimmedString = string.trim().toLowerCase();
 
-				if (string.indexOf('£') != -1) {
-					return utils.substringAfterLast(trimmedString, '£');
+				if (string.indexOf(settings.currencySymbol) != -1) {
+					return utils.substringAfterLast(trimmedString, settings.currencySymbol);
 				
 				} else if (utils.contains(trimmedString, "free") || trimmedString == "") {
 					return "0";
