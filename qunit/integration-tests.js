@@ -199,6 +199,29 @@ function doZeroAndFreeAsserts(zeroOrFree) {
 	equal(table.find('tbody tr:visible').length, 10, "10 elements should be visible when all individually selected");		
 }
 
+test("Free should be treated as text when not currency", function(){
+	remove();
+
+	var table = $("<table/>").attr({id: "tariffTable", cellspacing: 0, cellpadding: 0 });
+	table.append($("<tr/>").append($("<th/>").prop("class", "sorting").text("Test Free")));
+	table.append($("<tr/>").append($("<td/>").text("Free headphones")));
+	table.append($("<tr/>").append($("<td/>").text("Get a free tv")));
+	
+
+	addFilterAndPagingDivs();
+	$('#qunit').append(table);				
+
+	$('#tariffTable').DataFilter('init', { 
+        "filters": [{ "heading": "Test1", "id": 1,  "dataType": "default",  "filterType": "checkboxes" }],
+        scrollToAnimationEnabled: false
+	});					
+
+	equal($("ul[id*='Checkboxes']").eq(0).find("li").length, 3, "Should be 3 checkboxes (2 items and all)");
+	
+	equal(selectCheckbox('#tariffTable', 1, 2), "Free headphones", "Select and check first checkbox is 'Free headphones'");
+	equal($('#tariffTable:visible').length, 1, "Should be 1 row when 1 checkbox selected");
+});
+
 test("Test List", function() { 
 	remove();
 	setUpList();

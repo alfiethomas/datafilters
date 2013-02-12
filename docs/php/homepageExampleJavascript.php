@@ -17,7 +17,6 @@ function initFilters() {
       { heading: "UK Texts",      "id": 5, "dataType": "amount",   "filterType": "min"           , "alias": "texts" },
       { heading: "Phone Price",   "id": 2, "dataType": "currency", "filterType": "rangeBanding"  , "alias": "phonePrice" }
     ],
-    currencySymbol: "€",
     pageSize: 20,
     maxPagingNumbers: 10,
     useFreeTextSearch: true, 

@@ -75,7 +75,7 @@
       &lt;!-- Make sure you use thead and tbody --&gt;
       &lt;tbody&gt;
         &lt;tr&gt;
-          &lt;td class="monthlyCost"&gt;€13&lt;span&gt;.50&lt;/span&gt;&lt;/td&gt;
+          &lt;td class="monthlyCost"&gt;£13&lt;span&gt;.50&lt;/span&gt;&lt;/td&gt;
           ...
         &lt;/tr&gt;
         ...
@@ -116,7 +116,7 @@
 </thead>
 <tbody>
 <tr>
-<td class="monthlyCost">€13<span>.50</span></td>
+<td class="monthlyCost">£13<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>50</td>
@@ -124,7 +124,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€16<span>.50</span></td>
+<td class="monthlyCost">£16<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>50</td>
@@ -132,7 +132,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€18<span>.50</span></td>
+<td class="monthlyCost">£18<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>200</td>
@@ -140,15 +140,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€18<span>.50</span></td>
-<td class="phoneCost">€149.99</td>
+<td class="monthlyCost">£18<span>.50</span></td>
+<td class="phoneCost">£149.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>50</td>
 <td>250</td>
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€18<span>.50</span></td>
+<td class="monthlyCost">£18<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 months</span></td>
 <td>50</td>
@@ -156,7 +156,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€21<span>.50</span></td>
+<td class="monthlyCost">£21<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>200</td>
@@ -164,15 +164,15 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€21<span>.50</span></td>
-<td class="phoneCost">€149.99</td>
+<td class="monthlyCost">£21<span>.50</span></td>
+<td class="phoneCost">£149.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>50</td>
 <td>250</td>
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€21<span>.50</span></td>
+<td class="monthlyCost">£21<span>.50</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>50</td>
@@ -180,7 +180,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€24<span>.00</span></td>
+<td class="monthlyCost">£24<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>300</td>
@@ -188,7 +188,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€24<span>.00</span></td>
+<td class="monthlyCost">£24<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>100</td>
@@ -196,7 +196,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€27<span>.00</span></td>
+<td class="monthlyCost">£27<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>300</td>
@@ -204,7 +204,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€27<span>.00</span></td>
+<td class="monthlyCost">£27<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>100</td>
@@ -212,7 +212,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€29<span>.00</span></td>
+<td class="monthlyCost">£29<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>600</td>
@@ -220,7 +220,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€29<span>.00</span></td>
+<td class="monthlyCost">£29<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>200</td>
@@ -228,7 +228,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€31<span>.00</span></td>
+<td class="monthlyCost">£31<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>300</td>
@@ -236,7 +236,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€31<span>.00</span></td>
+<td class="monthlyCost">£31<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>100</td>
@@ -244,7 +244,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€32<span>.00</span></td>
+<td class="monthlyCost">£32<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>600</td>
@@ -252,7 +252,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€32<span>.00</span></td>
+<td class="monthlyCost">£32<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>200</td>
@@ -260,7 +260,7 @@
 <td class="dataAllowance">500MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€34<span>.00</span></td>
+<td class="monthlyCost">£34<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>300</td>
@@ -268,7 +268,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€36<span>.00</span></td>
+<td class="monthlyCost">£36<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>600</td>
@@ -276,7 +276,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€36<span>.00</span></td>
+<td class="monthlyCost">£36<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>200</td>
@@ -284,7 +284,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€36<span>.00</span></td>
+<td class="monthlyCost">£36<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>Unlimited</td>
@@ -292,7 +292,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€37<span>.00</span></td>
+<td class="monthlyCost">£37<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>300</td>
@@ -300,7 +300,7 @@
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€39<span>.00</span></td>
+<td class="monthlyCost">£39<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>900</td>
@@ -308,15 +308,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€39<span>.00</span></td>
-<td class="phoneCost">€99.99</td>
+<td class="monthlyCost">£39<span>.00</span></td>
+<td class="phoneCost">£99.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>600</td>
 <td>Unlimited</td>
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€39<span>.00</span></td>
+<td class="monthlyCost">£39<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>600</td>
@@ -324,7 +324,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€41<span>.00</span></td>
+<td class="monthlyCost">£41<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>300</td>
@@ -332,7 +332,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€41<span>.00</span></td>
+<td class="monthlyCost">£41<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>Unlimited</td>
@@ -340,7 +340,7 @@
 <td class="dataAllowance">2GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€42<span>.00</span></td>
+<td class="monthlyCost">£42<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>900</td>
@@ -348,15 +348,15 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€42<span>.00</span></td>
-<td class="phoneCost">€99.99</td>
+<td class="monthlyCost">£42<span>.00</span></td>
+<td class="phoneCost">£99.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>600</td>
 <td>Unlimited</td>
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€42<span>.00</span></td>
+<td class="monthlyCost">£42<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>600</td>
@@ -364,7 +364,7 @@
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€44<span>.00</span></td>
+<td class="monthlyCost">£44<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>1200</td>
@@ -372,15 +372,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€44<span>.00</span></td>
-<td class="phoneCost">€74.99</td>
+<td class="monthlyCost">£44<span>.00</span></td>
+<td class="phoneCost">£74.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>900</td>
 <td>Unlimited</td>
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€44<span>.00</span></td>
+<td class="monthlyCost">£44<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>900</td>
@@ -388,15 +388,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€46<span>.00</span></td>
-<td class="phoneCost">€99.99</td>
+<td class="monthlyCost">£46<span>.00</span></td>
+<td class="phoneCost">£99.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>600</td>
 <td>Unlimited</td>
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€46<span>.00</span></td>
+<td class="monthlyCost">£46<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>600</td>
@@ -404,7 +404,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€47<span>.00</span></td>
+<td class="monthlyCost">£47<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>1200</td>
@@ -412,15 +412,15 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€47<span>.00</span></td>
-<td class="phoneCost">€74.99</td>
+<td class="monthlyCost">£47<span>.00</span></td>
+<td class="phoneCost">£74.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>900</td>
 <td>Unlimited</td>
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€47<span>.00</span></td>
+<td class="monthlyCost">£47<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>900</td>
@@ -428,15 +428,15 @@
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€49<span>.00</span></td>
-<td class="phoneCost">€49.99</td>
+<td class="monthlyCost">£49<span>.00</span></td>
+<td class="phoneCost">£49.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>1200</td>
 <td>Unlimited</td>
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€49<span>.00</span></td>
+<td class="monthlyCost">£49<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>1200</td>
@@ -444,15 +444,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€51<span>.00</span></td>
-<td class="phoneCost">€74.99</td>
+<td class="monthlyCost">£51<span>.00</span></td>
+<td class="phoneCost">£74.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>900</td>
 <td>Unlimited</td>
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€51<span>.00</span></td>
+<td class="monthlyCost">£51<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>900</td>
@@ -460,15 +460,15 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€52<span>.00</span></td>
-<td class="phoneCost">€49.99</td>
+<td class="monthlyCost">£52<span>.00</span></td>
+<td class="phoneCost">£49.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>1200</td>
 <td>Unlimited</td>
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€52<span>.00</span></td>
+<td class="monthlyCost">£52<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>1200</td>
@@ -476,15 +476,15 @@
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€56<span>.00</span></td>
-<td class="phoneCost">€49.99</td>
+<td class="monthlyCost">£56<span>.00</span></td>
+<td class="phoneCost">£49.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>1200</td>
 <td>Unlimited</td>
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€56<span>.00</span></td>
+<td class="monthlyCost">£56<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>1200</td>
@@ -492,7 +492,7 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€60<span>.00</span></td>
+<td class="monthlyCost">£60<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>Unlimited</td>
@@ -500,7 +500,7 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€63<span>.00</span></td>
+<td class="monthlyCost">£63<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">24 Months</span></td>
 <td>Unlimited</td>
@@ -508,15 +508,15 @@
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€65<span>.00</span></td>
-<td class="phoneCost">€24.99</td>
+<td class="monthlyCost">£65<span>.00</span></td>
+<td class="phoneCost">£24.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>Unlimited</td>
 <td>Unlimited</td>
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€65<span>.00</span></td>
+<td class="monthlyCost">£65<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>Unlimited</td>
@@ -524,15 +524,15 @@
 <td class="dataAllowance">100MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€68<span>.00</span></td>
-<td class="phoneCost">€24.99</td>
+<td class="monthlyCost">£68<span>.00</span></td>
+<td class="phoneCost">£24.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>Unlimited</td>
 <td>Unlimited</td>
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€68<span>.00</span></td>
+<td class="monthlyCost">£68<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>Unlimited</td>
@@ -540,15 +540,15 @@
 <td class="dataAllowance">750MB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€72<span>.00</span></td>
-<td class="phoneCost">€24.99</td>
+<td class="monthlyCost">£72<span>.00</span></td>
+<td class="phoneCost">£24.99</td>
 <td><span class="lowLight">12 Months</span></td>
 <td>Unlimited</td>
 <td>Unlimited</td>
 <td class="dataAllowance">1GB</td>
 </tr>
 <tr>
-<td class="monthlyCost">€72<span>.00</span></td>
+<td class="monthlyCost">£72<span>.00</span></td>
 <td class="phoneCost">Free</td>
 <td><span class="lowLight">18 Months</span></td>
 <td>Unlimited</td>

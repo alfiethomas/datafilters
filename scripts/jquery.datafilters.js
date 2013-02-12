@@ -876,12 +876,12 @@ if (!window.console) console = { log: function(string){ } };
 
 		function addWordBoundaryMatchForExactMatches(value, id) {
 			var nonExactMatch = $.inArray(id+"_"+value, state.nonExactMatch) > -1;
-			return (nonExactMatch) ? value : matchWordOnly(value) ;
+			return (nonExactMatch) ? value : matchWordOnly(value, id) ;
 		}
 
-		function matchWordOnly(word) {
+		function matchWordOnly(word, id) {
 			if (utils.startsAndEndsWithWordCharacter(word)) {
-				return "\\b"+utils.extractCurrencyValue(word)+"\\b";
+				return "\\b" + word + "\\b";
 			} else {
 				return word;
 			}
