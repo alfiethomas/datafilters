@@ -1,22 +1,5 @@
 window.location.hash = "";
 
-test("temp", function() {
-	// range checkboxes
-	remove();
-	setUpList();
-	window.location.hash = "#testClass10=range_£50+-+£75";
-
-	$('#tariffList').DataFilter('init', { 
-        "filters": [{ "heading": "Test1", "id": "testClass10",  "dataType": "currency",  "filterType": "rangeBanding" }],
-        scrollToAnimationEnabled: false
-	});		
-
-	var selector = "#tariffList li";
-	equal($(selector+':visible').length, 3, "3 elements should be visible");
-	equal($('input[type="checkbox"]:checked').length, 1, "One checkbox should be selected");
-	equal($('input[type="checkbox"]:checked').eq(0).parent().text(), "£50 - £75", "Checkbox should be £50 - £75");	
-});
-
 test("Hide Single Item Tests", function() {
 	var logs = [];
 	remove();

@@ -668,3 +668,4 @@
 2013-02-11 13:43:04,423 - sauce_connect:0 - DEBUG - java.lang.OutOfMemoryError: Java heap space
 
 2013-02-11 13:43:04,424 - sauce_connect:0 - INFO - Tunnel host version: 0.1.0, remote endpoint ID: b6e5b859244a4377bc715f645f0adf5c
+2013-02-15 09:07:04,546 - sauce_connect:0 - INFO - received SIGHUP

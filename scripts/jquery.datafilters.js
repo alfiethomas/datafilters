@@ -1232,11 +1232,11 @@ if (!window.console) console = { log: function(string){ } };
 		function selectSelect(id, indexArray) {
 			if (utils.contains(id, "MaxMin")) {
 				id = id.split('_')[1];
-				$('select#Min_'+id+' option:eq('+indexArray[0]+')').attr('selected', 'selected');
-				$('select#Max_'+id+' option:eq('+indexArray[1]+')').attr('selected', 'selected');
+                $('select#Min_'+id).val($('select#Min_'+id+' option:eq('+indexArray[0]+')').val());
+                $('select#Max_'+id).val($('select#Max_'+id+' option:eq('+indexArray[1]+')').val());
 
 			} else {
-				$('select#'+id+' option:eq('+indexArray[1]+')').attr('selected', 'selected');
+				$('select#'+id).val($('select#'+id+' option:eq('+indexArray[1]+')').val());
 			}
 		}
 

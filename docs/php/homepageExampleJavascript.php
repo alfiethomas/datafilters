@@ -13,7 +13,10 @@ function initFilters() {
       { heading: "Tariff Length", "id": 3, "dataType": "period",   "filterType": "checkboxes",    "alias": "tariffLength" },
       { heading: "Monthly Cost",  "id": 1, "dataType": "currency", "filterType": "maxWithBanding", "alias": "monthlyCost" },
       { heading: "UK Minutes",    "id": 4, "dataType": "amount",   "filterType": "min"           , "alias": "minutes" },
-      { heading: "UK Data",       "id": 6, "dataType": "amount",   "filterType": "minMax"        , "alias": "data" },          
+      
+      { heading: "UK Data 100mb", "id": 6, "dataType": "amount",   "filterType": "checkboxes", "items": ["100MB"]   , "alias": "data" },
+      { heading: "UK Data 1GB",   "id": 6, "dataType": "amount",   "filterType": "checkboxes", "items": ["1GB"]    , "alias": "data" },
+
       { heading: "UK Texts",      "id": 5, "dataType": "amount",   "filterType": "min"           , "alias": "texts" },
       { heading: "Phone Price",   "id": 2, "dataType": "currency", "filterType": "rangeBanding"  , "alias": "phonePrice" }
     ],
