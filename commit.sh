@@ -16,7 +16,7 @@ if [ $? == 0 ]; then
 	echo "Created min version"
 
 	git add -A
-	git commit -m "$1"
+	git commit -m "$2"
 	git push -u origin master
 fi
 
