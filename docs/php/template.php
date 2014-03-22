@@ -29,7 +29,7 @@ echo
 <body onload="prettyPrint()">
   <div id=container>
     <div id=header>
-      <h1>DataFilters JQuery Plugin</h1>
+      <h1>DataFilters jQuery Plugin</h1>
       <img src="styles/filter_data_small.png" />
   
    <!-- header div ends -->

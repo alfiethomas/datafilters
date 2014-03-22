@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0031)http://jsfiddle.net/vBJ9s/show/ -->
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./jsFiddle demo_files/bmi.js" language="javascript"></script><title>- jsFiddle demo</title> <script type="text/javascript" src="./jsFiddle demo_files/jquery-1.4.2.js"></script> <style type="text/css" style="display:none">*,body,button,input,textarea,select{text-rendering:optimizeLegibility;font-size:100%;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}ol,ul{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;}
+</style>
+<link rel="stylesheet" type="text/css" href="./jsFiddle demo_files/result-light.css"><style type="text/css">.wrapper1,.wrapper2{width:300px;border:none 0px RED;overflow-x:scroll;overflow-y:hidden;}.wrapper1{height:20px;}.wrapper2{height:200px;}.div1{width:1000px;height:20px;}.div2{width:1000px;height:200px;background-color:#88FF88;overflow:auto;}</style> <script type="text/javascript">//<![CDATA[ 
+$(window).load(function(){
+$(function(){
+    $(".wrapper1").scroll(function(){
+        $(".wrapper2")
+            .scrollLeft($(".wrapper1").scrollLeft());
+    });
+    $(".wrapper2").scroll(function(){
+        $(".wrapper1")
+            .scrollLeft($(".wrapper2").scrollLeft());
+    });
+});
+});//]]>  
+
+</script> </head><body style=""><div class="wrapper1"><div class="div1"></div></div><div class="wrapper2"><div class="div2">aaaa bbbb cccc dddd aaaa bbbb cccc dddd aaaa bbbb cccc dddd aaaa bbbb cccc dddd aaaa bbbb cccc dddd aaaa bbbb cccc dddd aaaa bbbb cccc dddd</div></div><script language="javascript"><!--
+bmi_SafeAddOnload(bmi_load,"bmi_orig_img",0);//-->
+</script><div id="window-resizer-tooltip"><a href="http://jsfiddle.net/vBJ9s/show/#" title="Edit settings" style="background-image: url(chrome-extension://kkelicaakdanhinjdeammmilcgefonfh/images/icon_19.png);"></a><span class="tooltipTitle">Window size: </span><span class="tooltipWidth" id="winWidth"></span> x <span class="tooltipHeight" id="winHeight"></span><br><span class="tooltipTitle">Viewport size: </span><span class="tooltipWidth" id="vpWidth"></span> x <span class="tooltipHeight" id="vpHeight"></span></div></body></html>

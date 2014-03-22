@@ -584,7 +584,7 @@ function doMinPreselectTest(nextTest) {
 
 		setTimeout(function() {
 			test("doMinPreselectTest>sliderShouldMove", function() {
-				equal($("#slider_Min_testClass2").find(".noUi-handle").css("left"), "90px", "Slider should move to 90px");
+				equal(floorPx($("#slider_Min_testClass2").find(".noUi-handle").css("left")), "90px", "Slider should move to 90px");
 			});
 			doMaxPreselectTest(nextTest);
 		}, 1);	
@@ -609,7 +609,7 @@ function doMaxPreselectTest(nextTest) {
 
 		setTimeout(function() {
 			test("doMaxPreselectTest>sliderShouldMove", function() {
-				equal($("#slider_Max_testClass3").find(".noUi-handle").css("left"), "108px", "Slider should move to 108px");
+				equal(floorPx($("#slider_Max_testClass3").find(".noUi-handle").css("left")), "108px", "Slider should move to 108px");
 			});
 			doMinMaxPreselectTest(nextTest);
 		}, 1);	
@@ -635,8 +635,8 @@ function doMinMaxPreselectTest(nextTest) {
 
 		setTimeout(function() {
 			test("doMinMaxPreselectTest>slidersShouldMove", function() {
-				equal($("#slider_MaxMin_testClass4").find(".noUi-lowerHandle").css("left"), "54px",  "Min slider should move to 54px" );
-				equal($("#slider_MaxMin_testClass4").find(".noUi-upperHandle").css("left"), "126px", "Max slider should move to 126px");
+				equal(floorPx($("#slider_MaxMin_testClass4").find(".noUi-lowerHandle").css("left")), "54px",  "Min slider should move to 54px" );
+				equal(floorPx($("#slider_MaxMin_testClass4").find(".noUi-upperHandle").css("left")), "126px", "Max slider should move to 126px");
 			});
 			nextTest();
 		}, 1);	
@@ -916,7 +916,7 @@ function assertNoResultsVisible(visible) {
 }
 
 function minWithSliderTest(element) {
-	sliderTest(element, 2, "Min", "At least", "row7-col2.", 8, 0);
+	sliderTest(element, 2, "Min", "From", "row7-col2.", 8, 0);
 	checkDropdownMovesSlider(element, 2, "Min", 8, 0, "144px", "0px");
 }
 
@@ -926,7 +926,7 @@ function maxWithSliderTest(element) {
 }
 
 function maxMinWithSliderTest(element) {
-	sliderTest(element, 4, "Min", "At least", "row7-col4", 8, 0, true);
+	sliderTest(element, 4, "Min", "From", "row7-col4", 8, 0, true);
 	sliderTest(element, 4, "Max", "Up to", "row2-col4", 2, 10, true, 1);
 
 	$('#slider_MaxMin_4').noUiSlider('move', { knob: 0, to: 3 });
@@ -964,13 +964,20 @@ function checkDropdownMovesSlider(element, filterNum, type, toNum, resetNum, toP
 	
 	// select dropwdown
 	selectSelectById(id, toNum);
-	equal($("#slider_"+id).find(".noUi-handle").css("left"), toPx, "Slider should move to "+toPx+"+ when option "+toNum+" selected");
+	equal(floorPx($("#slider_"+id).find(".noUi-handle").css("left")), toPx, "Slider should move to "+toPx+"+ when option "+toNum+" selected");
 	equal($(element+" tbody tr:visible").length, 3, "Should only be 3 visible rows");	
 
 	// reset
 	selectSelectById(id, resetNum);
-	equal($("#slider_"+id).find(".noUi-handle").css("left"), resetPx, "Slider should move to "+resetPx+" when reset");
+	equal(floorPx($("#slider_"+id).find(".noUi-handle").css("left")), resetPx, "Slider should move to "+resetPx+" when reset");
 	equal($(element+" tbody tr:visible").length, 10, "Should 10 visible rows");	
+}
+
+function floorPx(px) {
+	if (px.indexOf(".") > 0) {
+		return px.substring(0,px.indexOf("."))+"px";
+	} 
+	return px;
 }
 
 function sortingTestsForTable(table) {

@@ -3,11 +3,15 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
+
     $('#source').hide();
     $('#hideSource').hide();
     $('#showSource').click(function() { $('#source').slideDown('slow', function() { $('#showSource').hide(); $('#hideSource').show(); }) });
     $('#hideSource').click(function() { $('#source').slideUp('slow',   function() { $('#showSource').show(); $('#hideSource').hide(); }) });
-  });      
+  
+
+
+  });   
 </script>
 
 <script type="text/javascript">
@@ -47,11 +51,12 @@
   </div> 
   <div style="clear: both"></div>
 
-  <h2>A Working Example <a id="showSource">(show source)</a><a id="hideSource">(hide source)</a></h2>
+  <h2>A Working Example <a id="showSource">(source)</a><a id="hideSource">(hide)</a></h2>
 
   <div id="source">
 
     <h3>HTML (abbreviated)</h3>
+<div class="configWrapper">    
 <pre class="prettyprint">      
 &lt;div id="example"&gt;         
   
@@ -88,17 +93,21 @@
 
   &lt;/div&gt; &lt;!-- end table div --&gt;
 &lt;/div&gt; &lt;!-- end exmple div --&gt;
-</pre>    
+</pre>
+</div>    
 
     <h3>JavaScript</h3>
+    
+    <div class="configWrapper">
     <pre class="prettyprint">      
 <?php include("php/homepageExampleJavascript.php"); ?>
     </pre> 
+  </div>
 
     <h3>Result</h3><br>   
   </div>
 
-  <div id="example">         
+  <div id="example" class="widetable">         
     <div id="filters">Filters</div>
     <div id="table">
 

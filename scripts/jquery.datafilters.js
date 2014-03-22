@@ -1044,7 +1044,7 @@ if (!window.console) console = { log: function(string){ } };
 		function createMinMax(items, id) {
 			var ul = $("<ul/>").attr({"id": 'MaxMin_'+id, "class": "MaxMin"});
 			
-			var minSelectLabel = createSelectlabel(id,"Min","At least: ").addClass("forSlider");
+			var minSelectLabel = createSelectlabel(id,"Min","From: ").addClass("forSlider");
 			var minSelect = createSelect(items,id,"Min",updateSliderFn("Min", id)).addClass("forSlider");
 			ul.append(wrapSelectInLi(minSelectLabel, minSelect));
 			
@@ -1069,7 +1069,7 @@ if (!window.console) console = { log: function(string){ } };
 		}
 
 		function createMin(items, index) {
-			return createSelectAndSlider(items, index, "Min", "At least: ");
+			return createSelectAndSlider(items, index, "Min", "From: ");
 		}
 
 		function createSelectAndSlider(items, id, type, labelForSelect) {
@@ -1262,7 +1262,7 @@ if (!window.console) console = { log: function(string){ } };
 				return "Show All";
 			
 			} else if (to == "Show All") {
-				return "At least " + from;
+				return "From " + from;
 			
 			} else if (from == "Show All") {
 				return "Up to " + to;

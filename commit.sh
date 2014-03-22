@@ -2,12 +2,14 @@
 
 if [ $# -ne 2 ]; then 
 	echo ""
-	echo "USAGE: ./commit.sh 'local|quick|all' <commit message>"
+	echo "USAGE: ./commit.sh 'notest|local|quick|all' <commit message>"
 	echo ""
 	exit
 fi
 
-/Users/alistairthomas/Documents/sites/DataFilters/build/xbrowsertests.sh $1
+if [ $1 != "notest" ]; then
+	/Users/alistairthomas/Documents/sites/DataFilters/build/xbrowsertests.sh $1
+fi
 
 if [ $? == 0 ]; then
 	java -jar build/yuicompressor-2.4.7.jar scripts/jquery.datafilters.js -o scripts/jquery.datafilters.min.js

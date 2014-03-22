@@ -19,8 +19,10 @@
     an index of 1.
   </p>
 
+<div class="configWrapper">
 <pre class="prettyprint"> 
 <?php include("php/configExampleTable.php"); ?></pre>
+</div>
 
 <div>
   <div id="filters"></div>
@@ -77,6 +79,7 @@
     an index of 1.
   </p>
 
+<div class="configWrapper">
 <pre class="prettyprint"> 
   $('#exampleList').DataFilter('init', { 
     filters: [
@@ -84,6 +87,7 @@
       { "heading": "Filter 2", "id": "class2", "dataType": "currency", "filterType": "maxWithBanding" }
     ]      
   });</pre>  
+</div>
 
 <?php include("php/extractJsDoc.php"); ?>
 <?php

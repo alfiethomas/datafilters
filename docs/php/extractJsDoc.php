@@ -25,6 +25,7 @@ if ($handle) {
 
 <a id="' . $headingId . '"></a>         
 <h2>' . $heading . '</h2>
+<div class="widetable">
 <table id="' . $tableId . '" border="0" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
@@ -39,7 +40,8 @@ if ($handle) {
           $extractingSection = false;
           $table = $table . '
   </tbody>
-</table>';
+</table>
+</div>';
           $tables[$headingId] = $table;
           //echo $tables[$headingId];
 
